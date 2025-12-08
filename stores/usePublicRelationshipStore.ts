@@ -1,8 +1,10 @@
 // apps/mobile/family_tree_rn/stores/usePublicRelationshipStore.ts
 
-import { create } from 'zustand';
-import { relationshipService } from '@/services'; // Import the new relationshipService
+import { create, StateCreator } from 'zustand';
+import { relationshipService as defaultRelationshipService } from '@/services'; // Import the new relationshipService
+import { IRelationshipService } from '@/services'; // Import IRelationshipService from '@/services'
 import type { RelationshipListDto } from '@/types';
+import { parseError } from '@/utils/errorUtils';
 
 interface PublicRelationshipState {
   relationships: RelationshipListDto[];
@@ -13,30 +15,40 @@ interface PublicRelationshipState {
 interface PublicRelationshipActions {
   getRelationshipsByFamilyId: (familyId: string) => Promise<void>;
   clearRelationships: () => void;
+  reset: () => void; // Add reset action
   setError: (error: string | null) => void;
 }
 
-type PublicRelationshipStore = PublicRelationshipState & PublicRelationshipActions;
+export type PublicRelationshipStore = PublicRelationshipState & PublicRelationshipActions;
 
-export const usePublicRelationshipStore = create<PublicRelationshipStore>((set) => ({
+// Factory function to create the store
+export const createPublicRelationshipStore = (
+  relationshipService: IRelationshipService
+): StateCreator<PublicRelationshipStore> => (set) => ({
   relationships: [],
   loading: false,
   error: null,
 
   getRelationshipsByFamilyId: async (familyId: string) => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await relationshipService.getRelationshipsByFamilyId(familyId);
       if (result.isSuccess && result.value) {
-        set({ relationships: result.value, loading: false });
+        set(state => ({ ...state, relationships: result.value, loading: false }));
       } else {
-        set({ error: result.error?.message || 'Failed to fetch relationships', loading: false });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch relationships', loading: false });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
     }
   },
 
-  clearRelationships: () => set({ relationships: [] }),
-  setError: (error: string | null) => set({ error }),
-}));
+  clearRelationships: () => set(state => ({ ...state, relationships: [] })),
+  reset: () => set({ relationships: [], loading: false, error: null }), // Full reset
+  setError: (error: string | null) => set(state => ({ ...state, error })),
+});
+
+// Export default store instance
+export const usePublicRelationshipStore = create<PublicRelationshipStore>(createPublicRelationshipStore(defaultRelationshipService));

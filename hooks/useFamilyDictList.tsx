@@ -7,9 +7,10 @@ import { usePublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
 import { FamilyDictDto, FamilyDictFilter } from '@/types';
 import FamilyDictItem from '@/components/family-dict/FamilyDictItem';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
+import { useFamilyDictPaginatedStore } from '@/hooks/useFamilyDictPaginatedStore';
 
 interface UseFamilyDictListHook {
-  useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
+  useStore: ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
   renderFamilyDictItem: ({ item }: { item: FamilyDictDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;
@@ -30,24 +31,7 @@ export function useFamilyDictList(): UseFamilyDictListHook {
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
 
-  // Define useStore function for usePaginatedSearch
-  const useStore = useCallback(() => {
-    const { familyDicts, loading, error, hasMore, page, fetchFamilyDicts, reset, setError } = usePublicFamilyDictStore();
-    return {
-      items: familyDicts,
-      loading,
-      error,
-      hasMore,
-      page, // currentPage from store is already named 'page'
-      fetch: async (filter: FamilyDictFilter, isLoadMore: boolean) => {
-        // The fetchFamilyDicts function already handles page increment internally if isLoadMore is true
-        // It also accepts page and itemsPerPage directly
-        return fetchFamilyDicts(filter, isLoadMore ? page + 1 : 1, 10, !isLoadMore);
-      },
-      reset,
-      setError,
-    } as ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
-  }, [usePublicFamilyDictStore]);
+  const useStore = useFamilyDictPaginatedStore();
 
   const renderFamilyDictItem = useCallback(({ item }: { item: FamilyDictDto }) => (
     <FamilyDictItem item={item} />

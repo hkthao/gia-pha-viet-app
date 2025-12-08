@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
 import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
 import { FamilyItem } from '@/components';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
+import { useFamilySearchPaginatedStore } from '@/hooks/adapters/useFamilySearchPaginatedStore'; // New import
 
 interface UseFamilySearchListHook {
   useStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
@@ -35,31 +35,9 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   const router = useRouter();
   const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId);
 
-  const store = usePublicFamilyStore(); // <--- separate for testing
+  const useStore = useFamilySearchPaginatedStore(); // <--- separate for testing
 
   const styles = useMemo(() => getStyles(theme), [theme]);
-
-  const mappedStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> =
-    useMemo(() => ({
-      items: store.families,
-      loading: store.loading,
-      error: store.error,
-      hasMore: store.hasMore,
-      page: store.page,
-      fetch: async (query, isLoadMore) =>
-        store.fetchFamilies({ ...query, page: query.page || 1 }, isLoadMore),
-      reset: store.reset,
-      setError: store.setError,
-    }), [
-      store.families,
-      store.loading,
-      store.error,
-      store.hasMore,
-      store.page,
-      store.fetchFamilies,
-      store.reset,
-      store.setError
-    ]);
 
   const renderFamilyItem = useCallback(
     ({ item }: { item: FamilyListDto }) => (
@@ -69,7 +47,7 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   );
 
   return {
-    useStore: mappedStore,
+    useStore,
     renderFamilyItem,
     styles,
     t,

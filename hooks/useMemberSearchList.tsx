@@ -6,10 +6,10 @@ import { useRouter } from 'expo-router';
 
 import { SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { usePublicMemberStore } from '@/stores/usePublicMemberStore';
 import { MemberListDto, SearchPublicMembersQuery } from '@/types';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { MemberItem } from '@/components';
+import { useMemberSearchPaginatedStore } from '@/hooks/adapters/useMemberSearchPaginatedStore';
 
 interface UseMemberSearchListHook {
   useStore: ZustandPaginatedStore<MemberListDto, SearchPublicMembersQuery>;
@@ -37,32 +37,14 @@ export function useMemberSearchList(): UseMemberSearchListHook {
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const styles = useMemo(() => getStyles(theme), [theme]);
 
-  const store = usePublicMemberStore(); // <--- separate for testing
-
-  const mappedStore: ZustandPaginatedStore<MemberListDto, SearchPublicMembersQuery> =
-    useMemo(() => ({
-      items: store.members,
-      loading: store.loading,
-      error: store.error,
-      hasMore: store.hasMore,
-      page: store.page,
-      fetch: async (query: SearchPublicMembersQuery, isLoadMore: boolean) => {
-        if (!currentFamilyId) {
-          store.setError(t('memberSearch.errors.noFamilyId'));
-          return null;
-        }
-        return store.fetchMembers({ ...query, familyId: currentFamilyId }, isLoadMore);
-      },
-      reset: store.reset,
-      setError: store.setError,
-    }), [currentFamilyId, t, store.members, store.loading, store.error, store.hasMore, store.page, store.fetchMembers, store.reset, store.setError]);
+  const useStore = useMemberSearchPaginatedStore(currentFamilyId); // <--- separate for testing
 
   const renderMemberItem = useCallback(({ item }: { item: MemberListDto }) => (
     <MemberItem item={item} onSelect={(id) => router.push(`/member/${id}`)} />
   ), [router]);
 
   return {
-    useStore: mappedStore,
+    useStore,
     renderMemberItem,
     styles,
     t,

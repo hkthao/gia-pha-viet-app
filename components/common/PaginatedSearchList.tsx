@@ -78,15 +78,31 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
     searchPlaceholder: props.searchPlaceholder,
   });
 
+  // Memoized styles for performance
+  const safeAreaCombinedStyle = React.useMemo(
+    () => [styles.safeArea, containerStyle],
+    [styles.safeArea, containerStyle]
+  );
+
+  const containerCombinedStyle = React.useMemo(
+    () => [styles.container, containerStyle],
+    [styles.container, containerStyle]
+  );
+
+  const flatListContentCombinedStyle = React.useMemo(
+    () => [styles.container, contentContainerStyle],
+    [styles.container, contentContainerStyle]
+  );
+
   return (
-    <View style={[styles.safeArea, containerStyle]}>
+    <View style={safeAreaCombinedStyle}>
       {headerTitle && (
         <View style={{ paddingHorizontal: SPACING_MEDIUM, paddingTop: SPACING_MEDIUM }}>
           <Text variant="headlineSmall" style={{ fontWeight: 'bold', textAlign: 'center' }}>{headerTitle}</Text>
         </View>
       )}
 
-      <View style={[styles.container, containerStyle]}>
+      <View style={containerCombinedStyle}>
         <View style={[styles.searchFilterContainer, searchbarContainerStyle]}>
           <Searchbar
             placeholder={searchPlaceholder}
@@ -131,7 +147,7 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
           data={items}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          contentContainerStyle={[styles.container, contentContainerStyle]}
+          contentContainerStyle={flatListContentCombinedStyle}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}

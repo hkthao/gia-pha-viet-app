@@ -3,7 +3,9 @@ import { View, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_LARGE } from '@/constants/dimensions';
-import { DefaultEmptyList, LoadingSpinner, ListFooter } from '@/components/common';
+import DefaultEmptyList from '@/components/common/DefaultEmptyList';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import ListFooter from '@/components/common/ListFooter';
 
 export interface UsePaginatedSearchListUIProps {
   ListEmptyComponent?: React.ComponentType | React.ReactElement | null;

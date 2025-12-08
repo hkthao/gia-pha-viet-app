@@ -26,9 +26,9 @@ const mockMemberDetail: MemberDetailDto = {
   fullName: 'John Doe',
   nickname: 'Johnny',
   dateOfBirth: '1990-01-01T00:00:00Z',
-  dateOfDeath: null,
+  dateOfDeath: undefined, // Changed from null
   placeOfBirth: 'New York',
-  placeOfDeath: null,
+  placeOfDeath: undefined, // Changed from null
   gender: Gender.Male,
   avatarUrl: 'http://example.com/avatar1.png',
   occupation: 'Engineer',
@@ -63,7 +63,7 @@ const mockMemberList: MemberListDto = {
   familyName: 'Doe Family',
   isRoot: false,
   dateOfBirth: '1990-01-01T00:00:00Z',
-  dateOfDeath: null,
+  dateOfDeath: undefined, // Changed from null
   gender: Gender.Male,
   occupation: 'Engineer',
   fatherFullName: 'Father Doe',
@@ -110,6 +110,7 @@ describe('usePublicMemberStore', () => {
     mockMemberService = {
       getMemberById: jest.fn(),
       searchMembers: jest.fn(),
+      getMembersByFamilyId: jest.fn(), // Added missing method
     };
 
     const storeFactory = createPublicMemberStore(mockMemberService);

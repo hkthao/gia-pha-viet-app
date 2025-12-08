@@ -6,13 +6,16 @@ export interface SearchReducerState<Q extends QueryParams> {
   search: string;
   filters: Q;
   page: number;
+  refreshing: boolean; // Add refreshing state
 }
 
 export type SearchReducerAction<Q extends QueryParams> =
   | { type: "SET_SEARCH"; payload: string }
   | { type: "SET_FILTERS"; payload: Partial<Q> | ((prev: Q) => Partial<Q>) }
   | { type: "LOAD_MORE" }
-  | { type: "RESET"; payload: Q };
+  | { type: "RESET"; payload: Q }
+  | { type: "START_REFRESH" } // New action
+  | { type: "END_REFRESH" }; // New action
 
 export function searchReducer<Q extends QueryParams>(
   state: SearchReducerState<Q>,
@@ -45,7 +48,14 @@ export function searchReducer<Q extends QueryParams>(
         search: action.payload.searchTerm || "",
         filters: action.payload,
         page: 1,
+        refreshing: false, // Reset refreshing state on full reset
       };
+
+    case "START_REFRESH": // Handle new action
+      return { ...state, refreshing: true };
+
+    case "END_REFRESH": // Handle new action
+      return { ...state, refreshing: false };
 
     default:
       return state;

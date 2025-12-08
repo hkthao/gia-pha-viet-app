@@ -22,7 +22,7 @@ export class ApiFamilyService implements IFamilyService {
 
   async searchFamilies(query: SearchPublicFamiliesQuery): Promise<Result<PaginatedList<FamilyListDto>>> {
     try {
-      const response = await this.api.get<PaginatedList<FamilyListDto>>('/families/search', {
+      const response = await this.api.get<PaginatedList<FamilyListDto>>('/family/search', {
         params: query,
       });
       return { isSuccess: true, value: response };

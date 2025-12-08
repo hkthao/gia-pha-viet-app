@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useReducer } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useCallback } from 'react';
 import type { PaginatedList, ApiError } from '@/types';
 import { buildQuery, QueryParams } from '@/utils/core/queryUtils';
 import { useDebouncedValue } from './useDebouncedValue';
 import { searchReducer, SearchReducerAction, SearchReducerState } from '@/utils/core/searchReducer';
+import { shallowEqual } from '@/utils/core/shallowEqual';
 
 export interface ZustandPaginatedStore<T, Q extends QueryParams> {
   items: T[];
@@ -47,39 +48,81 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
     search: initialQuery.searchTerm || "",
     filters: initialQuery,
     page: 1,
+    refreshing: false, // Initialize refreshing state
   });
 
   const debouncedSearch = useDebouncedValue(state.search, debounceTime);
 
-  const query = useMemo(
-    () => buildQuery(initialQuery, { ...state.filters, page: state.page } as Q, debouncedSearch),
-    [initialQuery, state.filters, state.page, debouncedSearch]
-  );
+  // useRef to store the last stable query object
+  const lastStableQuery = useRef<Q | null>(null);
+
+  const query = useMemo(() => {
+    const newQuery = buildQuery(initialQuery, { ...state.filters, page: state.page } as Q, debouncedSearch);
+
+    // If there's a last stable query and the new query is shallowly equal, return the last stable one
+    if (lastStableQuery.current && shallowEqual(lastStableQuery.current, newQuery)) {
+      return lastStableQuery.current;
+    }
+
+    // Otherwise, update the last stable query and return the new one
+    lastStableQuery.current = newQuery;
+    return newQuery;
+  }, [initialQuery, state.filters, state.page, debouncedSearch]);
 
   useEffect(() => {
-    fetch(query, state.page > 1);
-  }, [query, fetch, state.page]);
+    // Only fetch if not currently refreshing and if the query is valid (e.g., has a search term or initial filters)
+    if (!state.refreshing) {
+      const loadData = async () => {
+        try {
+          await fetch(query, state.page > 1);
+        } finally {
+          // If we had a mechanism to set refreshing from within fetch, it would go here.
+          // For now, refreshing is only handled by handleRefresh
+        }
+      };
+      loadData();
+    }
+  }, [query, fetch, state.page, state.refreshing]); // Add state.refreshing to dependencies
+
+  const handleRefresh = useCallback(async () => {
+    if (state.refreshing) return; // Prevent multiple refresh calls
+
+    dispatch({ type: "START_REFRESH" });
+    reset(); // Reset the Zustand store
+    dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
+
+    try {
+      await fetch(initialQuery, false); // Fetch initial data on refresh
+    } finally {
+      dispatch({ type: "END_REFRESH" });
+    }
+  }, [state.refreshing, initialQuery, reset, fetch, dispatch]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loading && hasMore && !state.refreshing) { // Prevent loading more while refreshing
+      dispatch({ type: "LOAD_MORE" });
+    }
+  }, [loading, hasMore, state.refreshing, dispatch]);
+
+  const setSearchQuery = useCallback((s: string) => dispatch({ type: "SET_SEARCH", payload: s }), [dispatch]);
+  const setFilters = useCallback((f: Partial<Q> | ((prev: Q) => Partial<Q>)) => dispatch({ type: "SET_FILTERS", payload: f }), [dispatch]);
+  const resetAll = useCallback(() => {
+    reset(); // Reset the Zustand store
+    dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
+  }, [reset, dispatch, initialQuery]);
 
   return {
     items,
     loading,
     error,
     hasMore,
-    refreshing: false, // For now, no explicit refreshing state in this simplified hook
+    refreshing: state.refreshing, // Pass refreshing state from reducer
     searchQuery: state.search,
-    setSearchQuery: (s) => dispatch({ type: "SET_SEARCH", payload: s }),
-
+    setSearchQuery,
     filters: state.filters,
-    setFilters: (f) => dispatch({ type: "SET_FILTERS", payload: f }),
-
-    handleLoadMore: () => dispatch({ type: "LOAD_MORE" }),
-    handleRefresh: () => {
-      reset(); // Reset the Zustand store
-      dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
-    },
-    resetAll: () => {
-      reset(); // Reset the Zustand store
-      dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
-    },
+    setFilters,
+    handleLoadMore,
+    handleRefresh,
+    resetAll,
   };
 }

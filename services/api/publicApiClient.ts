@@ -5,7 +5,7 @@ import { ApiClientMethods } from '@/types';
 import { authService } from '@/services/authService';
 
 // TODO: Configure this based on your environment (e.g., .env file)
-const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL+'/api/public'; // Example: Replace with your backend URL
+const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL+'/api'; // Example: Replace with your backend URL
 
 export const publicApiClient = axios.create({
   baseURL: BASE_URL,

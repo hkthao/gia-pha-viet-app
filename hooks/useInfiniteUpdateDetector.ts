@@ -22,10 +22,10 @@ interface UseInfiniteUpdateDetectorOptions {
    */
   name?: string;
   /**
-   * An array of values to monitor for changes.
-   * If any of these values change between renders, it can be identified.
+   * An array of values to monitor for changes, along with their names.
+   * If any of these values change between renders, it can be identified by name.
    */
-  dependencies?: any[];
+  dependencies?: { name: string; value: any }[];
 }
 
 /**
@@ -68,9 +68,11 @@ export const useInfiniteUpdateDetector = (options?: UseInfiniteUpdateDetectorOpt
         const prevDeps = prevDependencies.current;
 
         if (dependencies.length > 0 && prevDeps.length === dependencies.length) {
-          const changedDeps = dependencies.filter((dep, index) => dep !== prevDeps[index]);
-          if (changedDeps.length > 0) {
-            changedDependenciesMessage = ` Các dependencies đã thay đổi: [${changedDeps.map(d => JSON.stringify(d)).join(', ')}].`;
+          const changed = dependencies.filter(
+            (dep, index) => dep.value !== prevDeps[index].value
+          );
+          if (changed.length > 0) {
+            changedDependenciesMessage = ` Các dependencies đã thay đổi: [${changed.map(d => `${d.name}: ${JSON.stringify(d.value)}`).join(', ')}].`;
           }
         }
 

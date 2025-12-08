@@ -16,14 +16,14 @@ export default function SearchScreen() {
   useInfiniteUpdateDetector({
     name: 'SearchScreen',
     dependencies: [
-      items,
-      loading,
-      error,
-      hasMore,
-      page,
-      renderFamilyItem,
-      styles,
-      t
+      { name: 'items', value: items },
+      { name: 'loading', value: loading },
+      { name: 'error', value: error },
+      { name: 'hasMore', value: hasMore },
+      { name: 'page', value: page },
+      { name: 'renderFamilyItem', value: renderFamilyItem },
+      { name: 'styles', value: styles },
+      { name: 't', value: t }
     ],
   });
 

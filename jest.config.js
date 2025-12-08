@@ -13,7 +13,13 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+    '^@react-native-async-storage/async-storage$': '<rootDir>/__mocks__/@react-native-async-storage/async-storage.ts',
+  },
+  transformIgnorePatterns: [
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|nanoid)',
+  ],
   collectCoverage: true,
   collectCoverageFrom: [
     '**/*.{ts,tsx,js,jsx}',

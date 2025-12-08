@@ -1,32 +1,63 @@
-import { create } from 'zustand';
-import { dashboardService } from '@/services'; // Import the new dashboardService
-import { DashboardMetrics } from '@/types';
+import { create, StateCreator } from 'zustand';
+import { dashboardService as defaultDashboardService } from '@/services';
+import { DashboardMetrics, Result } from '@/types';
+import { IDashboardService } from '@/services/dashboard/dashboard.service.interface';
+
+// Hàm helper để phân tích lỗi
+const parseError = (err: any): string => {
+  if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
+    return err.message;
+  }
+  if (typeof err === 'string') {
+    return err;
+  }
+  return 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
+};
 
 interface DashboardState {
   dashboardData: DashboardMetrics | null;
   loading: boolean;
   error: string | null;
-  getDashboardData: (familyId: string) => Promise<void>;
 }
 
-export const useDashboardStore = create<DashboardState>((set) => {
-  return {
-    dashboardData: null,
-    loading: false,
-    error: null,
+interface DashboardActions {
+  getDashboardData: (familyId: string) => Promise<void>;
+  reset: () => void; // Thêm hàm reset để dễ dàng thiết lập lại trạng thái trong các bài kiểm thử
+}
 
-    getDashboardData: async (familyId: string) => {
-      set({ loading: true, error: null });
-      try {
-        const result = await dashboardService.getDashboardData(familyId);
-        if (result.isSuccess && result.value) {
-          set({ dashboardData: result.value, loading: false });
-        } else {
-          set({ error: result.error?.message || 'Failed to fetch dashboard data', loading: false });
-        }
-      } catch (err: any) {
-        set({ error: err.message || 'Failed to fetch dashboard data', loading: false });
+type DashboardStore = DashboardState & DashboardActions;
+
+// Factory function để tạo store
+export const createDashboardStore = (
+  dashboardService: IDashboardService
+): StateCreator<DashboardStore> => (set, get) => ({
+  dashboardData: null,
+  loading: false,
+  error: null,
+
+  getDashboardData: async (familyId: string) => {
+    set(state => ({ ...state, loading: true, error: null })); // Sử dụng callback cho set
+    try {
+      const result: Result<DashboardMetrics> = await dashboardService.getDashboardData(familyId);
+      if (result.isSuccess && result.value) {
+        set(state => ({ ...state, dashboardData: result.value, loading: false })); // Sử dụng callback cho set
+      } else {
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false })); // Sử dụng callback cho set
       }
-    },
-  };
+    } catch (err: any) {
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false })); // Sử dụng callback cho set
+    }
+  },
+
+  reset: () =>
+    set({
+      dashboardData: null,
+      loading: false,
+      error: null,
+    }),
 });
+
+// Export default store instance
+export const useDashboardStore = create<DashboardStore>(createDashboardStore(defaultDashboardService));

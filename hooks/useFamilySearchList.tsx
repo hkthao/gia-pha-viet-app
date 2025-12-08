@@ -33,34 +33,43 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const setCurrentFamilyId = useFamilyStore((state) => state.setCurrentFamilyId);
+  const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId);
+
+  const store = usePublicFamilyStore(); // <--- separate for testing
+
   const styles = useMemo(() => getStyles(theme), [theme]);
 
+  const mappedStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> =
+    useMemo(() => ({
+      items: store.families,
+      loading: store.loading,
+      error: store.error,
+      hasMore: store.hasMore,
+      page: store.page,
+      fetch: async (query, isLoadMore) =>
+        store.fetchFamilies({ ...query, page: query.page || 1 }, isLoadMore),
+      reset: store.reset,
+      setError: store.setError,
+    }), [
+      store.families,
+      store.loading,
+      store.error,
+      store.hasMore,
+      store.page,
+      store.fetchFamilies,
+      store.reset,
+      store.setError
+    ]);
 
-  // Define useStore function for usePaginatedSearch
-  const useStore = useCallback(() => {
-    const { families, loading, error, hasMore, page: currentPage, fetchFamilies, reset, setError } = usePublicFamilyStore();
-    return useMemo(() => ({
-      items: families,
-      loading,
-      error,
-      hasMore,
-      page: currentPage,
-      fetch: async (query: SearchPublicFamiliesQuery, isLoadMore: boolean) => {
-        return fetchFamilies({ ...query, page: query.page || 1 }, isLoadMore);
-      },
-      reset,
-      setError,
-    }), [families, loading, error, hasMore, currentPage, fetchFamilies, reset, setError]);
-  }, []);
-
-
-  const renderFamilyItem = useCallback(({ item }: { item: FamilyListDto }) => (
-    <FamilyItem item={item} setCurrentFamilyId={setCurrentFamilyId} />
-  ), [setCurrentFamilyId]);
+  const renderFamilyItem = useCallback(
+    ({ item }: { item: FamilyListDto }) => (
+      <FamilyItem item={item} onSelect={setCurrentFamilyId} />
+    ),
+    [setCurrentFamilyId]
+  );
 
   return {
-    useStore,
+    useStore: () => mappedStore,
     renderFamilyItem,
     styles,
     t,

@@ -10,7 +10,7 @@ import { FamilyListDto } from '@/types';
 
 interface FamilyItemProps {
   item: FamilyListDto;
-  setCurrentFamilyId: (id: string | null) => void;
+  onSelect: (id: string | null) => void;
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -43,7 +43,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-const FamilyItem = ({ item, setCurrentFamilyId }: FamilyItemProps) => {
+const FamilyItem = ({ item, onSelect }: FamilyItemProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -51,7 +51,7 @@ const FamilyItem = ({ item, setCurrentFamilyId }: FamilyItemProps) => {
 
   return (
     <Card style={[styles.familyCard, { borderRadius: theme.roundness }]} onPress={() => {
-      setCurrentFamilyId(item.id);
+      onSelect(item.id);
       router.push('/family/dashboard');
     }}>
       <Card.Content style={styles.cardContent}>

@@ -1,3 +1,4 @@
+import React from 'react';
 import { FlatList, View, RefreshControl, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
 import { Searchbar, Text, IconButton as PaperIconButton } from 'react-native-paper';
 import { usePaginatedSearch, PaginatedSearchOptions, PaginatedSearchResult } from '@/hooks/usePaginatedSearch';
@@ -93,11 +94,12 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
             value={searchQuery}
             style={styles.searchbar}
             showDivider={false} // Divider can be managed by container style
-            clearIcon={searchQuery.length > 0 ? () => (
+            clearIcon={searchQuery.length > 0 ? ({ color }) => (
               <PaperIconButton
                 icon="close-circle"
                 size={20}
-                onPress={() => setSearchQuery('')}
+                iconColor={color}
+                onPress={React.useCallback(() => setSearchQuery(''), [setSearchQuery])}
               />
             ) : undefined}
           />
@@ -134,7 +136,7 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
             <RefreshControl
               refreshing={refreshing}
               onRefresh={handleRefresh}
-              colors={[theme.colors.primary]}
+              colors={React.useMemo(() => [theme.colors.primary], [theme.colors.primary])}
               tintColor={theme.colors.primary}
             />
           }

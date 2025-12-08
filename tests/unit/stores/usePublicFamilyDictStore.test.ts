@@ -82,10 +82,10 @@ describe('usePublicFamilyDictStore', () => {
 
   describe('getFamilyDictById', () => {
     it('should fetch family dict by id successfully', async () => {
-      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockResolvedValueOnce({
-        isSuccess: true,
-        value: mockFamilyDict,
-      } as Result<FamilyDictDto>);
+      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockImplementationOnce(async (id: string) => {
+        await Promise.resolve(); // Simulate microtask queue
+        return { isSuccess: true, value: mockFamilyDict } as Result<FamilyDictDto>;
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -106,10 +106,10 @@ describe('usePublicFamilyDictStore', () => {
 
     it('should handle API error when fetching family dict by id', async () => {
       const errorMessage = 'Entry not found';
-      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockResolvedValueOnce({
-        isSuccess: false,
-        error: { message: errorMessage },
-      } as Result<FamilyDictDto>);
+      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockImplementationOnce(async (id: string) => {
+        await Promise.resolve(); // Simulate microtask queue
+        return { isSuccess: false, error: { message: errorMessage } } as Result<FamilyDictDto>;
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -130,7 +130,10 @@ describe('usePublicFamilyDictStore', () => {
 
     it('should handle thrown error when fetching family dict by id', async () => {
       const errorMessage = 'Network error';
-      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+      (mockFamilyDictService.getFamilyDictById as jest.Mock).mockImplementationOnce(async (id: string) => {
+        await Promise.resolve(); // Simulate microtask queue
+        throw new Error(errorMessage);
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -156,10 +159,10 @@ describe('usePublicFamilyDictStore', () => {
     const itemsPerPage = 10;
 
     it('should fetch initial family dicts successfully', async () => {
-      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockResolvedValueOnce({
-        isSuccess: true,
-        value: mockFamilyDictsPage1,
-      } as Result<PaginatedList<FamilyDictDto>>);
+      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockImplementationOnce(async (filter, page, itemsPerPage) => {
+        await Promise.resolve(); // Simulate microtask queue
+        return { isSuccess: true, value: mockFamilyDictsPage1 } as Result<PaginatedList<FamilyDictDto>>;
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -185,8 +188,14 @@ describe('usePublicFamilyDictStore', () => {
     it('should refresh family dicts successfully', async () => {
       // Setup initial state with some data first
       (mockFamilyDictService.getFamilyDicts as jest.Mock)
-        .mockResolvedValueOnce({ isSuccess: true, value: mockFamilyDictsPage1 })
-        .mockResolvedValueOnce({ isSuccess: true, value: mockFamilyDictsPage2 }); // Mock for refresh
+        .mockImplementationOnce(async (filter, page, itemsPerPage) => {
+          await Promise.resolve(); // Simulate microtask queue
+          return { isSuccess: true, value: mockFamilyDictsPage1 } as Result<PaginatedList<FamilyDictDto>>;
+        })
+        .mockImplementationOnce(async (filter, page, itemsPerPage) => { // Mock for refresh
+          await Promise.resolve(); // Simulate microtask queue
+          return { isSuccess: true, value: mockFamilyDictsPage2 } as Result<PaginatedList<FamilyDictDto>>;
+        });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -215,10 +224,10 @@ describe('usePublicFamilyDictStore', () => {
 
     it('should handle API error when fetching family dicts', async () => {
       const errorMessage = 'Failed to load entries';
-      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockResolvedValueOnce({
-        isSuccess: false,
-        error: { message: errorMessage },
-      } as Result<PaginatedList<FamilyDictDto>>);
+      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockImplementationOnce(async (filter, page, itemsPerPage) => {
+        await Promise.resolve(); // Simulate microtask queue
+        return { isSuccess: false, error: { message: errorMessage } } as Result<PaginatedList<FamilyDictDto>>;
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 
@@ -239,7 +248,10 @@ describe('usePublicFamilyDictStore', () => {
 
     it('should handle thrown error when fetching family dicts', async () => {
       const errorMessage = 'Server issue';
-      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockImplementationOnce(async (filter, page, itemsPerPage) => {
+        await Promise.resolve(); // Simulate microtask queue
+        throw new Error(errorMessage);
+      });
 
       const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
 

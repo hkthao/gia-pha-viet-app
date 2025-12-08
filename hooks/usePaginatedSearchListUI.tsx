@@ -1,63 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_LARGE } from '@/constants/dimensions';
+import { DefaultEmptyList, LoadingSpinner, ListFooter } from '@/components/common';
 
-// Standalone Components
-interface DefaultEmptyListProps {
-  styles: any;
-  t: (key: string) => string;
-}
-const DefaultEmptyList: React.FC<DefaultEmptyListProps> = React.memo(({ styles, t }) => {
-  return (
-    <View style={styles.emptyContainer}>
-      <Text variant="titleMedium" style={styles.emptyListText}>
-        {t('search.no_results')}
-      </Text>
-      <Text variant="bodyMedium" style={styles.emptyListText}>
-        {t('search.try_different_query')}
-      </Text>
-    </View>
-  );
-});
-
-interface LoadingSpinnerProps {
-  styles: any;
-  theme: any;
-}
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = React.memo(({ styles, theme }) => {
-  return (
-    <View style={styles.emptyContainer}>
-      <ActivityIndicator animating size="large" color={theme.colors.primary} />
-    </View>
-  );
-});
-
-interface ListFooterProps {
-  loading: boolean;
-  itemsLength: number;
-  hasMore: boolean;
-  styles: any;
-  theme: any;
-  t: (key: string) => string;
-}
-const ListFooter: React.FC<ListFooterProps> = React.memo(({ loading, itemsLength, hasMore, styles, theme, t }) => {
-  if (loading && itemsLength > 0) {
-    return (
-      <View style={styles.footer}>
-        <ActivityIndicator animating size="small" color={theme.colors.primary} />
-      </View>
-    );
-  }
-  if (!hasMore && itemsLength > 0) {
-    return <Text style={styles.emptyListText}>{t('common.noMoreItems')}</Text>;
-  }
-  return null;
-});
-
-
-interface UsePaginatedSearchListUIProps {
+export interface UsePaginatedSearchListUIProps {
   ListEmptyComponent?: React.ComponentType | React.ReactElement | null;
   loading: boolean;
   refreshing: boolean;
@@ -84,8 +32,7 @@ export function usePaginatedSearchListUI({
   }, []);
 
   const styles = useMemo(
-    () =>
-      StyleSheet.create({
+    () => StyleSheet.create({
         safeArea: {
           flex: 1,
           backgroundColor: theme.colors.background,

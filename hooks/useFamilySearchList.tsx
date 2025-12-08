@@ -11,7 +11,7 @@ import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { useFamilySearchPaginatedStore } from '@/hooks/adapters/useFamilySearchPaginatedStore'; // New import
 
 interface UseFamilySearchListHook {
-  useStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
+  useStore: () => ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
   renderFamilyItem: ({ item }: { item: FamilyListDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;
@@ -35,14 +35,15 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   const router = useRouter();
   const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId);
 
-  const useStore = useFamilySearchPaginatedStore(); // <--- separate for testing
+  const useStore = useFamilySearchPaginatedStore; // <-- Now it's the hook itself
 
   const styles = useMemo(() => getStyles(theme), [theme]);
 
   const renderFamilyItem = useCallback(
-    ({ item }: { item: FamilyListDto }) => (
-      <FamilyItem item={item} onSelect={setCurrentFamilyId} />
-    ),
+    ({ item }: { item: FamilyListDto }) => {
+      console.log('Rendering FamilyItem for:', item.name); // Add this log
+      return <FamilyItem item={item} onSelect={setCurrentFamilyId} />;
+    },
     [setCurrentFamilyId]
   );
 

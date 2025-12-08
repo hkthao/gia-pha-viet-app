@@ -9,8 +9,8 @@ import { useInfiniteUpdateDetector } from '@/hooks/useInfiniteUpdateDetector'; /
 export default function SearchScreen() {
   const { useStore, renderFamilyItem, styles, t } = useFamilySearchList();
 
-  // useStore is already the object containing the state and actions
-  const { items, loading, error, hasMore, page } = useStore;
+  // Call the store hook to get the state and actions
+  const { items, loading, error, hasMore, page } = useStore();
 
   // Call the detector hook with specific state values as dependencies
   useInfiniteUpdateDetector({
@@ -35,7 +35,7 @@ export default function SearchScreen() {
         <Appbar.Content title={t('search.title')} />
       </Appbar.Header>
       <PaginatedSearchList<FamilyListDto, SearchPublicFamiliesQuery>
-        useStore={() => useStore}
+        useStore={useStore} // Pass the useStore hook directly
         searchOptions={{
           initialQuery: initialQuery,
         }}

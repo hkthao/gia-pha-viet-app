@@ -59,6 +59,7 @@ export const createPublicFamilyStore = (
   },
 
   fetchFamilies: async (query: { page: number; search?: string }, isRefreshing: boolean = false): Promise<PaginatedList<FamilyListDto> | null> => {
+    console.log('fetchFamilies called with query:', query, 'isRefreshing:', isRefreshing);
     set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await familyService.searchFamilies({ // Updated type
@@ -69,6 +70,7 @@ export const createPublicFamilyStore = (
 
       if (result.isSuccess && result.value) {
         const paginatedList: PaginatedList<FamilyListDto> = result.value;
+        console.log('fetchFamilies successful:', 'items count:', paginatedList.items.length, 'page:', paginatedList.page, 'totalItems:', paginatedList.totalItems);
         
         set((state) => ({
           families: isRefreshing ? paginatedList.items : [...(state.families || []), ...paginatedList.items],
@@ -80,14 +82,14 @@ export const createPublicFamilyStore = (
         }));
         return paginatedList;
       } else {
-        // console.error('Error fetching families:', result.error); // Remove console.error in store
         const errorMessage = parseError(result.error);
+        console.error('fetchFamilies failed:', errorMessage);
         set(state => ({ ...state, error: errorMessage, loading: false }));
         return null;
       }
     } catch (err: any) {
-      // console.error('Error fetching families:', err); // Remove console.error in store
       const errorMessage = parseError(err);
+      console.error('fetchFamilies caught exception:', errorMessage);
       set(state => ({ ...state, error: errorMessage, loading: false }));
       return null;
     } finally {

@@ -70,19 +70,33 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
   }, [initialQuery, state.filters, state.page, debouncedSearch]);
 
   useEffect(() => {
-    // Only fetch if not currently refreshing and if the query is valid (e.g., has a search term or initial filters)
-    if (!state.refreshing) {
-      const loadData = async () => {
-        try {
-          await fetch(query, state.page > 1);
-        } finally {
-          // If we had a mechanism to set refreshing from within fetch, it would go here.
-          // For now, refreshing is only handled by handleRefresh
+    const loadData = async () => {
+      // Don't fetch if query is null/undefined or if it's the very first render and no search has been initiated
+      // This helps prevent an initial fetch on component mount if no actual search term or filters are present
+      // and query is effectively empty (e.g., all params are default).
+      // However, if it's a refresh, we always want to fetch.
+      if (!query || (query.page === 1 && !query.searchTerm && Object.keys(query).length <= 2 && !state.refreshing)) {
+        // If initial mount and no actual search, don't fetch.
+        // If it's a refresh, this condition should be bypassed.
+        if (!state.refreshing) {
+          return;
         }
-      };
-      loadData();
-    }
-  }, [query, fetch, state.page, state.refreshing]); // Add state.refreshing to dependencies
+      }
+
+      // If we are refreshing, 'state.refreshing' will be true.
+      // This fetch will then complete the refresh cycle.
+      const isRefreshFetch = state.refreshing && state.page === 1;
+
+      try {
+        await fetch(query, state.page > 1);
+      } finally {
+        if (isRefreshFetch) {
+          dispatch({ type: "END_REFRESH" });
+        }
+      }
+    };
+    loadData();
+  }, [query, fetch, state.page, state.refreshing, dispatch]); // Add dispatch as a dependency
 
   const handleRefresh = useCallback(async () => {
     if (state.refreshing) return; // Prevent multiple refresh calls
@@ -90,13 +104,8 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
     dispatch({ type: "START_REFRESH" });
     reset(); // Reset the Zustand store
     dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
-
-    try {
-      await fetch(initialQuery, false); // Fetch initial data on refresh
-    } finally {
-      dispatch({ type: "END_REFRESH" });
-    }
-  }, [state.refreshing, initialQuery, reset, fetch, dispatch]);
+    // Fetch will be triggered by useEffect reacting to the RESET action's change in query/state.page
+  }, [state.refreshing, initialQuery, reset, dispatch]);
 
   const handleLoadMore = useCallback(() => {
     if (!loading && hasMore && !state.refreshing) { // Prevent loading more while refreshing

@@ -14,7 +14,7 @@ export default function SearchScreen() {
         <Appbar.Content title={t('search.title')} />
       </Appbar.Header>
       <PaginatedSearchList<FamilyListDto, SearchPublicFamiliesQuery>
-        useStore={useStore}
+        useStore={() => useStore}
         searchOptions={{
           initialQuery: { page: 1, itemsPerPage: 10, searchTerm: '' },
         }}

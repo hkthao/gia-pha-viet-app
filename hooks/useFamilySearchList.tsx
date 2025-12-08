@@ -11,7 +11,7 @@ import { FamilyItem } from '@/components';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 
 interface UseFamilySearchListHook {
-  useStore: () => ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
+  useStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
   renderFamilyItem: ({ item }: { item: FamilyListDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;
@@ -69,7 +69,7 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   );
 
   return {
-    useStore: () => mappedStore,
+    useStore: mappedStore,
     renderFamilyItem,
     styles,
     t,

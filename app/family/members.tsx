@@ -87,7 +87,7 @@ export default function FamilyMembersScreen() {
         <Appbar.Content title={t('memberSearch.title')} />
       </Appbar.Header>
       <PaginatedSearchList<MemberListDto, SearchPublicMembersQuery>
-        useStore={useStore}
+        useStore={() => useStore}
         searchOptions={{
           initialQuery: { familyId: '', page: 1, itemsPerPage: 10, searchTerm: '', gender: undefined, isRoot: undefined },
           externalDependencies: [currentFamilyId],

@@ -2,7 +2,7 @@
 import { jest } from '@jest/globals';
 import type { PaginatedList, ApiError } from '@/types';
 import type { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
-import type { QueryParams } from '@/utils/queryUtils';
+import type { QueryParams } from '@/utils/core/queryUtils';
 import { act } from '@testing-library/react-hooks';
 
 type Listener = () => void;

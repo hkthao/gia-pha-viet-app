@@ -1,6 +1,6 @@
 // apps/mobile/family_tree_rn/hooks/useStabilizedObject.ts
 import { useRef } from 'react';
-import { shallowEqual } from '../utils/shallowEqual';
+import { shallowEqual } from '@/utils/core/shallowEqual';
 
 /**
  * Custom hook that stabilizes an object reference.

@@ -1,22 +1,14 @@
 // apps/mobile/family_tree_rn/services/index.ts
 
-import { ApiUserProfileService } from '@/services/userProfile/api.userProfile.service';
-import { ApiFamilyService } from '@/services/family/api.family.service';
-import { IFamilyService } from '@/services/family/family.service.interface';
-import { ApiMemberService } from '@/services/member/api.member.service'; // Import ApiMemberService
-import { IMemberService } from '@/services/member/member.service.interface'; // Import IMemberService
-import { ApiEventService } from '@/services/event/api.event.service'; // Import ApiEventService
-import { IEventService } from '@/services/event/event.service.interface'; // Import IEventService
-import { ApiRelationshipService } from '@/services/relationship/api.relationship.service'; // Import ApiRelationshipService
-import { IRelationshipService } from '@/services/relationship/relationship.service.interface'; // Import IRelationshipService
-import { ApiFaceService } from '@/services/face/api.face.service'; // Import ApiFaceService
-import { IFaceService } from '@/services/face/face.service.interface'; // Import IFaceService
-import { ApiFamilyDictService } from '@/services/familyDict/api.familyDict.service'; // Import ApiFamilyDictService
-import { IFamilyDictService } from '@/services/familyDict/familyDict.service.interface'; // Import IFamilyDictService
-import { ApiDashboardService } from '@/services/dashboard/api.dashboard.service'; // Import ApiDashboardService
-import { IDashboardService } from '@/services/dashboard/dashboard.service.interface'; // Import IDashboardService
-import { apiClientWithAuth, publicApiClient } from '@/services/api/publicApiClient'; // Import apiClientWithAuth and publicApiClient
-import { IUserProfileService } from '@/services/userProfile/userProfile.service.interface';
+import { ApiUserProfileService, IUserProfileService } from './userProfile';
+import { ApiFamilyService, IFamilyService } from './family';
+import { ApiMemberService, IMemberService } from './member';
+import { ApiEventService, IEventService } from './event';
+import { ApiRelationshipService, IRelationshipService } from './relationship';
+import { ApiFaceService, IFaceService } from './face';
+import { ApiFamilyDictService, IFamilyDictService } from './familyDict';
+import { ApiDashboardService, IDashboardService } from './dashboard';
+import { apiClientWithAuth, publicApiClient } from './api';
 
 // Initialize services
 export const userProfileService: IUserProfileService = new ApiUserProfileService(apiClientWithAuth);
@@ -27,3 +19,17 @@ export const relationshipService: IRelationshipService = new ApiRelationshipServ
 export const faceService: IFaceService = new ApiFaceService(apiClientWithAuth);
 export const familyDictService: IFamilyDictService = new ApiFamilyDictService(apiClientWithAuth);
 export const dashboardService: IDashboardService = new ApiDashboardService(apiClientWithAuth);
+
+// Re-export API clients for direct use if needed
+export { apiClientWithAuth, publicApiClient };
+
+// Optionally re-export all types and classes from sub-modules for broader access if needed
+export * from './userProfile';
+export * from './family';
+export * from './member';
+export * from './event';
+export * from './relationship';
+export * from './face';
+export * from './familyDict';
+export * from './dashboard';
+export * from './api';

@@ -16,7 +16,16 @@ jest.mock('react-native-paper', () => ({
 
 // Mock usePublicFamilyDictStore
 jest.mock('@/stores/usePublicFamilyDictStore', () => ({
-  usePublicFamilyDictStore: jest.fn(),
+  usePublicFamilyDictStore: jest.fn(() => ({
+    familyDicts: [],
+    loading: false,
+    error: null,
+    hasMore: true,
+    page: 1,
+    fetchFamilyDicts: jest.fn(),
+    reset: jest.fn(),
+    setError: jest.fn(),
+  })),
 }));
 
 // Mock ZustandPaginatedStore for the returned useStore in the hook

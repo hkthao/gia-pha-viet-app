@@ -33,7 +33,7 @@ describe('publicApiClient', () => {
   });
 
   it('should have the correct base URL configured', () => {
-    expect(currentPublicApiClient.defaults.baseURL).toBe('http://localhost:3000/api/public');
+    expect(currentPublicApiClient.defaults.baseURL).toBe('http://localhost:3000/api');
   });
 
   it('should set Content-Type header to application/json by default', () => {

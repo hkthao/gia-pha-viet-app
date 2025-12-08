@@ -71,22 +71,12 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
 
   useEffect(() => {
     const loadData = async () => {
-      // Don't fetch if query is null/undefined or if it's the very first render and no search has been initiated
-      // This helps prevent an initial fetch on component mount if no actual search term or filters are present
-      // and query is effectively empty (e.g., all params are default).
-      // However, if it's a refresh, we always want to fetch.
       if (!query || (query.page === 1 && !query.searchTerm && Object.keys(query).length <= 2 && !state.refreshing)) {
-        // If initial mount and no actual search, don't fetch.
-        // If it's a refresh, this condition should be bypassed.
         if (!state.refreshing) {
           return;
         }
       }
-
-      // If we are refreshing, 'state.refreshing' will be true.
-      // This fetch will then complete the refresh cycle.
       const isRefreshFetch = state.refreshing && state.page === 1;
-
       try {
         await fetch(query, state.page > 1);
       } finally {

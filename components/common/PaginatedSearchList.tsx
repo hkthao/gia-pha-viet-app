@@ -21,6 +21,7 @@ interface PaginatedSearchListProps<T, Q extends { searchTerm?: string }> {
   contentContainerStyle?: StyleProp<ViewStyle>;
   searchbarContainerStyle?: StyleProp<ViewStyle>;
   showFilterButton?: boolean;
+  error?: string | null; // Added error prop
 }
 
 export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(

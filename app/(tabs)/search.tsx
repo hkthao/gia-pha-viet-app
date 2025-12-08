@@ -43,7 +43,7 @@ export default function SearchScreen() {
         keyExtractor={(item) => item.id}
         searchPlaceholder={t('search.placeholder')}
         containerStyle={styles.container}
-      // Additional props can be passed here as needed
+        error={error} // Pass the error state
       />
     </View>
   );

@@ -1,8 +1,10 @@
 // apps/mobile/family_tree_rn/stores/useUserProfileStore.ts
 
-import { create } from 'zustand';
+import { create, StateCreator } from 'zustand';
 import { UserProfileDto } from '@/types'; // Import from central types index
-import { userProfileService } from '@/services'; // Import the userProfileService
+import { userProfileService as defaultUserProfileService } from '@/services'; // Import the userProfileService
+import { IUserProfileService } from '@/services'; // Import IUserProfileService from '@/services'
+import { parseError } from '@/utils/errorUtils';
 
 interface UserProfileState {
   userProfile: UserProfileDto | null;
@@ -13,26 +15,40 @@ interface UserProfileState {
 interface UserProfileActions {
   fetchUserProfile: () => Promise<void>;
   clearUserProfile: () => void;
+  reset: () => void; // Add reset action
   setError: (error: string | null) => void;
 }
 
-type UserProfileStore = UserProfileState & UserProfileActions;
+export type UserProfileStore = UserProfileState & UserProfileActions;
 
-export const useUserProfileStore = create<UserProfileStore>((set, get) => ({
+// Factory function to create the store
+export const createUserProfileStore = (
+  userProfileService: IUserProfileService
+): StateCreator<UserProfileStore> => (set) => ({
   userProfile: null,
   loading: false,
   error: null,
 
   fetchUserProfile: async () => {
-    set({ loading: true, error: null });
-    const result = await userProfileService.getCurrentUserProfile();
-    if (result.isSuccess && result.value) {
-      set({ userProfile: result.value, loading: false });
-    } else {
-      set({ error: result.error?.message || 'Failed to fetch user profile.', loading: false });
+    set(state => ({ ...state, loading: true, error: null }));
+    try {
+      const result = await userProfileService.getCurrentUserProfile();
+      if (result.isSuccess && result.value) {
+        set(state => ({ ...state, userProfile: result.value, loading: false }));
+      } else {
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
+      }
+    } catch (err: any) {
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
     }
   },
 
-  clearUserProfile: () => set({ userProfile: null, error: null }),
-  setError: (error: string | null) => set({ error }),
-}));
+  clearUserProfile: () => set(state => ({ ...state, userProfile: null, error: null })),
+  reset: () => set({ userProfile: null, loading: false, error: null }), // Full reset
+  setError: (error: string | null) => set(state => ({ ...state, error })),
+});
+
+// Export default store instance
+export const useUserProfileStore = create<UserProfileStore>(createUserProfileStore(defaultUserProfileService));

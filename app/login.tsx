@@ -1,10 +1,4 @@
-import { StyleSheet, View, ScrollView } from 'react-native';
-import { Text, Button, Appbar, useTheme } from 'react-native-paper';
-import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
-import { Image } from 'expo-image'; // Re-import Image from expo-image
-import { SPACING_LARGE, SPACING_MEDIUM } from '@/constants/dimensions'; // Import spacing constants
+import { globalStyles } from '@/constants/globalStyles'; // Import globalStyles
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -33,8 +27,7 @@ export default function LoginScreen() {
     },
     contentContainer: {
       flexGrow: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      ...globalStyles.flexCentered, // Use global style for centering
       padding: SPACING_LARGE,
       marginTop: -20,
       zIndex: 2, 

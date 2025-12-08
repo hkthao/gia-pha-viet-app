@@ -25,7 +25,8 @@ export function buildQuery<Q extends QueryParams>(
   return {
     ...initialQuery,
     ...filters,
-    searchTerm: debouncedSearch,
+    // Prioritize debouncedSearch if it has a value, otherwise use searchTerm from filters
+    searchTerm: debouncedSearch || filters.searchTerm,
   } as Q;
 }
 

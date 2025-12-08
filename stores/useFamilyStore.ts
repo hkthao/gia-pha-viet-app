@@ -1,11 +1,22 @@
-import { create } from 'zustand';
+import { create, StateCreator } from 'zustand';
 
-interface FamilyStore {
+interface FamilyState {
   currentFamilyId: string | null;
-  setCurrentFamilyId: (id: string | null) => void;
 }
 
-export const useFamilyStore = create<FamilyStore>((set) => ({
+interface FamilyActions {
+  setCurrentFamilyId: (id: string | null) => void;
+  reset: () => void;
+}
+
+export type FamilyStore = FamilyState & FamilyActions;
+
+// Factory function to create the store
+export const createFamilyStore = (): StateCreator<FamilyStore> => (set) => ({
   currentFamilyId: null,
-  setCurrentFamilyId: (id) => set({ currentFamilyId: id }),
-}));
+  setCurrentFamilyId: (id) => set(state => ({ ...state, currentFamilyId: id })),
+  reset: () => set({ currentFamilyId: null }),
+});
+
+// Export default store instance
+export const useFamilyStore = create<FamilyStore>(createFamilyStore());

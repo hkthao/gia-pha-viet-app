@@ -35,7 +35,7 @@ export function useFamilySearchList(): UseFamilySearchListHook {
   const router = useRouter();
   const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId);
 
-  const useStore = useFamilySearchPaginatedStore; // <-- Now it's the hook itself
+  const useStore = useCallback(() => useFamilySearchPaginatedStore(), []);
 
   const styles = useMemo(() => getStyles(theme), [theme]);
 

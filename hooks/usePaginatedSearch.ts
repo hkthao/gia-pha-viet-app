@@ -118,7 +118,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
 
     dispatch({ type: "START_REFRESH" });
     initialDataLoadedRef.current = false; // Reset this flag on refresh
-    reset(); // Reset the Zustand store
+    // Removed: reset(); // Reset the Zustand store
     dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
     // Fetch will be triggered by useEffect reacting to the RESET action's change in query/state.page
   }, [state.refreshing, initialQuery, reset, dispatch]);

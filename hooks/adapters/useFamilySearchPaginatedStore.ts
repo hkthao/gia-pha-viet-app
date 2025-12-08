@@ -32,6 +32,11 @@ export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyLis
     reset: resetAction,
     setError: setErrorAction,
   }), [
+    families,
+    loading,
+    error,
+    hasMore,
+    page,
     fetch,
     resetAction,
     setErrorAction,

@@ -3,7 +3,7 @@
 import { create, StateCreator } from 'zustand';
 import { familyService as defaultFamilyService } from '@/services'; // Import the new familyService
 import { IFamilyService } from '@/services'; // Import IFamilyService from '@/services'
-import type { FamilyDetailDto, FamilyListDto, PaginatedList } from '@/types';
+import type { FamilyDetailDto, FamilyListDto, PaginatedList, SearchPublicFamiliesQuery } from '@/types';
 import { parseError } from '@/utils/errorUtils';
 
 const PAGE_SIZE = 10; // Define PAGE_SIZE here
@@ -58,14 +58,13 @@ export const createPublicFamilyStore = (
     }
   },
 
-  fetchFamilies: async (query: { page: number; search?: string }, isRefreshing: boolean = false): Promise<PaginatedList<FamilyListDto> | null> => {
+  fetchFamilies: async (query: SearchPublicFamiliesQuery, isRefreshing: boolean = false): Promise<PaginatedList<FamilyListDto> | null> => {
 
     set(state => ({ ...state, loading: true, error: null }));
     try {
-      const result = await familyService.searchFamilies({ // Updated type
-        page: query.page,
-        itemsPerPage: PAGE_SIZE, // Use PAGE_SIZE from FamilySearchScreen
-        searchTerm: query.search,
+      const result = await familyService.searchFamilies({
+        ...query, // Pass the entire query object
+        itemsPerPage: query.itemsPerPage || PAGE_SIZE, // Use itemsPerPage from query or default PAGE_SIZE
       });
 
       if (result.isSuccess && result.value) {

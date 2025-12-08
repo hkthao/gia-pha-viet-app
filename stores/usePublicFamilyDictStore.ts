@@ -1,12 +1,14 @@
-import { create } from 'zustand';
-import { familyDictService } from '@/services'; // Import the new familyDictService
+import { create, StateCreator } from 'zustand';
+import { familyDictService as defaultFamilyDictService } from '@/services'; // Import the new familyDictService
+import { IFamilyDictService } from '@/services'; // Import IFamilyDictService from '@/services'
 import type { FamilyDictDto, PaginatedList, FamilyDictFilter } from '@/types';
+import { parseError } from '@/utils/errorUtils';
 
 const PAGE_SIZE = 10;
 
 interface PublicFamilyDictState {
-  familyDict: FamilyDictDto | null; // Changed FamilyDictDto to FamilyDict
-  familyDicts: FamilyDictDto[]; // Changed FamilyDictDto to FamilyDict
+  familyDict: FamilyDictDto | null;
+  familyDicts: FamilyDictDto[];
   totalItems: number;
   page: number;
   totalPages: number;
@@ -23,9 +25,12 @@ interface PublicFamilyDictActions {
   setError: (error: string | null) => void;
 }
 
-type PublicFamilyDictStore = PublicFamilyDictState & PublicFamilyDictActions;
+export type PublicFamilyDictStore = PublicFamilyDictState & PublicFamilyDictActions;
 
-export const usePublicFamilyDictStore = create<PublicFamilyDictStore>((set, get) => ({
+// Factory function to create the store
+export const createPublicFamilyDictStore = (
+  familyDictService: IFamilyDictService
+): StateCreator<PublicFamilyDictStore> => (set, get) => ({
   familyDict: null,
   familyDicts: [],
   totalItems: 0,
@@ -36,21 +41,23 @@ export const usePublicFamilyDictStore = create<PublicFamilyDictStore>((set, get)
   hasMore: true,
 
   getFamilyDictById: async (id: string) => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await familyDictService.getFamilyDictById(id);
       if (result.isSuccess && result.value) {
-        set({ familyDict: result.value, loading: false });
+        set(state => ({ ...state, familyDict: result.value, loading: false }));
       } else {
-        set({ error: result.error?.message || 'Failed to fetch family dictionary entry', loading: false });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch family dictionary entry', loading: false });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
     }
   },
 
   fetchFamilyDicts: async (filter: FamilyDictFilter, page: number, itemsPerPage: number, isRefreshing: boolean = false): Promise<PaginatedList<FamilyDictDto> | null> => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await familyDictService.getFamilyDicts(filter, page, itemsPerPage);
       if (result.isSuccess && result.value) {
@@ -62,21 +69,25 @@ export const usePublicFamilyDictStore = create<PublicFamilyDictStore>((set, get)
           page: paginatedList.page,
           totalPages: paginatedList.totalPages,
           hasMore: paginatedList.totalPages > 0 && paginatedList.page < paginatedList.totalPages,
+          loading: false,
         }));
         return paginatedList;
       } else {
-        set({ error: result.error?.message || 'Failed to fetch family dictionary entries' });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
         return null;
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch family dictionary entries' });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
       return null;
-    } finally {
-      set({ loading: false });
     }
   },
 
-  clearFamilyDict: () => set({ familyDict: null }),
-  reset: () => set({ familyDicts: [], totalItems: 0, page: 1, totalPages: 0, hasMore: true }),
-  setError: (error: string | null) => set({ error }),
-}));
+  clearFamilyDict: () => set(state => ({ ...state, familyDict: null })),
+  reset: () => set({ familyDicts: [], totalItems: 0, page: 1, totalPages: 0, hasMore: true, familyDict: null, loading: false, error: null }),
+  setError: (error: string | null) => set(state => ({ ...state, error })),
+});
+
+// Export default store instance
+export const usePublicFamilyDictStore = create<PublicFamilyDictStore>(createPublicFamilyDictStore(defaultFamilyDictService));

@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native';
-import { SPACING_MEDIUM, SPACING_LARGE } from './dimensions';
+import { SPACING_MEDIUM, SPACING_LARGE, SPACING_SMALL } from './dimensions';
 
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: SPACING_MEDIUM,
+    padding: SPACING_SMALL,
   },
   safeArea: {
     flex: 1,

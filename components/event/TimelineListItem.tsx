@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, TextStyle, ViewStyle } from 'react-native';
 import { Text, useTheme } from 'react-native-paper';
-import { TimelineEventDetail } from '@/components/events';
+import { TimelineEventDetail } from '@/components/event';
 import { SPACING_SMALL, SPACING_MEDIUM } from '@/constants/dimensions';
 import type { EventDto } from '@/types';
 import { format } from 'date-fns';

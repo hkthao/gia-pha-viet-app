@@ -3,16 +3,7 @@ import { dashboardService as defaultDashboardService } from '@/services';
 import { DashboardMetrics, Result } from '@/types';
 import { IDashboardService } from '@/services/dashboard/dashboard.service.interface';
 
-// Hàm helper để phân tích lỗi
-const parseError = (err: any): string => {
-  if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
-    return err.message;
-  }
-  if (typeof err === 'string') {
-    return err;
-  }
-  return 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.';
-};
+import { parseError } from '@/utils/errorUtils';
 
 interface DashboardState {
   dashboardData: DashboardMetrics | null;
@@ -25,7 +16,7 @@ interface DashboardActions {
   reset: () => void; // Thêm hàm reset để dễ dàng thiết lập lại trạng thái trong các bài kiểm thử
 }
 
-type DashboardStore = DashboardState & DashboardActions;
+export type DashboardStore = DashboardState & DashboardActions;
 
 // Factory function để tạo store
 export const createDashboardStore = (

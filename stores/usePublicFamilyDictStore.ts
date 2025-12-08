@@ -59,7 +59,24 @@ export const createPublicFamilyDictStore = (
   fetchFamilyDicts: async (filter: FamilyDictFilter, page: number, itemsPerPage: number, isRefreshing: boolean = false): Promise<PaginatedList<FamilyDictDto> | null> => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
-      const result = await familyDictService.getFamilyDicts(filter, page, itemsPerPage);
+      // The logic for pageNumber using get().page + 1 is missing
+      // const pageNumber = isRefreshing ? 1 : get().page + 1; // This logic needs to be re-evaluated
+
+      // Re-evaluating the pageNumber logic based on the original store and the new isRefreshing parameter
+      // If refreshing, we always fetch page 1.
+      // If not refreshing and current page in store is not 1, we increment.
+      // If not refreshing and current page in store is 1, we still fetch page 1 (initial load, or explicit page 1 request)
+      const currentPageInStore = get().page;
+      let pageNumberToFetch;
+
+      if (isRefreshing) {
+          pageNumberToFetch = 1;
+      } else {
+          // If not refreshing, use the page parameter passed in, or if it's 0/undefined, then use currentPageInStore + 1
+          pageNumberToFetch = page && page > 0 ? page : currentPageInStore + 1;
+      }
+
+      const result = await familyDictService.getFamilyDicts(filter, pageNumberToFetch, itemsPerPage);
       if (result.isSuccess && result.value) {
         const paginatedList: PaginatedList<FamilyDictDto> = result.value;
 

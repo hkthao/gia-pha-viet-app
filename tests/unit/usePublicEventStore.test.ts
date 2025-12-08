@@ -21,40 +21,40 @@ jest.mock('@/services/authService', () => ({
 // Mock Event data for testing
 const mockEvent: EventDto = {
   id: 'event1',
-  title: 'Family Reunion',
+  name: 'Family Reunion', // Changed from title to name
   description: 'Annual family gathering',
   location: 'Community Hall',
-  dateTime: '2025-12-25T10:00:00Z',
+  startDate: '2025-12-25T10:00:00Z', // Changed from dateTime
   familyId: 'family123',
   createdBy: 'user1',
-  createdDate: '2024-01-01T00:00:00Z',
+  created: '2024-01-01T00:00:00Z',
+  type: 0, // Assuming a default EventType
+  relatedMembers: [],
 };
 
 const mockEventsPage1: PaginatedList<EventDto> = {
   items: [
-    { ...mockEvent, id: 'eventA', title: 'Event A' },
-    { ...mockEvent, id: 'eventB', title: 'Event B' },
+    { ...mockEvent, id: 'eventA', name: 'Event A' }, // Changed title to name
+    { ...mockEvent, id: 'eventB', name: 'Event B' }, // Changed title to name
   ],
   page: 1,
-  pageSize: 10,
-  totalCount: 20,
+  totalItems: 20, // Keep totalItems
   totalPages: 2,
 };
 
 const mockEventsPage2: PaginatedList<EventDto> = {
   items: [
-    { ...mockEvent, id: 'eventC', title: 'Event C' },
-    { ...mockEvent, id: 'eventD', title: 'Event D' },
+    { ...mockEvent, id: 'eventC', name: 'Event C' }, // Changed title to name
+    { ...mockEvent, id: 'eventD', name: 'Event D' }, // Changed title to name
   ],
   page: 2,
-  pageSize: 10,
-  totalCount: 20,
+  totalItems: 20, // Keep totalItems
   totalPages: 2,
 };
 
 const mockUpcomingEvents: EventDto[] = [
-  { ...mockEvent, id: 'upcoming1', title: 'Upcoming Event 1' },
-  { ...mockEvent, id: 'upcoming2', title: 'Upcoming Event 2' },
+  { ...mockEvent, id: 'upcoming1', name: 'Upcoming Event 1' }, // Changed title to name
+  { ...mockEvent, id: 'upcoming2', name: 'Upcoming Event 2' }, // Changed title to name
 ];
 
 describe('usePublicEventStore', () => {
@@ -286,7 +286,7 @@ describe('usePublicEventStore', () => {
   });
 
   describe('fetchUpcomingEvents', () => {
-    const query = { take: 2 };
+    const query = { familyId: 'family123', startDate: '2025-01-01T00:00:00Z' };
 
     it('should fetch upcoming events successfully', async () => {
       (mockEventService.getUpcomingEvents as jest.Mock).mockResolvedValueOnce({

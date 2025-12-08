@@ -1,8 +1,10 @@
 // apps/mobile/family_tree_rn/stores/usePublicFamilyStore.ts
 
-import { create } from 'zustand';
-import { familyService } from '@/services'; // Import the new familyService
+import { create, StateCreator } from 'zustand';
+import { familyService as defaultFamilyService } from '@/services'; // Import the new familyService
+import { IFamilyService } from '@/services'; // Import IFamilyService from '@/services'
 import type { FamilyDetailDto, FamilyListDto, PaginatedList } from '@/types';
+import { parseError } from '@/utils/errorUtils';
 
 const PAGE_SIZE = 10; // Define PAGE_SIZE here
 
@@ -25,9 +27,12 @@ interface PublicFamilyActions {
   setError: (error: string | null) => void;
 }
 
-type PublicFamilyStore = PublicFamilyState & PublicFamilyActions;
+export type PublicFamilyStore = PublicFamilyState & PublicFamilyActions;
 
-export const usePublicFamilyStore = create<PublicFamilyStore>((set, get) => ({ // Added get
+// Factory function to create the store
+export const createPublicFamilyStore = (
+  familyService: IFamilyService
+): StateCreator<PublicFamilyStore> => (set, get) => ({
   family: null,
   families: [], // Initialize as empty array
   totalItems: 0, // Initialize totalItems
@@ -38,21 +43,23 @@ export const usePublicFamilyStore = create<PublicFamilyStore>((set, get) => ({ /
   hasMore: true, // Initialize hasMore to true as per requirement
 
   getFamilyById: async (id: string) => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await familyService.getFamilyById(id);
       if (result.isSuccess && result.value) {
-        set({ family: result.value, loading: false });
+        set(state => ({ ...state, family: result.value, loading: false }));
       } else {
-        set({ error: result.error?.message || 'Failed to fetch family', loading: false });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch family', loading: false });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
     }
   },
 
   fetchFamilies: async (query: { page: number; search?: string }, isRefreshing: boolean = false): Promise<PaginatedList<FamilyListDto> | null> => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await familyService.searchFamilies({ // Updated type
         page: query.page,
@@ -69,23 +76,29 @@ export const usePublicFamilyStore = create<PublicFamilyStore>((set, get) => ({ /
           page: paginatedList.page,
           totalPages: paginatedList.totalPages,
           hasMore: paginatedList.totalPages > 0 && paginatedList.page < paginatedList.totalPages,
+          loading: false,
         }));
         return paginatedList;
       } else {
-        console.error('Error fetching families:', result.error);
-        set({ error: result.error?.message || 'Failed to fetch family' });
+        // console.error('Error fetching families:', result.error); // Remove console.error in store
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage, loading: false }));
         return null;
       }
     } catch (err: any) {
-      console.error('Error fetching families:', err);
-      set({ error: err.message || 'Failed to fetch family' });
+      // console.error('Error fetching families:', err); // Remove console.error in store
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage, loading: false }));
       return null;
     } finally {
-      set({ loading: false }); // Ensure loading is always set to false
+      set(state => ({ ...state, loading: false })); // Ensure loading is always set to false
     }
   },
 
-  clearFamily: () => set({ family: null }),
-  reset: () => set({ families: [], totalItems: 0, page: 1, totalPages: 0, hasMore: true }), // Renamed and set hasMore to true
-  setError: (error: string | null) => set({ error }),
-}));
+  clearFamily: () => set(state => ({ ...state, family: null })),
+  reset: () => set({ families: [], totalItems: 0, page: 1, totalPages: 0, loading: false, error: null, family: null, hasMore: true }), // Renamed and set hasMore to true
+  setError: (error: string | null) => set(state => ({ ...state, error })),
+});
+
+// Export default store instance
+export const usePublicFamilyStore = create<PublicFamilyStore>(createPublicFamilyStore(defaultFamilyService));

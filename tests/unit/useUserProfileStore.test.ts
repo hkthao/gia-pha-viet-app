@@ -21,14 +21,15 @@ jest.mock('@/services/authService', () => ({
 // Mock UserProfile data for testing
 const mockUserProfile: UserProfileDto = {
   id: 'user1',
+  externalId: 'external123',
+  userId: 'auth0_user1',
   email: 'test@example.com',
+  name: 'Test User',
   firstName: 'Test',
   lastName: 'User',
   phone: '123-456-7890',
-  avatarUrl: 'http://example.com/avatar.png',
-  bio: 'A test user profile.',
-  familyId: 'family123',
-  created: '2023-01-01T00:00:00Z',
+  avatar: 'http://example.com/avatar.png',
+  roles: ['User'],
 };
 
 describe('useUserProfileStore', () => {

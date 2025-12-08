@@ -69,39 +69,66 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
     return newQuery;
   }, [initialQuery, state.filters, state.page, debouncedSearch]);
 
+  const lastFetchedQueryRef = useRef<Q | null>(null);
+  const initialDataLoadedRef = useRef(false); // New ref to track initial data load
+
   useEffect(() => {
     const loadData = async () => {
-      if (!query || (query.page === 1 && !query.searchTerm && Object.keys(query).length <= 2 && !state.refreshing)) {
-        if (!state.refreshing) {
-          return;
-        }
+      // If we are on the first page, not refreshing, and the current query is the same
+      // as the last successfully fetched query, then skip this fetch.
+      // This prevents double-fetching on initial mount for the same query state.
+      if (
+        query.page === 1 &&
+        !state.refreshing &&
+        lastFetchedQueryRef.current &&
+        shallowEqual(lastFetchedQueryRef.current, query)
+      ) {
+        return;
       }
-      const isRefreshFetch = state.refreshing && state.page === 1;
+
       try {
         await fetch(query, state.page > 1);
+        // After a successful fetch, update the lastFetchedQueryRef
+        lastFetchedQueryRef.current = query;
+        // Mark initial data as loaded if it was the first page fetch
+        if (query.page === 1) {
+          initialDataLoadedRef.current = true;
+        }
       } finally {
-        if (isRefreshFetch) {
+        if (state.refreshing) {
           dispatch({ type: "END_REFRESH" });
         }
       }
     };
+
     loadData();
+
+    // Cleanup function: If the component unmounts, clear the refs.
+    // This ensures that if the component remounts (e.g., hot reload),
+    // an initial fetch will occur again.
+    return () => {
+        lastFetchedQueryRef.current = null;
+        initialDataLoadedRef.current = false; // Reset on unmount
+    };
+
   }, [query, fetch, state.page, state.refreshing, dispatch]); // Add dispatch as a dependency
 
   const handleRefresh = useCallback(async () => {
     if (state.refreshing) return; // Prevent multiple refresh calls
 
     dispatch({ type: "START_REFRESH" });
+    initialDataLoadedRef.current = false; // Reset this flag on refresh
     reset(); // Reset the Zustand store
     dispatch({ type: "RESET", payload: initialQuery }); // Reset local state
     // Fetch will be triggered by useEffect reacting to the RESET action's change in query/state.page
   }, [state.refreshing, initialQuery, reset, dispatch]);
 
   const handleLoadMore = useCallback(() => {
-    if (!loading && hasMore && !state.refreshing) { // Prevent loading more while refreshing
+    // Only allow load more if initial data has been loaded and conditions are met
+    if (initialDataLoadedRef.current && !loading && hasMore && !state.refreshing) {
       dispatch({ type: "LOAD_MORE" });
     }
-  }, [loading, hasMore, state.refreshing, dispatch]);
+  }, [initialDataLoadedRef, loading, hasMore, state.refreshing, dispatch]);
 
   const setSearchQuery = useCallback((s: string) => dispatch({ type: "SET_SEARCH", payload: s }), [dispatch]);
   const setFilters = useCallback((f: Partial<Q> | ((prev: Q) => Partial<Q>)) => dispatch({ type: "SET_FILTERS", payload: f }), [dispatch]);

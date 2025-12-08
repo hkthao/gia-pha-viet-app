@@ -51,47 +51,145 @@ describe('usePaginatedSearch', () => {
     (useDebouncedValue as jest.Mock).mockImplementation((value) => value); // Default behavior
   });
 
-  // Test Case 1: Initial Render
-  it('should initialize with correct default values and fetch data on mount', async () => {
-    const { store, useStore } = createMockStore<TestItem, TestQueryParams>({
-      items: [],
-      loading: false,
-      error: null,
-      hasMore: true, // Explicitly set to true for the mock store
-    });
-
-    const initialQuery = { searchTerm: '', category: 'all' };
-
-    const { result, waitForNextUpdate } = renderHook(() =>
-      usePaginatedSearch<TestItem, TestQueryParams>({
-        useStore,
-        initialQuery,
-      })
-    );
-
-    // Initial state check
-    expect(result.current.items).toEqual([]);
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBe(null);
-    expect(result.current.hasMore).toBe(true); // Expect true as per usePublicFamilyStore
-    expect(result.current.searchQuery).toBe('');
-    expect(result.current.filters).toEqual(initialQuery);
-    expect(result.current.refreshing).toBe(false);
-
-    // Verify fetch is called with initial query
-    await waitFor(() => {
-      expect(store.fetch).toHaveBeenCalledTimes(1);
-      expect(store.fetch).toHaveBeenCalledWith(
-        expect.objectContaining({
-          searchTerm: '',
-          category: 'all',
-          page: 1,
-        }),
-        false
+      // Test Case 1: Initial Render
+    it('should initialize with correct default values and fetch data on mount', async () => {
+      const { store, useStore } = createMockStore<TestItem, TestQueryParams>({
+        items: [],
+        loading: false,
+        error: null,
+        hasMore: true, // Explicitly set to true for the mock store
+      });
+  
+      const initialQuery = { searchTerm: '', category: 'all' };
+  
+      const { result, waitForNextUpdate } = renderHook(() =>
+        usePaginatedSearch<TestItem, TestQueryParams>({
+          useStore,
+          initialQuery,
+        })
       );
+  
+      // Initial state check
+      expect(result.current.items).toEqual([]);
+      expect(result.current.loading).toBe(false);
+      expect(result.current.error).toBe(null);
+      expect(result.current.hasMore).toBe(true); // Expect true as per usePublicFamilyStore
+      expect(result.current.searchQuery).toBe('');
+      expect(result.current.filters).toEqual(initialQuery);
+      expect(result.current.refreshing).toBe(false);
+  
+      // Verify fetch is called with initial query
+      await waitFor(() => {
+        expect(store.fetch).toHaveBeenCalledTimes(1);
+        expect(store.fetch).toHaveBeenCalledWith(
+          expect.objectContaining({
+            searchTerm: '',
+            category: 'all',
+            page: 1,
+          }),
+          false
+        );
+      });
     });
-  });
+  
+    // Test Case 1.1: Should not refetch on subsequent re-renders if query is stable
+    it('should not refetch on subsequent re-renders if query is stable', async () => {
+      const { store, useStore } = createMockStore<TestItem, TestQueryParams>({ hasMore: true });
+      const initialQuery = { searchTerm: '', category: 'all' };
+  
+      // Render the hook initially
+      const { rerender } = renderHook(() =>
+        usePaginatedSearch<TestItem, TestQueryParams>({
+          useStore,
+          initialQuery,
+        })
+      );
+  
+      // Wait for the initial fetch to complete
+      await waitFor(() => expect(store.fetch).toHaveBeenCalledTimes(1));
+  
+      // Clear the mock to ensure we only count new calls
+      (store.fetch as jest.Mock).mockClear();
+  
+      // Re-render the component without changing any props
+      // This simulates a parent component re-rendering, causing the hook to re-evaluate
+      act(() => {
+        rerender();
+      });
+  
+      // Expect fetch NOT to have been called again
+      await waitFor(() => {
+        expect(store.fetch).toHaveBeenCalledTimes(0);
+      });
+    });
 
+    // Test Case 1.2: handleLoadMore should not trigger before initial fetch is complete
+    it('handleLoadMore should not trigger before initial fetch is complete', async () => {
+      const { store, useStore } = createMockStore<TestItem, TestQueryParams>({ hasMore: true, page: 1 });
+      const initialQuery = { searchTerm: '', category: 'all' };
+
+      // Make the initial fetch promise pending
+      let resolveInitialFetch: (value: any) => void;
+      (store.fetch as jest.Mock).mockImplementationOnce(() => new Promise(resolve => {
+        resolveInitialFetch = resolve;
+      }));
+
+      const { result } = renderHook(() =>
+        usePaginatedSearch<TestItem, TestQueryParams>({
+          useStore,
+          initialQuery,
+        })
+      );
+
+      // Verify that initial fetch was called once and is pending
+      expect(store.fetch).toHaveBeenCalledTimes(1);
+
+      // Call handleLoadMore immediately - it should NOT trigger another fetch yet
+      act(() => {
+        result.current.handleLoadMore();
+      });
+
+      // Fetch count should still be 1 (only the initial one)
+      expect(store.fetch).toHaveBeenCalledTimes(1);
+
+      // Resolve the initial fetch
+      act(() => {
+        // We need to simulate the store's state update after the fetch resolves
+        // The usePaginatedSearch hook will update initialDataLoadedRef based on this.
+        // We also need to set hasMore to true for handleLoadMore to work after initial load.
+        store.page = 1; // After initial fetch, page is 1
+        store.hasMore = true; // Assume there's more data
+        resolveInitialFetch(true);
+      });
+
+      // Wait for the hook to process the resolved promise and update state
+      await waitFor(() => {
+        // Assert that the initial fetch promise has resolved and internal state has been updated
+        // For simplicity, we just check that loading becomes false.
+        expect(store.loading).toBe(false); // This is an internal state of the mock, not directly exposed by result.current.loading at this point
+      });
+
+      // Clear the fetch mock again to count calls specifically from the subsequent handleLoadMore
+      (store.fetch as jest.Mock).mockClear();
+
+      // Now call handleLoadMore again - it SHOULD trigger a fetch
+      act(() => {
+        result.current.handleLoadMore();
+      });
+      
+      // Check if fetch was called for the load more
+      await waitFor(() => {
+        expect(store.fetch).toHaveBeenCalledTimes(1); // One new call for load more
+        expect(store.fetch).toHaveBeenCalledWith(
+          expect.objectContaining({
+            searchTerm: '',
+            category: 'all',
+            page: 2, // Expecting page 2 for load more
+          }),
+          true // isLoadMore should be true
+        );
+      });
+    });
   // Test Case 2: setSearchQuery updates and triggers fetch after debounce
   it('should update search query, debounce it, and trigger a fetch', async () => {
     const { store, useStore } = createMockStore<TestItem, TestQueryParams>({ hasMore: true }); // Ensure hasMore is true

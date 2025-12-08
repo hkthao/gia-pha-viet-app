@@ -102,6 +102,15 @@ const mockMembersPage2: PaginatedList<MemberListDto> = {
   totalPages: 2,
 };
 
+const mockMembersSinglePage: PaginatedList<MemberListDto> = {
+  items: [
+    { ...mockMemberList, id: 'memberSingle1', fullName: 'Member Single 1' },
+  ],
+  page: 1,
+  totalItems: 1,
+  totalPages: 1,
+};
+
 describe('usePublicMemberStore', () => {
   let mockMemberService: IMemberService;
   let useStore: UseBoundStore<StoreApi<PublicMemberStore>>;
@@ -343,6 +352,33 @@ describe('usePublicMemberStore', () => {
       expect(result.current.members).toEqual([]);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
+    });
+
+    it('should correctly set hasMore to false when totalPages is 1', async () => {
+      (mockMemberService.searchMembers as jest.Mock).mockResolvedValueOnce({
+        isSuccess: true,
+        value: mockMembersSinglePage,
+      } as Result<PaginatedList<MemberListDto>>);
+
+      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+
+      act(() => {
+        result.current.fetchMembers(query, false);
+      });
+
+      expect(result.current.loading).toBeTruthy();
+      expect(result.current.error).toBeNull();
+
+      await waitForNextUpdate();
+
+      expect(mockMemberService.searchMembers).toHaveBeenCalledWith(query);
+      expect(result.current.members).toEqual(mockMembersSinglePage.items);
+      expect(result.current.totalItems).toBe(mockMembersSinglePage.totalItems);
+      expect(result.current.page).toBe(mockMembersSinglePage.page);
+      expect(result.current.totalPages).toBe(mockMembersSinglePage.totalPages);
+      expect(result.current.hasMore).toBeFalsy(); // This is the key assertion
+      expect(result.current.loading).toBeFalsy();
+      expect(result.current.error).toBeNull();
     });
   });
 

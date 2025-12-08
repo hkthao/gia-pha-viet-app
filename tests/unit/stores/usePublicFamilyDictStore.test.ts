@@ -49,6 +49,15 @@ const mockFamilyDictsPage2: PaginatedList<FamilyDictDto> = {
   totalPages: 2,
 };
 
+const mockFamilyDictsSinglePage: PaginatedList<FamilyDictDto> = {
+  items: [
+    { ...mockFamilyDict, id: 'dictSingle1', name: 'Term Single 1' },
+  ],
+  page: 1,
+  totalItems: 1,
+  totalPages: 1,
+};
+
 describe('usePublicFamilyDictStore', () => {
   let mockFamilyDictService: IFamilyDictService;
   let useStore: UseBoundStore<StoreApi<PublicFamilyDictStore>>;
@@ -268,6 +277,33 @@ describe('usePublicFamilyDictStore', () => {
       expect(result.current.familyDicts).toEqual([]);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
+    });
+
+    it('should correctly set hasMore to false when totalPages is 1', async () => {
+      (mockFamilyDictService.getFamilyDicts as jest.Mock).mockImplementationOnce(async (filter, page, itemsPerPage) => {
+        await Promise.resolve(); // Simulate microtask queue
+        return { isSuccess: true, value: mockFamilyDictsSinglePage } as Result<PaginatedList<FamilyDictDto>>;
+      });
+
+      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+
+      act(() => {
+        result.current.fetchFamilyDicts(filter, page, itemsPerPage, false);
+      });
+
+      expect(result.current.loading).toBeTruthy();
+      expect(result.current.error).toBeNull();
+
+      await waitForNextUpdate();
+
+      expect(mockFamilyDictService.getFamilyDicts).toHaveBeenCalledWith(filter, page, itemsPerPage);
+      expect(result.current.familyDicts).toEqual(mockFamilyDictsSinglePage.items);
+      expect(result.current.totalItems).toBe(mockFamilyDictsSinglePage.totalItems);
+      expect(result.current.page).toBe(mockFamilyDictsSinglePage.page);
+      expect(result.current.totalPages).toBe(mockFamilyDictsSinglePage.totalPages);
+      expect(result.current.hasMore).toBeFalsy(); // This is the key assertion
+      expect(result.current.loading).toBeFalsy();
+      expect(result.current.error).toBeNull();
     });
   });
 

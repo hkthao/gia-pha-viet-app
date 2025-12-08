@@ -80,7 +80,7 @@ export const createPublicFamilyStore = (
             totalItems: paginatedList.totalItems,
             page: paginatedList.page,
             totalPages: paginatedList.totalPages,
-            hasMore: paginatedList.totalPages > 0 && paginatedList.page < paginatedList.totalPages,
+            hasMore: paginatedList.totalPages > 1 && paginatedList.page < paginatedList.totalPages,
             loading: false,
           };
         });

@@ -65,6 +65,15 @@ const mockFamiliesPage2: PaginatedList<FamilyListDto> = {
   totalPages: 2,
 };
 
+const mockFamiliesSinglePage: PaginatedList<FamilyListDto> = {
+  items: [
+    { ...mockFamilyList, id: 'familySingle1', name: 'Family Single 1' },
+  ],
+  page: 1,
+  totalItems: 1,
+  totalPages: 1,
+};
+
 
 describe('usePublicFamilyStore', () => {
   let mockFamilyService: IFamilyService;
@@ -326,6 +335,37 @@ describe('usePublicFamilyStore', () => {
       expect(result.current.families).toEqual([]);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
+    });
+
+    it('should correctly set hasMore to false when totalPages is 1', async () => {
+      (mockFamilyService.searchFamilies as jest.Mock).mockResolvedValueOnce({
+        isSuccess: true,
+        value: mockFamiliesSinglePage,
+      } as Result<PaginatedList<FamilyListDto>>);
+
+      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+
+      act(() => {
+        result.current.fetchFamilies(query, false);
+      });
+
+      expect(result.current.loading).toBeTruthy();
+      expect(result.current.error).toBeNull();
+
+      await waitForNextUpdate();
+
+      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+        page: query.page,
+        itemsPerPage: 10,
+        searchTerm: query.search,
+      });
+      expect(result.current.families).toEqual(mockFamiliesSinglePage.items);
+      expect(result.current.totalItems).toBe(mockFamiliesSinglePage.totalItems);
+      expect(result.current.page).toBe(mockFamiliesSinglePage.page);
+      expect(result.current.totalPages).toBe(mockFamiliesSinglePage.totalPages);
+      expect(result.current.hasMore).toBeFalsy(); // This is the key assertion
+      expect(result.current.loading).toBeFalsy();
+      expect(result.current.error).toBeNull();
     });
   });
 

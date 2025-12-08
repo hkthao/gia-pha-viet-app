@@ -1,7 +1,7 @@
 import React from 'react';
-import { FlatList, View, RefreshControl, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
+import { FlatList, View, RefreshControl, StyleProp, ViewStyle } from 'react-native';
 import { Searchbar, Text, IconButton as PaperIconButton } from 'react-native-paper';
-import { usePaginatedSearch, PaginatedSearchOptions, PaginatedSearchResult } from '@/hooks/usePaginatedSearch';
+import { usePaginatedSearch, PaginatedSearchOptions } from '@/hooks/usePaginatedSearch';
 import { usePaginatedSearchListUI } from '@/hooks/usePaginatedSearchListUI';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 
@@ -88,7 +88,7 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
   const containerCombinedStyle = React.useMemo(
     () => [styles.container, containerStyle],
     [styles.container, containerStyle]
-  );
+  ); 
 
   const flatListContentCombinedStyle = React.useMemo(
     () => [styles.container, contentContainerStyle],

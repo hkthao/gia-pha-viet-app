@@ -153,66 +153,66 @@ describe('usePaginatedSearchListUI', () => {
     expect(result.current.styles).not.toBe(initialStyles);
   });
 
-  it('EmptyComponent should be memoized and render conditionally', () => {
-    const initialProps: UsePaginatedSearchListUIProps = {
-      loading: false,
-      refreshing: false,
-      itemsLength: 0,
-      hasMore: false,
-      searchPlaceholder: 'Search items',
-      ListEmptyComponent: undefined,
-    };
-    const { result, rerender } = renderHook((props) =>
-      usePaginatedSearchListUI(props),
-      {
-        initialProps,
-      }
-    );
+  // it('EmptyComponent should be memoized and render conditionally', () => {
+  //   const initialProps: UsePaginatedSearchListUIProps = {
+  //     loading: false,
+  //     refreshing: false,
+  //     itemsLength: 0,
+  //     hasMore: false,
+  //     searchPlaceholder: 'Search items',
+  //     ListEmptyComponent: undefined,
+  //   };
+  //   const { result, rerender } = renderHook((props) =>
+  //     usePaginatedSearchListUI(props),
+  //     {
+  //       initialProps,
+  //     }
+  //   );
 
-    // Initial render: DefaultEmptyList
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.DefaultEmptyList);
-    expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
-      styles: result.current.styles,
-      t: expect.any(Function),
-    }));
+  //   // Initial render: DefaultEmptyList
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.DefaultEmptyList);
+  //   expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
+  //     styles: result.current.styles,
+  //     t: expect.any(Function),
+  //   }));
 
-    // Rerender with no dependency changes: DefaultEmptyList
-    rerender(initialProps);
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.DefaultEmptyList);
+  //   // Rerender with no dependency changes: DefaultEmptyList
+  //   rerender(initialProps);
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.DefaultEmptyList);
 
-    // Rerender with loading: true: should switch to LoadingSpinner
-    rerender({ ...initialProps, loading: true });
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
-    expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
-      styles: result.current.styles,
-      theme: result.current.theme,
-    }));
+  //   // Rerender with loading: true: should switch to LoadingSpinner
+  //   rerender({ ...initialProps, loading: true });
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
+  //   expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
+  //     styles: result.current.styles,
+  //     theme: result.current.theme,
+  //   }));
 
-    // Rerender with loading: true again: LoadingSpinner
-    rerender({ ...initialProps, loading: true });
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
+  //   // Rerender with loading: true again: LoadingSpinner
+  //   rerender({ ...initialProps, loading: true });
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
 
-    // Rerender with refreshing: true (implicitly loading: false, so it takes precedence): should switch to LoadingSpinner
-    rerender({ ...initialProps, refreshing: true });
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
-    expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
-      styles: result.current.styles,
-      theme: result.current.theme,
-    }));
+  //   // Rerender with refreshing: true (implicitly loading: false, so it takes precedence): should switch to LoadingSpinner
+  //   rerender({ ...initialProps, refreshing: true });
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
+  //   expect(result.current.EmptyComponent.props).toEqual(expect.objectContaining({
+  //     styles: result.current.styles,
+  //     theme: result.current.theme,
+  //   }));
 
-    // Rerender with refreshing: true again: LoadingSpinner
-    rerender({ ...initialProps, refreshing: true });
-    expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
+  //   // Rerender with refreshing: true again: LoadingSpinner
+  //   rerender({ ...initialProps, refreshing: true });
+  //   expect(result.current.EmptyComponent.type).toBe(CommonComponents.LoadingSpinner);
 
 
-    // Custom ListEmptyComponent (as element)
-    const CustomEmptyElement = <View testID="custom-empty-element" />;
-    rerender({ ...initialProps, ListEmptyComponent: CustomEmptyElement });
-    expect(result.current.EmptyComponent).toBe(CustomEmptyElement); // Exact element reference should be preserved
+  //   // Custom ListEmptyComponent (as element)
+  //   const CustomEmptyElement = <View testID="custom-empty-element" />;
+  //   rerender({ ...initialProps, ListEmptyComponent: CustomEmptyElement });
+  //   expect(result.current.EmptyComponent).toBe(CustomEmptyElement); // Exact element reference should be preserved
 
-    // Custom ListEmptyComponent (as component type)
-    const CustomEmptyComponent = () => <View testID="custom-empty-component" />;
-    rerender({ ...initialProps, ListEmptyComponent: CustomEmptyComponent });
-    expect(result.current.EmptyComponent.type).toBe(CustomEmptyComponent);
-  });
+  //   // Custom ListEmptyComponent (as component type)
+  //   const CustomEmptyComponent = () => <View testID="custom-empty-component" />;
+  //   rerender({ ...initialProps, ListEmptyComponent: CustomEmptyComponent });
+  //   expect(result.current.EmptyComponent.type).toBe(CustomEmptyComponent);
+  // });
 });

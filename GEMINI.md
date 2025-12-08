@@ -24,6 +24,9 @@
      - These errors are related to type casting issues when mocking Zustand stores in Jest tests. These were noted as pre-existing and not addressed in this session.
 
 ### 4. Successful Refactorings/Optimizations:
+   - **`gia-pha-viet-app/hooks/useInfiniteUpdateDetector.ts`**:
+     - Enhanced the hook to accept an optional `dependencies` array.
+     - Implemented logic to compare current and previous dependencies and log which specific dependencies have changed when an infinite update loop is detected, providing more targeted debugging information.
    - **`gia-pha-viet-app/hooks/useFamilyDictList.tsx`**:
      - Extracted `renderFamilyDictItem` logic into a separate `FamilyDictItem.tsx` component (`components/family-dict/FamilyDictItem.tsx`).
      - Updated the hook to use the new component and cleaned up related styles and helper functions.

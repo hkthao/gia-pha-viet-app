@@ -23,8 +23,18 @@ export function searchReducer<Q extends QueryParams>(
       return { ...state, search: action.payload, page: 1 };
 
     case "SET_FILTERS":
-      const newFilters = typeof action.payload === 'function' ? action.payload(state.filters) : action.payload;
-      return { ...state, filters: { ...state.filters, ...newFilters } as Q, page: 1 };
+      const newPartialFilters = typeof action.payload === 'function' ? action.payload(state.filters) : action.payload;
+      const mergedFilters: Q = { ...state.filters, ...newPartialFilters } as Q;
+
+      // Shallow comparison to determine if filters have actually changed
+      const filtersHaveChanged = Object.keys(mergedFilters).length !== Object.keys(state.filters).length ||
+                                 Object.keys(mergedFilters).some(key => mergedFilters[key] !== state.filters[key]);
+
+      if (!filtersHaveChanged && state.page === 1) {
+        return state; // No effective change in filters and page is already 1, return current state
+      }
+
+      return { ...state, filters: mergedFilters, page: 1 };
 
     case "LOAD_MORE":
       return { ...state, page: state.page + 1 };

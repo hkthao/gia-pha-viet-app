@@ -1,30 +1,45 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
 import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 
 export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> {
-  const store = usePublicFamilyStore();
+  const families = usePublicFamilyStore((state) => state.families);
+  const loading = usePublicFamilyStore((state) => state.loading);
+  const error = usePublicFamilyStore((state) => state.error);
+  const hasMore = usePublicFamilyStore((state) => state.hasMore);
+  const page = usePublicFamilyStore((state) => state.page);
+
+  // Extract stable actions directly
+  const fetchFamiliesAction = usePublicFamilyStore((state) => state.fetchFamilies);
+  const resetAction = usePublicFamilyStore((state) => state.reset);
+  const setErrorAction = usePublicFamilyStore((state) => state.setError);
+
+  // Memoize the fetch function using useCallback to ensure its stability
+  const fetch = useCallback(
+    async (query: SearchPublicFamiliesQuery, isLoadMore: boolean) =>
+      fetchFamiliesAction({ ...query, page: query.page || 1 }, isLoadMore),
+    [fetchFamiliesAction]
+  );
 
   const mappedStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> = useMemo(() => ({
-    items: store.families,
-    loading: store.loading,
-    error: store.error,
-    hasMore: store.hasMore,
-    page: store.page,
-    fetch: async (query, isLoadMore) =>
-      store.fetchFamilies({ ...query, page: query.page || 1 }, isLoadMore),
-    reset: store.reset,
-    setError: store.setError,
+    items: families,
+    loading: loading,
+    error: error,
+    hasMore: hasMore,
+    page: page,
+    fetch: fetch,
+    reset: resetAction,
+    setError: setErrorAction,
   }), [
-    store.families,
-    store.loading,
-    store.error,
-    store.hasMore,
-    store.page,
-    store.fetchFamilies,
-    store.reset,
-    store.setError
+    families,
+    loading,
+    error,
+    hasMore,
+    page,
+    fetch,
+    resetAction,
+    setErrorAction,
   ]);
 
   return mappedStore;

@@ -2,5 +2,5 @@
 
 export { default as DetailedInfoCard } from './DetailedInfoCard';
 
-export { default as MemberSearchScreen } from './MemberSearchScreen';
+
 export { default as ProfileCard } from './ProfileCard';

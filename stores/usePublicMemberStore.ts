@@ -1,8 +1,10 @@
 // apps/mobile/family_tree_rn/stores/usePublicMemberStore.ts
 
-import { create } from 'zustand';
-import { memberService } from '@/services'; // Import the new memberService
+import { create, StateCreator } from 'zustand';
+import { memberService as defaultMemberService } from '@/services'; // Import the new memberService
+import { IMemberService } from '@/services'; // Import IMemberService from '@/services'
 import type { MemberListDto, SearchPublicMembersQuery, MemberDetailDto, PaginatedList } from '@/types';
+import { parseError } from '@/utils/errorUtils';
 
 
 interface PublicMemberState {
@@ -23,9 +25,12 @@ interface PublicMemberActions {
   setError: (error: string | null) => void;
 }
 
-type PublicMemberStore = PublicMemberState & PublicMemberActions;
+export type PublicMemberStore = PublicMemberState & PublicMemberActions;
 
-export const usePublicMemberStore = create<PublicMemberStore>((set, get) => ({
+// Factory function to create the store
+export const createPublicMemberStore = (
+  memberService: IMemberService
+): StateCreator<PublicMemberStore> => (set, get) => ({
   member: null, // Initialize member
   members: [],
   page: 1,
@@ -36,26 +41,28 @@ export const usePublicMemberStore = create<PublicMemberStore>((set, get) => ({
   hasMore: true,
 
   getMemberById: async (id: string, familyId: string) => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await memberService.getMemberById(id, familyId);
       if (result.isSuccess && result.value) {
-        set({ member: result.value });
+        set(state => ({ ...state, member: result.value }));
         return result.value;
       } else {
-        set({ error: result.error?.message || 'Failed to fetch member' });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage }));
         return null;
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch member' });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage }));
       return null;
     } finally {
-      set({ loading: false });
+      set(state => ({ ...state, loading: false }));
     }
   },
 
   fetchMembers: async (query: SearchPublicMembersQuery, isRefreshing: boolean = false): Promise<PaginatedList<MemberListDto> | null> => {
-    set({ loading: true, error: null });
+    set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await memberService.searchMembers(query);
       if (result.isSuccess && result.value) {
@@ -69,17 +76,22 @@ export const usePublicMemberStore = create<PublicMemberStore>((set, get) => ({
         }));
         return paginatedList;
       } else {
-        set({ error: result.error?.message || 'Failed to fetch members' });
+        const errorMessage = parseError(result.error);
+        set(state => ({ ...state, error: errorMessage }));
         return null;
       }
     } catch (err: any) {
-      set({ error: err.message || 'Failed to fetch members' });
+      const errorMessage = parseError(err);
+      set(state => ({ ...state, error: errorMessage }));
       return null;
     } finally {
-      set({ loading: false });
+      set(state => ({ ...state, loading: false }));
     }
   },
 
-  reset: () => set({ members: [], page: 1, totalPages: 0, totalItems: 0, hasMore: true, error: null }),
-  setError: (error: string | null) => set({ error }),
-}));
+  reset: () => set({ member: null, members: [], page: 1, totalPages: 0, totalItems: 0, loading: false, error: null, hasMore: true }),
+  setError: (error: string | null) => set(state => ({ ...state, error })),
+});
+
+// Export default store instance
+export const usePublicMemberStore = create<PublicMemberStore>(createPublicMemberStore(defaultMemberService));

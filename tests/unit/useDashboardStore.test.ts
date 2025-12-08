@@ -1,9 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { create } from 'zustand';
-import { createDashboardStore } from '@/stores/useDashboardStore';
-import { IDashboardService } from '@/services/dashboard/dashboard.service.interface';
-import { Result } from '@/types';
-import { DashboardMetrics } from '@/types/public-dashboard-metrics';
+import { create, StoreApi, UseBoundStore } from 'zustand';
+import { createDashboardStore, DashboardStore } from '@/stores/useDashboardStore';
+import { IDashboardService } from '@/services'; // Import from services barrel file
+import { Result, DashboardMetrics } from '@/types'; // Import from types barrel file
 
 // Mock authService to prevent it from trying to initialize Auth0 components and AsyncStorage
 jest.mock('@/services/authService', () => ({
@@ -22,15 +21,19 @@ jest.mock('@/services/authService', () => ({
 // Mock Dashboard Metrics for testing
 const mockDashboardMetrics: DashboardMetrics = {
   totalMembers: 100,
-  totalFamilies: 10,
-  eventsThisMonth: 5,
-  recentActivities: [],
-  averageLifespan: 75,
+  totalRelationships: 50,
+  totalGenerations: 5,
+  averageAge: 60,
+  livingMembers: 70,
+  deceasedMembers: 30,
+  genderDistribution: [],
+  membersPerGeneration: {},
+  totalEvents: 10,
 };
 
 describe('useDashboardStore', () => {
   let mockDashboardService: IDashboardService;
-  let useStore: ReturnType<typeof create>;
+  let useStore: UseBoundStore<StoreApi<DashboardStore>>;
 
   beforeEach(() => {
     // Reset the mock service before each test

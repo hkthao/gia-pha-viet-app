@@ -2,7 +2,6 @@
 
 export * from './common';
 export * from './event';
-
 export * from './family';
 export * from './family-dict';
 export * from './home';

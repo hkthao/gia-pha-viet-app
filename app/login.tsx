@@ -1,6 +1,5 @@
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import { globalStyles } from '@/constants/globalStyles'; // Import globalStyles
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, useTheme } from 'react-native-paper';
@@ -28,27 +27,25 @@ export default function LoginScreen() {
       position: 'absolute',
       width: '100%',
       height: '100%',
-      zIndex: 0, 
+      zIndex: 0,
       opacity: 0.4
     },
     contentContainer: {
-      flexGrow: 1,
-      ...globalStyles.flexCentered, // Use global style for centering
       padding: SPACING_LARGE,
-      marginTop: -20,
-      zIndex: 2, 
+      zIndex: 2,
+      alignItems: 'center',
+      top: "20%",
+      flex: 1,
     },
     title: {
-      marginBottom: SPACING_MEDIUM,
+      padding: SPACING_MEDIUM,
       textAlign: 'center',
       fontWeight: 'bold',
       color: theme.colors.onSurface,
     },
     description: {
-      marginBottom: SPACING_LARGE,
       textAlign: 'center',
       color: theme.colors.onSurfaceVariant,
-      paddingHorizontal: SPACING_LARGE,
     },
     loginButton: {
       marginTop: SPACING_LARGE,
@@ -70,13 +67,14 @@ export default function LoginScreen() {
       <Appbar.Header style={styles.appBar}>
         <Appbar.BackAction onPress={() => router.back()} />
       </Appbar.Header>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <View style={styles.contentContainer}
+      >
         <Text variant="headlineLarge" style={styles.title}>{t('login.title')}</Text>
         <Text variant="bodyLarge" style={styles.description}>{t('login.description')}</Text>
         <Button mode="contained" onPress={handleLogin} style={styles.loginButton}>
           {t('login.button')}
         </Button>
-      </ScrollView>
+      </View>
     </View>
   );
 }

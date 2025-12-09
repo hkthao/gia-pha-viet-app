@@ -25,7 +25,7 @@ export default function FamilyEventsScreen() {
   const { t } = useTranslation();
 
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  const { error, fetchEvents } = useEventStore();
+  const { error, search } = useEventStore();
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
   const loadedMonthsRef = useRef(loadedMonths);
 
@@ -139,13 +139,14 @@ export default function FamilyEventsScreen() {
     const startDate = timeToString(day.timestamp);
     const endDate = timeToString(day.timestamp + (30 * 24 * 60 * 60 * 1000)); // Load for a month
 
-    const fetchedPaginatedEvents = await fetchEvents(currentFamilyId, { 
-      startDate, 
-      endDate, 
-      page: 1, 
+    const fetchedPaginatedEvents = await search({
+      familyId: currentFamilyId,
+      startDate,
+      endDate,
+      page: 1,
       itemsPerPage: 100,
       sortBy :"startDate"
-    }, false);
+    });
 
     if (fetchedPaginatedEvents) {
       setLoadedMonths(prev => new Set(prev).add(monthString)); // Mark month as loaded
@@ -171,7 +172,7 @@ export default function FamilyEventsScreen() {
       });
       return mergedItems;
     });
-  }, 300), [currentFamilyId, fetchEvents, t]); // Removed loadedMonths from dependencies
+  }, 300), [currentFamilyId, search, t]); // Removed loadedMonths from dependencies
 
   const renderEmptyDate = useCallback(() => {
     return (

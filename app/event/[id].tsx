@@ -5,7 +5,7 @@ import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar } from 'r
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useEventStore } from '@/stores/useEventStore';
-import { EventType } from '@/types'; // Import EventType from admin types
+import { EventType, MemberListDto } from '@/types'; // Import EventType from admin types
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -13,7 +13,7 @@ export default function EventDetailsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { event, loading, error, getEventById } = useEventStore();
+  const { item, loading, error, getById } = useEventStore();
 
   const eventTypeStringMap: Record<EventType, string> = useMemo(() => ({
     [EventType.Birth]: t('eventType.birth'),
@@ -35,11 +35,11 @@ export default function EventDetailsScreen() {
     if (id) {
       const loadEventDetails = async () => {
         const eventId = Array.isArray(id) ? id[0] : id;
-        await getEventById(eventId);
+        await getById(eventId);
       };
       loadEventDetails();
     }
-  }, [id, getEventById]);
+  }, [id, getById]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -136,7 +136,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  if (!event) {
+  if (!item) {
     return (
       <View style={{ flex: 1 }}>
         <Appbar.Header>
@@ -152,35 +152,35 @@ export default function EventDetailsScreen() {
     );
   }
 
-  const formattedStartDate = event.startDate ? new Date(event.startDate).toLocaleDateString() : t('common.not_available');
-  const formattedEndDate = event.endDate ? new Date(event.endDate).toLocaleDateString() : t('common.not_available');
+  const formattedStartDate = item.startDate ? new Date(item.startDate).toLocaleDateString() : t('common.not_available');
+  const formattedEndDate = item.endDate ? new Date(item.endDate).toLocaleDateString() : t('common.not_available');
 
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.appbar}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={event.name || t('eventDetail.title')} />
+        <Appbar.Content title={item.name || t('eventDetail.title')} />
       </Appbar.Header>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* First Card: Key Event Information */}
         <Card style={styles.card}>
           <Card.Content style={styles.profileCardContent}>
-            <Avatar.Icon icon={event.type !== undefined ? eventTypeIconMap[event.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary}  />
-            <Text variant="headlineSmall" style={styles.titleText}>{event.name || t('common.not_available')}</Text>
-            <Text variant="bodyMedium" >{event.description || t('common.not_available')}</Text>
+            <Avatar.Icon icon={item.type !== undefined ? eventTypeIconMap[item.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary}  />
+            <Text variant="headlineSmall" style={styles.titleText}>{item.name || t('common.not_available')}</Text>
+            <Text variant="bodyMedium" >{item.description || t('common.not_available')}</Text>
             <View style={styles.chipsContainer}>
-              {event && event.type !== undefined && (
+              {item && item.type !== undefined && (
                 <Chip icon="tag" compact={true} style={styles.chip}>
-                  {eventTypeStringMap[event.type] || t('common.not_available')}
+                  {eventTypeStringMap[item.type] || t('common.not_available')}
                 </Chip>
               )}
               <Chip icon="calendar-start" compact={true} style={styles.chip}>{formattedStartDate}</Chip>
-              {event.endDate && <Chip icon="calendar-end" compact={true} style={styles.chip}>{formattedEndDate}</Chip>}
-              {event.location && (
-                <Chip icon="map-marker" compact={true} style={styles.chip}>{event.location}</Chip>
+              {item.endDate && <Chip icon="calendar-end" compact={true} style={styles.chip}>{formattedEndDate}</Chip>}
+              {item.location && (
+                <Chip icon="map-marker" compact={true} style={styles.chip}>{item.location}</Chip>
               )}
 
-              {event.relatedMembers?.map((member, index: number) => (
+              {item.relatedMembers?.map((member: MemberListDto, index: number) => (
                 <Chip key={index} compact={true} icon="account-outline">{member.fullName}</Chip>
               ))}
             </View>

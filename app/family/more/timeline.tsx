@@ -17,12 +17,12 @@ const TimelineScreen = () => {
   const isFocused = useIsFocused();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { events, loading, error, hasMore, page, fetchEvents, reset, setError } = useEventStore();
+  const { paginatedList, loading, error, hasMore, page, search, reset, setError } = useEventStore();
 
   // Define useStore function for usePaginatedSearch
   const useStore = useCallback(() => {
     return {
-      items: events,
+      items: paginatedList?.items || [],
       loading,
       error,
       hasMore,
@@ -33,7 +33,7 @@ const TimelineScreen = () => {
           setError(t('timeline.familyIdNotFound'));
           return null;
         }
-        return fetchEvents(currentFamilyId, query, false); // Fetch from page 1, reset existing items
+        return search({ ...query, familyId: currentFamilyId, page: 1 }, true);
       },
       loadMore: async (query: SearchEventsQuery) => {
         if (!currentFamilyId) {
@@ -41,12 +41,12 @@ const TimelineScreen = () => {
           setError(t('timeline.familyIdNotFound'));
           return null;
         }
-        return fetchEvents(currentFamilyId, query, true); // Load more, append to existing items
+        return search({ ...query, familyId: currentFamilyId, page: page + 1 }, false);
       },
       reset,
       setError,
     };
-  }, [currentFamilyId, t, events, loading, error, hasMore, page, fetchEvents, reset, setError]);
+  }, [currentFamilyId, t, paginatedList, loading, error, hasMore, page, search, reset, setError]);
 
   const { items } = usePaginatedSearch<EventDto, SearchEventsQuery>({
     useStore,

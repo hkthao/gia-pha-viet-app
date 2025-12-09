@@ -17,14 +17,10 @@ export default function DonateScreen() {
 
   const handleCopyLink = (text: string) => {
     Clipboard.setString(text);
-    // Optionally, show a toast message or similar to indicate success
-    console.log('Link copied to clipboard:', text);
   };
 
   const handleCopyMomoNumber = (number: string) => {
     Clipboard.setString(number);
-    // Optionally, show a toast message or similar to indicate success
-    console.log('MoMo number copied to clipboard:', number);
   };
 
   const styles = useMemo(() => StyleSheet.create({

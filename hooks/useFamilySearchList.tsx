@@ -41,7 +41,6 @@ export function useFamilySearchList(): UseFamilySearchListHook {
 
   const renderFamilyItem = useCallback(
     ({ item }: { item: FamilyListDto }) => {
-      console.log('Rendering FamilyItem for:', item.name); // Add this log
       return <FamilyItem item={item} onSelect={setCurrentFamilyId} />;
     },
     [setCurrentFamilyId]

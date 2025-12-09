@@ -53,7 +53,6 @@ export default function FamilyFaceSearchScreen() {
             contentType: selectedImage.mimeType || 'image/jpeg',
             returnCrop: false,
           });
-          console.log(result);
           if (result.isSuccess && result.value && result.value.detectedFaces) {
             setDetectedFaces(result.value.detectedFaces);
           } else {

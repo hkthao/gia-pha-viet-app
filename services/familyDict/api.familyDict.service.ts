@@ -9,7 +9,7 @@ export class ApiFamilyDictService implements IFamilyDictService {
 
   async getFamilyDicts(filter: FamilyDictFilter, page: number, itemsPerPage: number): Promise<Result<PaginatedList<FamilyDictDto>>> {
     try {
-      const response = await this.api.get<PaginatedList<FamilyDictDto>>('/family-dict', {
+      const response = await this.api.get<PaginatedList<FamilyDictDto>>('/family-dict/search', {
         params: {
           page: page,
           itemsPerPage: itemsPerPage,

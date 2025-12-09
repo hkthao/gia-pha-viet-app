@@ -10,7 +10,7 @@ import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { useFamilyDictPaginatedStore } from '@/hooks/useFamilyDictPaginatedStore';
 
 interface UseFamilyDictListHook {
-  useStore: ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
+  useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
   renderFamilyDictItem: ({ item }: { item: FamilyDictDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;
@@ -31,7 +31,7 @@ export function useFamilyDictList(): UseFamilyDictListHook {
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
 
-  const useStore = useFamilyDictPaginatedStore();
+  const useStore = useCallback(() => useFamilyDictPaginatedStore(), []);
 
   const renderFamilyDictItem = useCallback(({ item }: { item: FamilyDictDto }) => (
     <FamilyDictItem item={item} />

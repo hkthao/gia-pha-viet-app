@@ -14,7 +14,7 @@ export default function FamilyDictScreen() {
         <Appbar.Content title={t('familyDict.list.title')} />
       </Appbar.Header>
       <PaginatedSearchList<FamilyDictDto, FamilyDictFilter>
-        useStore={() => useStore}
+        useStore={useStore}
         searchOptions={{
           initialQuery: { searchTerm: '', sortBy: 'name', sortOrder: 'asc' },
         }}

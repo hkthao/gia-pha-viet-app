@@ -27,8 +27,6 @@ interface PaginatedSearchListProps<T, Q extends { searchTerm?: string }> {
 export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
   props: PaginatedSearchListProps<T, Q>
 ) {
-  console.log('PaginatedSearchList rendering...'); // Re-add for debugging
-
   const {
     searchOptions,
     useStore,
@@ -63,8 +61,6 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
     debounceTime: searchOptions.debounceTime,
     externalDependencies: searchOptions.externalDependencies,
   });
-
-  console.log('PaginatedSearchList received items:', items); // Re-add for debugging
 
   const {
     showFilterUI,

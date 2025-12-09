@@ -31,7 +31,7 @@ publicApiClient.interceptors.request.use(
 // Tạo một apiClient có interceptor để thêm Access Token cho các request cần xác thực
 export const apiClientWithAuth: ApiClientMethods = {
   get: async <T>(url: string, config?: any) => {
-    const accessToken = authService.getAccessToken();
+    const accessToken = await authService.getAccessToken();
     if (accessToken) {
       publicApiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -40,7 +40,7 @@ export const apiClientWithAuth: ApiClientMethods = {
     return response.data;
   },
   post: async <T>(url: string, data?: any, config?: any) => {
-    const accessToken = authService.getAccessToken();
+    const accessToken = await authService.getAccessToken();
     if (accessToken) {
       publicApiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -49,7 +49,7 @@ export const apiClientWithAuth: ApiClientMethods = {
     return response.data;
   },
   put: async <T>(url: string, data?: any, config?: any) => {
-    const accessToken = authService.getAccessToken();
+    const accessToken = await authService.getAccessToken();
     if (accessToken) {
       publicApiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     }
@@ -58,7 +58,7 @@ export const apiClientWithAuth: ApiClientMethods = {
     return response.data;
   },
   delete: async <T>(url: string, config?: any) => {
-    const accessToken = authService.getAccessToken();
+    const accessToken = await authService.getAccessToken();
     if (accessToken) {
       publicApiClient.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     }

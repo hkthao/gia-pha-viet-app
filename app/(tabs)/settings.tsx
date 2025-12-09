@@ -63,7 +63,6 @@ export default function SettingsScreen() {
   const handleEditProfile = () => {
     if (isLoggedIn) {
       // Navigate to edit profile screen
-      console.log('Edit Profile');
     } else {
       router.push('/login'); // Navigate to login if not logged in
     }

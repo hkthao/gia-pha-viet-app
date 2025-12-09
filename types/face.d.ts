@@ -12,6 +12,7 @@ export interface DetectedFaceDto {
   boundingBox: BoundingBoxDto;
   confidence: number;
   thumbnail?: string;
+  thumbnailUrl?: string;
   embedding?: number[];
   memberId?: string;
   memberName?: string;

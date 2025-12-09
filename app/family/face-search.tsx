@@ -9,11 +9,13 @@ import { faceService } from '@/services'; // Import the new faceService
 import type { DetectedFaceDto } from '@/types';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useRouter } from 'expo-router';
+import { useFamilyStore } from '@/stores/useFamilyStore'; // NEW IMPORT
+
 export default function FamilyFaceSearchScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  // const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Uncommented and used
 
   const [image, setImage] = useState<string | null>(null);
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -28,6 +30,48 @@ export default function FamilyFaceSearchScreen() {
       await requestMediaLibraryPermission();
     })();
   }, [requestCameraPermission, requestMediaLibraryPermission]);
+
+  const processImage = async (selectedImage: ImagePicker.ImagePickerAsset) => {
+    if (!currentFamilyId) {
+      Alert.alert(t('common.error'), t('faceSearch.noFamilyIdSelected')); // Assuming new translation key needed
+      return;
+    }
+
+    setImage(selectedImage.uri);
+    setImageDimensions({ width: selectedImage.width, height: selectedImage.height });
+    setLoading(true);
+    setDetectedFaces([]); // Clear previous detections
+
+    try {
+      if (selectedImage.uri) {
+        // Ensure fileName and fileType are correctly derived or provided
+        const fileName = selectedImage.fileName || selectedImage.uri.split('/').pop() || 'image.jpg';
+        const fileType = selectedImage.mimeType || 'image/jpeg';
+
+        const result = await faceService.detectFaces({
+          fileUri: selectedImage.uri,
+          fileName: fileName,
+          fileType: fileType,
+          familyId: currentFamilyId,
+          returnCrop: true, // Defaulting to true as per API description
+        });
+
+        if (result.isSuccess && result.value && result.value.detectedFaces) {
+          setDetectedFaces(result.value.detectedFaces);
+        } else {
+          Alert.alert(t('common.error'), result.error?.message || t('faceSearch.detectionFailed'));
+        }
+      } else {
+        Alert.alert(t('common.error'), t('faceSearch.imageUriError')); // Assuming new translation key needed
+      }
+    } catch (err) {
+      console.error('Face detection API error:', err);
+      Alert.alert(t('common.error'), t('faceSearch.detectionFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const pickImage = async () => {
     if (!mediaLibraryPermission?.granted) {
       Alert.alert(t('faceSearch.permissionRequired'), t('faceSearch.mediaLibraryPermissionDenied'));
@@ -38,37 +82,13 @@ export default function FamilyFaceSearchScreen() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-      base64: true,
+      // base64: true, // No longer needed for multipart/form-data
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0];
-      setImage(selectedImage.uri);
-      setImageDimensions({ width: selectedImage.width, height: selectedImage.height });
-      setLoading(true);
-      setDetectedFaces([]); // Clear previous detections
-      try {
-        if (selectedImage.base64) {
-          const result = await faceService.detectFaces({
-            imageBytes: selectedImage.base64,
-            contentType: selectedImage.mimeType || 'image/jpeg',
-            returnCrop: false,
-          });
-          if (result.isSuccess && result.value && result.value.detectedFaces) {
-            setDetectedFaces(result.value.detectedFaces);
-          } else {
-            Alert.alert(t('common.error'), result.error?.message || t('faceSearch.detectionFailed'));
-          }
-        } else {
-          Alert.alert(t('common.error'), t('faceSearch.base64Error'));
-        }
-      } catch (err) {
-        console.error('Face detection API error:', err);
-        Alert.alert(t('common.error'), t('faceSearch.detectionFailed'));
-      } finally {
-        setLoading(false);
-      }
+      await processImage(result.assets[0]);
     }
   };
+
   const takePhoto = async () => {
     if (!cameraPermission?.granted) {
       Alert.alert(t('faceSearch.permissionRequired'), t('faceSearch.cameraPermissionDenied'));
@@ -78,37 +98,13 @@ export default function FamilyFaceSearchScreen() {
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
-      base64: true,
+      // base64: true, // No longer needed for multipart/form-data
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0];
-      setImage(selectedImage.uri);
-      setImageDimensions({ width: selectedImage.width, height: selectedImage.height });
-      setLoading(true);
-      setDetectedFaces([]); // Clear previous detections
-      try {
-        if (selectedImage.base64) {
-          const result = await faceService.detectFaces({
-            imageBytes: selectedImage.base64,
-            contentType: selectedImage.mimeType || 'image/jpeg',
-            returnCrop: false,
-          });
-          if (result.isSuccess && result.value && result.value.detectedFaces) {
-            setDetectedFaces(result.value.detectedFaces);
-          } else {
-            Alert.alert(t('common.error'), result.error?.message || t('faceSearch.detectionFailed'));
-          }
-        } else {
-          Alert.alert(t('common.error'), t('faceSearch.base64Error'));
-        }
-      } catch (err) {
-        console.error('Face detection API error:', err);
-        Alert.alert(t('common.error'), t('faceSearch.detectionFailed'));
-      } finally {
-        setLoading(false);
-      }
+      await processImage(result.assets[0]);
     }
   };
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,

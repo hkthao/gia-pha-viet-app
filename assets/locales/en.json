@@ -193,7 +193,9 @@
     "takePhoto": "Take Photo",
     "base64Error": "Could not get base64 data from image.",
     "detectionFailed": "Failed to detect faces. Please try again.",
-    "facesDetected": "{{count}} face(s) detected."
+    "facesDetected": "{{count}} face(s) detected.",
+    "noFamilyIdSelected": "No family selected. Please select a family first.",
+    "imageUriError": "Could not get image URI."
   },
   "common.error": "Error",
   "common.loading": "Loading...",

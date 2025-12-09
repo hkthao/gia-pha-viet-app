@@ -25,9 +25,3 @@ export interface FaceDetectionResponseDto {
   imageId: string;
   detectedFaces: DetectedFaceDto[];
 }
-
-export interface DetectFacesRequest {
-  imageBytes: string;
-  contentType: string;
-  returnCrop: boolean;
-}

@@ -195,7 +195,9 @@
     "takePhoto": "Chụp ảnh",
     "base64Error": "Không thể lấy dữ liệu base64 từ ảnh.",
     "detectionFailed": "Phát hiện khuôn mặt thất bại. Vui lòng thử lại.",
-    "facesDetected": "Đã phát hiện {{count}} khuôn mặt."
+    "facesDetected": "Đã phát hiện {{count}} khuôn mặt.",
+    "noFamilyIdSelected": "Chưa chọn gia đình. Vui lòng chọn một gia đình trước.",
+    "imageUriError": "Không thể lấy URI hình ảnh."
   },
   "common.error": "Lỗi",
   "common.loading": "Đang tải...",

@@ -1,9 +1,14 @@
 // apps/mobile/family_tree_rn/services/family/family.service.interface.ts
 
-import { Result } from '@/types';
-import { FamilyDetailDto, PaginatedList, FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
+import { FamilyListDto, SearchPublicFamiliesQuery, FamilyDetailDto, PaginatedList, Result } from '@/types';
+import { IGenericService } from '../base/generic.service.interface'; // Vẫn giữ import nếu muốn tham chiếu
 
+// IFamilyService sẽ quản lý FamilyListDto cho các hoạt động tìm kiếm/liệt kê
+// và FamilyDetailDto cho hoạt động getById cũng như các hoạt động CRUD chi tiết.
 export interface IFamilyService {
-  getFamilyById(id: string): Promise<Result<FamilyDetailDto>>;
-  searchFamilies(query: SearchPublicFamiliesQuery): Promise<Result<PaginatedList<FamilyListDto>>>;
+  search(filter: SearchPublicFamiliesQuery): Promise<Result<PaginatedList<FamilyListDto>>>;
+  getById(id: string): Promise<Result<FamilyDetailDto>>;
+  create(entity: Partial<FamilyDetailDto>): Promise<Result<FamilyDetailDto>>;
+  update(id: string, entity: Partial<FamilyDetailDto>): Promise<Result<FamilyDetailDto>>;
+  delete(id: string): Promise<Result<void>>;
 }

@@ -1,7 +1,6 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { create, StoreApi, UseBoundStore } from 'zustand';
-import { createPublicFamilyStore, PublicFamilyStore } from '@/stores/usePublicFamilyStore';
-import { IFamilyService } from '@/services';
+import { IFamilyService } from '@/services/family/family.service.interface';
+import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
 import { FamilyDetailDto, FamilyListDto, PaginatedList, Result } from '@/types';
 
 // Mock authService to prevent it from trying to initialize Auth0 components and AsyncStorage
@@ -16,6 +15,20 @@ jest.mock('@/services/authService', () => ({
     getTokenClaims: jest.fn(() => null),
     isAuthenticated: jest.fn(() => false),
   },
+}));
+
+// Mock the familyService module that usePublicFamilyStore imports
+const mockFamilyService: IFamilyService = {
+  search: jest.fn(),
+  getById: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+};
+
+jest.mock('@/services', () => ({
+  ...jest.requireActual('@/services'), // Keep actual implementations for other exports
+  familyService: mockFamilyService,
 }));
 
 // Mock Family data for testing
@@ -76,48 +89,34 @@ const mockFamiliesSinglePage: PaginatedList<FamilyListDto> = {
 
 
 describe('usePublicFamilyStore', () => {
-  let mockFamilyService: IFamilyService;
-  let useStore: UseBoundStore<StoreApi<PublicFamilyStore>>;
 
-  beforeEach(() => {
-    mockFamilyService = {
-      getFamilyById: jest.fn(),
-      searchFamilies: jest.fn(),
-      // Add other methods if IFamilyService has them and they are used by the store
-    };
 
-    const storeFactory = createPublicFamilyStore(mockFamilyService);
-    useStore = create(storeFactory);
-  });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should return initial state', () => {
-    const { result } = renderHook(() => useStore((state) => state));
+    const { result } = renderHook(() => usePublicFamilyStore());
 
-    expect(result.current.family).toBeNull();
-    expect(result.current.families).toEqual([]);
+    expect(result.current.item).toBeNull();
+    expect(result.current.items).toEqual([]);
     expect(result.current.totalItems).toBe(0);
     expect(result.current.page).toBe(1);
     expect(result.current.totalPages).toBe(0);
     expect(result.current.loading).toBeFalsy();
     expect(result.current.error).toBeNull();
-    expect(result.current.hasMore).toBeTruthy();
+    expect(result.current.hasMore).toBeFalsy(); // Default hasMore for generic store is false
   });
 
-  describe('getFamilyById', () => {
-    it('should fetch family by id successfully', async () => {
-      (mockFamilyService.getFamilyById as jest.Mock).mockResolvedValueOnce({
+  describe('getById', () => {
+    it('should fetch item by id successfully', async () => {
+      (mockFamilyService.getById as jest.Mock).mockResolvedValueOnce({
         isSuccess: true,
         value: mockFamilyDetail,
       } as Result<FamilyDetailDto>);
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.getFamilyById('family1');
+        result.current.getById('family1');
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -125,23 +124,23 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.getFamilyById).toHaveBeenCalledWith('family1');
-      expect(result.current.family).toEqual(mockFamilyDetail);
+      expect(mockFamilyService.getById).toHaveBeenCalledWith('family1');
+      expect(result.current.item).toEqual(mockFamilyDetail);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBeNull();
     });
 
-    it('should handle API error when fetching family by id', async () => {
+    it('should handle API error when fetching item by id', async () => {
       const errorMessage = 'Family not found';
-      (mockFamilyService.getFamilyById as jest.Mock).mockResolvedValueOnce({
+      (mockFamilyService.getById as jest.Mock).mockResolvedValueOnce({
         isSuccess: false,
         error: { message: errorMessage },
       } as Result<FamilyDetailDto>);
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.getFamilyById('family1');
+        result.current.getById('family1');
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -149,20 +148,20 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.getFamilyById).toHaveBeenCalledWith('family1');
-      expect(result.current.family).toBeNull();
+      expect(mockFamilyService.getById).toHaveBeenCalledWith('family1');
+      expect(result.current.item).toBeNull();
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
-    it('should handle thrown error when fetching family by id', async () => {
+    it('should handle thrown error when fetching item by id', async () => {
       const errorMessage = 'Network error';
-      (mockFamilyService.getFamilyById as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+      (mockFamilyService.getById as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.getFamilyById('family1');
+        result.current.getById('family1');
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -170,26 +169,26 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.getFamilyById).toHaveBeenCalledWith('family1');
-      expect(result.current.family).toBeNull();
+      expect(mockFamilyService.getById).toHaveBeenCalledWith('family1');
+      expect(result.current.item).toBeNull();
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
   });
 
-  describe('fetchFamilies', () => {
-    const query = { page: 1, search: 'Family Name' };
+  describe('search', () => {
+    const query = { page: 1, searchTerm: 'Family Name' }; // Changed 'search' to 'searchTerm' to match IGenericService Filter
 
-    it('should fetch initial families successfully', async () => {
-      (mockFamilyService.searchFamilies as jest.Mock).mockResolvedValueOnce({
+    it('should fetch initial items successfully', async () => {
+      (mockFamilyService.search as jest.Mock).mockResolvedValueOnce({
         isSuccess: true,
         value: mockFamiliesPage1,
       } as Result<PaginatedList<FamilyListDto>>);
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.fetchFamilies(query, false);
+        result.current.search(query, false);
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -197,12 +196,12 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+      expect(mockFamilyService.search).toHaveBeenCalledWith({
         page: query.page,
         itemsPerPage: 10,
-        searchTerm: query.search,
+        searchTerm: query.searchTerm,
       });
-      expect(result.current.families).toEqual(mockFamiliesPage1.items);
+      expect(result.current.items).toEqual(mockFamiliesPage1.items);
       expect(result.current.totalItems).toBe(mockFamiliesPage1.totalItems);
       expect(result.current.page).toBe(mockFamiliesPage1.page);
       expect(result.current.totalPages).toBe(mockFamiliesPage1.totalPages);
@@ -211,35 +210,35 @@ describe('usePublicFamilyStore', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should fetch more families successfully (isRefreshing = false)', async () => {
+    it('should fetch more items successfully (isRefreshing = false)', async () => {
       // Initial fetch
-      (mockFamilyService.searchFamilies as jest.Mock)
+      (mockFamilyService.search as jest.Mock)
         .mockResolvedValueOnce({ isSuccess: true, value: mockFamiliesPage1 })
         .mockResolvedValueOnce({ isSuccess: true, value: mockFamiliesPage2 });
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       await act(async () => {
-        await result.current.fetchFamilies(query, false); // First page
+        await result.current.search(query, false); // First page
       });
 
-      expect(result.current.families).toEqual(mockFamiliesPage1.items);
+      expect(result.current.items).toEqual(mockFamiliesPage1.items);
       expect(result.current.page).toBe(1);
 
       // Fetch second page
       act(() => {
-        result.current.fetchFamilies({ page: 2, search: 'Family Name' }, false); // Use page 2 for next call
+        result.current.search({ page: 2, searchTerm: 'Family Name' }, false); // Use page 2 for next call
       });
       expect(result.current.loading).toBeTruthy();
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+      expect(mockFamilyService.search).toHaveBeenCalledWith({
         page: 2,
         itemsPerPage: 10,
-        searchTerm: query.search,
+        searchTerm: query.searchTerm,
       });
-      expect(result.current.families).toEqual([...mockFamiliesPage1.items, ...mockFamiliesPage2.items]);
+      expect(result.current.items).toEqual([...mockFamiliesPage1.items, ...mockFamiliesPage2.items]);
       expect(result.current.totalItems).toBe(mockFamiliesPage2.totalItems);
       expect(result.current.page).toBe(mockFamiliesPage2.page);
       expect(result.current.totalPages).toBe(mockFamiliesPage2.totalPages);
@@ -248,34 +247,34 @@ describe('usePublicFamilyStore', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should refresh families successfully (isRefreshing = true)', async () => {
+    it('should refresh items successfully (isRefreshing = true)', async () => {
         // Setup initial state with some data first
-        (mockFamilyService.searchFamilies as jest.Mock)
+        (mockFamilyService.search as jest.Mock)
             .mockResolvedValueOnce({ isSuccess: true, value: mockFamiliesPage1 })
             .mockResolvedValueOnce({ isSuccess: true, value: mockFamiliesPage2 }); // Mock for refresh
 
-        const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+        const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
         await act(async () => {
-            await result.current.fetchFamilies(query, false);
+            await result.current.search(query, false);
         });
-        expect(result.current.families).toEqual(mockFamiliesPage1.items);
+        expect(result.current.items).toEqual(mockFamiliesPage1.items);
         expect(result.current.page).toBe(1);
 
         // Now refresh
         act(() => {
-            result.current.fetchFamilies(query, true); // isRefreshing = true
+            result.current.search(query, true);
         });
         expect(result.current.loading).toBeTruthy();
 
         await waitForNextUpdate();
 
-        expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+        expect(mockFamilyService.search).toHaveBeenCalledWith({
             page: 1, // When refreshing, it should always fetch the first page
             itemsPerPage: 10,
-            searchTerm: query.search,
+            searchTerm: query.searchTerm,
         });
-        expect(result.current.families).toEqual(mockFamiliesPage2.items); // Should be replaced with refresh data
+        expect(result.current.items).toEqual(mockFamiliesPage2.items); // Should be replaced with refresh data
         expect(result.current.totalItems).toBe(mockFamiliesPage2.totalItems);
         expect(result.current.page).toBe(mockFamiliesPage2.page);
         expect(result.current.totalPages).toBe(mockFamiliesPage2.totalPages);
@@ -284,17 +283,17 @@ describe('usePublicFamilyStore', () => {
         expect(result.current.error).toBeNull();
     });
 
-    it('should handle API error when fetching families', async () => {
+    it('should handle API error when fetching items', async () => {
       const errorMessage = 'Failed to load families';
-      (mockFamilyService.searchFamilies as jest.Mock).mockResolvedValueOnce({
+      (mockFamilyService.search as jest.Mock).mockResolvedValueOnce({
         isSuccess: false,
         error: { message: errorMessage },
       } as Result<PaginatedList<FamilyListDto>>);
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.fetchFamilies(query, false);
+        result.current.search(query, false);
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -302,24 +301,24 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+      expect(mockFamilyService.search).toHaveBeenCalledWith({
         page: query.page,
         itemsPerPage: 10,
-        searchTerm: query.search,
+        searchTerm: query.searchTerm,
       });
-      expect(result.current.families).toEqual([]); // Initial state, not updated
+      expect(result.current.items).toEqual([]); // Initial state, not updated
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
-    it('should handle thrown error when fetching families', async () => {
+    it('should handle thrown error when fetching items', async () => {
       const errorMessage = 'Server issue';
-      (mockFamilyService.searchFamilies as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
+      (mockFamilyService.search as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.fetchFamilies(query, false);
+        result.current.search(query, false);
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -327,26 +326,26 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+      expect(mockFamilyService.search).toHaveBeenCalledWith({
         page: query.page,
         itemsPerPage: 10,
-        searchTerm: query.search,
+        searchTerm: query.searchTerm,
       });
-      expect(result.current.families).toEqual([]);
+      expect(result.current.items).toEqual([]);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
     it('should correctly set hasMore to false when totalPages is 1', async () => {
-      (mockFamilyService.searchFamilies as jest.Mock).mockResolvedValueOnce({
+      (mockFamilyService.search as jest.Mock).mockResolvedValueOnce({
         isSuccess: true,
         value: mockFamiliesSinglePage,
       } as Result<PaginatedList<FamilyListDto>>);
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
       act(() => {
-        result.current.fetchFamilies(query, false);
+        result.current.search(query, false);
       });
 
       expect(result.current.loading).toBeTruthy();
@@ -354,12 +353,12 @@ describe('usePublicFamilyStore', () => {
 
       await waitForNextUpdate();
 
-      expect(mockFamilyService.searchFamilies).toHaveBeenCalledWith({
+      expect(mockFamilyService.search).toHaveBeenCalledWith({
         page: query.page,
         itemsPerPage: 10,
-        searchTerm: query.search,
+        searchTerm: query.searchTerm,
       });
-      expect(result.current.families).toEqual(mockFamiliesSinglePage.items);
+      expect(result.current.items).toEqual(mockFamiliesSinglePage.items);
       expect(result.current.totalItems).toBe(mockFamiliesSinglePage.totalItems);
       expect(result.current.page).toBe(mockFamiliesSinglePage.page);
       expect(result.current.totalPages).toBe(mockFamiliesSinglePage.totalPages);
@@ -369,44 +368,44 @@ describe('usePublicFamilyStore', () => {
     });
   });
 
-  it('should clear family', () => {
-    // Set a family first
+  it('should clear item', () => {
+    // Set an item first
     act(() => {
-      useStore.setState({ family: mockFamilyDetail });
+      usePublicFamilyStore.setState({ item: mockFamilyDetail });
     });
 
-    const { result } = renderHook(() => useStore((state) => state));
-    expect(result.current.family).toEqual(mockFamilyDetail);
+    const { result } = renderHook(() => usePublicFamilyStore());
+    expect(result.current.item).toEqual(mockFamilyDetail);
 
     act(() => {
-      result.current.clearFamily();
+      result.current.clearItem();
     });
 
-    expect(result.current.family).toBeNull();
+    expect(result.current.item).toBeNull();
   });
 
   it('should reset the store state', async () => {
     // First, set some data to be able to reset
-    (mockFamilyService.getFamilyById as jest.Mock).mockResolvedValueOnce({
+    (mockFamilyService.getById as jest.Mock).mockResolvedValueOnce({
       isSuccess: true,
       value: mockFamilyDetail,
     } as Result<FamilyDetailDto>);
 
-    (mockFamilyService.searchFamilies as jest.Mock).mockResolvedValueOnce({
+    (mockFamilyService.search as jest.Mock).mockResolvedValueOnce({
       isSuccess: true,
       value: mockFamiliesPage1,
     } as Result<PaginatedList<FamilyListDto>>);
 
-    const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+    const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
 
     act(() => {
-      result.current.getFamilyById('family1');
-      result.current.fetchFamilies({ page: 1, search: 'test' }, false);
+      result.current.getById('family1');
+      result.current.search({ page: 1, searchTerm: 'test' }, false);
     });
     await waitForNextUpdate(); // Wait for data to be fetched
 
-    expect(result.current.family).toEqual(mockFamilyDetail);
-    expect(result.current.families).toEqual(mockFamiliesPage1.items);
+    expect(result.current.item).toEqual(mockFamilyDetail);
+    expect(result.current.items).toEqual(mockFamiliesPage1.items);
     expect(result.current.loading).toBeFalsy();
 
     // Now, reset the store
@@ -414,18 +413,18 @@ describe('usePublicFamilyStore', () => {
       result.current.reset();
     });
 
-    expect(result.current.family).toBeNull();
-    expect(result.current.families).toEqual([]);
+    expect(result.current.item).toBeNull();
+    expect(result.current.items).toEqual([]);
     expect(result.current.totalItems).toBe(0);
     expect(result.current.page).toBe(1);
     expect(result.current.totalPages).toBe(0);
     expect(result.current.loading).toBeFalsy();
     expect(result.current.error).toBeNull();
-    expect(result.current.hasMore).toBeTruthy();
+    expect(result.current.hasMore).toBeFalsy();
   });
 
   it('should set an error message', () => {
-    const { result } = renderHook(() => useStore((state) => state));
+    const { result } = renderHook(() => usePublicFamilyStore());
 
     act(() => {
       result.current.setError('Custom error message');

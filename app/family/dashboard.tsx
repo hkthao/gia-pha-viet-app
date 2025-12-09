@@ -15,7 +15,7 @@ export default function FamilyDashboardScreen() {
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   // Fetch family details (for ProfileCard and DetailedInfoCard)
-  const { family, loading, error, getFamilyById } = usePublicFamilyStore();
+  const { item: family, loading, error, getById: getFamilyById } = usePublicFamilyStore();
   // Fetch dashboard metrics
   const { dashboardData, loading: loadingDashboard, error: errorDashboard, getDashboardData } = useDashboardStore();
 

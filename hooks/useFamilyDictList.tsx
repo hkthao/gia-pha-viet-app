@@ -2,12 +2,11 @@ import React, { useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
-import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { usePublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
+import { SPACING_SMALL } from '@/constants/dimensions';
 import { FamilyDictDto, FamilyDictFilter } from '@/types';
 import FamilyDictItem from '@/components/family-dict/FamilyDictItem';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
-import { useFamilyDictPaginatedStore } from '@/hooks/useFamilyDictPaginatedStore';
+import { useFamilyDictPaginatedStore } from '@/hooks/adapters/useFamilyDictPaginatedStore';
 
 interface UseFamilyDictListHook {
   useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
@@ -22,7 +21,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: SPACING_MEDIUM,
+    paddingHorizontal: SPACING_SMALL,
   },
 });
 

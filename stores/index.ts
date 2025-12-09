@@ -7,3 +7,5 @@ export * from './usePublicFamilyStore';
 export * from './usePublicMemberStore';
 export * from './usePublicRelationshipStore';
 export * from './useUserProfileStore';
+export * from './useGenericCrudStore';
+

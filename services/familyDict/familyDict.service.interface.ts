@@ -1,9 +1,7 @@
 // apps/mobile/family_tree_rn/services/familyDict/familyDict.service.interface.ts
 
-import { Result } from '@/types';
-import { FamilyDictDto, PaginatedList, FamilyDictFilter } from '@/types';
+import { Result, FamilyDictDto, FamilyDictFilter } from '@/types';
+import { IGenericService } from '../base/generic.service.interface';
 
-export interface IFamilyDictService {
-  getFamilyDicts(filter: FamilyDictFilter, page: number, itemsPerPage: number): Promise<Result<PaginatedList<FamilyDictDto>>>;
-  getFamilyDictById(id: string): Promise<Result<FamilyDictDto>>;
+export interface IFamilyDictService extends IGenericService<FamilyDictDto, FamilyDictFilter, FamilyDictDto> {
 }

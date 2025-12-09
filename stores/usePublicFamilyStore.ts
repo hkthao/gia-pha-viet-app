@@ -1,112 +1,32 @@
+import { create } from 'zustand';
 // apps/mobile/family_tree_rn/stores/usePublicFamilyStore.ts
 
-import { create, StateCreator } from 'zustand';
-import { familyService as defaultFamilyService } from '@/services'; // Import the new familyService
-import { IFamilyService } from '@/services'; // Import IFamilyService from '@/services'
-import type { FamilyDetailDto, FamilyListDto, PaginatedList, SearchPublicFamiliesQuery } from '@/types';
-import { parseError } from '@/utils/errorUtils';
+import { createGenericCrudStore, GenericCrudStore } from '@/stores/useGenericCrudStore';
 
-const PAGE_SIZE = 10; // Define PAGE_SIZE here
+import { IFamilyService } from '@/services';
 
-interface PublicFamilyState {
-  family: FamilyDetailDto | null;
-  families: FamilyListDto[]; // Changed to array for accumulation
-  totalItems: number; // Added for pagination
-  page: number; // Added
-  totalPages: number; // Added
-  loading: boolean;
-  error: string | null;
-  hasMore: boolean; // Add hasMore property
-}
+import { familyService as defaultFamilyService } from '@/services';
 
-interface PublicFamilyActions {
-  getFamilyById: (id: string) => Promise<void>;
-  fetchFamilies: (query: { page: number; search?: string }, isRefreshing?: boolean) => Promise<PaginatedList<FamilyListDto> | null>;
-  clearFamily: () => void;
-  reset: () => void;
-  setError: (error: string | null) => void;
-}
+import type { FamilyListDto, FamilyDetailDto, SearchPublicFamiliesQuery } from '@/types';
 
-export type PublicFamilyStore = PublicFamilyState & PublicFamilyActions;
 
-// Factory function to create the store
-export const createPublicFamilyStore = (
-  familyService: IFamilyService
-): StateCreator<PublicFamilyStore> => (set, get) => ({
-  family: null,
-  families: [], // Initialize as empty array
-  totalItems: 0, // Initialize totalItems
-  page: 1, // Initialize page
-  totalPages: 0, // Initialize totalPages
-  loading: false,
-  error: null,
-  hasMore: true, // Initialize hasMore to true as per requirement
 
-  getFamilyById: async (id: string) => {
-    set(state => ({ ...state, loading: true, error: null }));
-    try {
-      const result = await familyService.getFamilyById(id);
-      if (result.isSuccess && result.value) {
-        set(state => ({ ...state, family: result.value, loading: false }));
-      } else {
-        const errorMessage = parseError(result.error);
-        set(state => ({ ...state, error: errorMessage, loading: false }));
-      }
-    } catch (err: any) {
-      const errorMessage = parseError(err);
-      set(state => ({ ...state, error: errorMessage, loading: false }));
-    }
-  },
+const PAGE_SIZE = 10;
 
-  fetchFamilies: async (query: SearchPublicFamiliesQuery, isRefreshing: boolean = false): Promise<PaginatedList<FamilyListDto> | null> => {
 
-    set(state => ({ ...state, loading: true, error: null }));
-    try {
-      const result = await familyService.searchFamilies({
-        ...query, // Pass the entire query object
-        itemsPerPage: query.itemsPerPage || PAGE_SIZE, // Use itemsPerPage from query or default PAGE_SIZE
-      });
 
-      if (result.isSuccess && result.value) {
-        const paginatedList: PaginatedList<FamilyListDto> = result.value;
+export type PublicFamilyStore = GenericCrudStore<FamilyListDto, FamilyDetailDto, SearchPublicFamiliesQuery>;
 
-        
-        set((state) => {
-          const newFamilies = isRefreshing ? paginatedList.items : [...(state.families || []), ...paginatedList.items];
 
-          return {
-            families: newFamilies,
-            totalItems: paginatedList.totalItems,
-            page: paginatedList.page,
-            totalPages: paginatedList.totalPages,
-            hasMore: paginatedList.totalPages > 1 && paginatedList.page < paginatedList.totalPages,
-            loading: false,
-          };
-        });
 
-        return paginatedList;
-      } else {
-        const errorMessage = parseError(result.error);
+export const usePublicFamilyStore = create<PublicFamilyStore>(
 
-        set(state => ({ ...state, error: errorMessage, loading: false }));
+  createGenericCrudStore<FamilyListDto, FamilyDetailDto, SearchPublicFamiliesQuery>(
 
-        return null;
-      }
-    } catch (err: any) {
-      const errorMessage = parseError(err);
+    defaultFamilyService,
 
-      set(state => ({ ...state, error: errorMessage, loading: false }));
+    PAGE_SIZE
 
-      return null;
-    } finally {
-      set(state => ({ ...state, loading: false })); // Ensure loading is always set to false
-    }
-  },
+  )
 
-  clearFamily: () => set(state => ({ ...state, family: null })),
-  reset: () => set({ families: [], totalItems: 0, page: 1, totalPages: 0, loading: false, error: null, family: null, hasMore: true }), // Renamed and set hasMore to true
-  setError: (error: string | null) => set(state => ({ ...state, error })),
-});
-
-// Export default store instance
-export const usePublicFamilyStore = create<PublicFamilyStore>(createPublicFamilyStore(defaultFamilyService));
+);

@@ -4,26 +4,26 @@ import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 
 export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> {
-  const families = usePublicFamilyStore((state) => state.families);
+  const items = usePublicFamilyStore((state) => state.items);
   const loading = usePublicFamilyStore((state) => state.loading);
   const error = usePublicFamilyStore((state) => state.error);
   const hasMore = usePublicFamilyStore((state) => state.hasMore);
   const page = usePublicFamilyStore((state) => state.page);
 
   // Extract stable actions directly
-  const fetchFamiliesAction = usePublicFamilyStore((state) => state.fetchFamilies);
+  const searchAction = usePublicFamilyStore((state) => state.search);
   const resetAction = usePublicFamilyStore((state) => state.reset);
   const setErrorAction = usePublicFamilyStore((state) => state.setError);
 
   // Memoize the fetch function using useCallback to ensure its stability
   const fetch = useCallback(
     async (query: SearchPublicFamiliesQuery, isLoadMore: boolean) =>
-      fetchFamiliesAction({ ...query, page: query.page || 1 }, isLoadMore),
-    [fetchFamiliesAction]
+      searchAction({ ...query, page: query.page || 1 }, isLoadMore),
+    [searchAction]
   );
 
   const mappedStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> = useMemo(() => ({
-    items: families,
+    items: items,
     loading: loading,
     error: error,
     hasMore: hasMore,
@@ -32,7 +32,7 @@ export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyLis
     reset: resetAction,
     setError: setErrorAction,
   }), [
-    families,
+    items,
     loading,
     error,
     hasMore,

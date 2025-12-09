@@ -18,8 +18,8 @@ interface PublicFamilyDictState {
 }
 
 interface PublicFamilyDictActions {
-  getFamilyDictById: (id: string) => Promise<void>;
-  fetchFamilyDicts: (filter: FamilyDictFilter, page: number, itemsPerPage: number, isRefreshing?: boolean) => Promise<PaginatedList<FamilyDictDto> | null>;
+  getById: (id: string) => Promise<void>;
+  search: (filter: FamilyDictFilter, isRefreshing?: boolean) => Promise<PaginatedList<FamilyDictDto> | null>;
   clearFamilyDict: () => void;
   reset: () => void;
   setError: (error: string | null) => void;
@@ -38,12 +38,12 @@ export const createPublicFamilyDictStore = (
   totalPages: 0,
   loading: false,
   error: null,
-  hasMore: true,
+  hasMore: false,
 
-  getFamilyDictById: async (id: string) => {
+  getById: async (id: string) => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
-      const result = await familyDictService.getFamilyDictById(id);
+      const result = await familyDictService.getById(id);
       if (result.isSuccess && result.value) {
         set(state => ({ ...state, familyDict: result.value, loading: false }));
       } else {
@@ -56,38 +56,29 @@ export const createPublicFamilyDictStore = (
     }
   },
 
-  fetchFamilyDicts: async (filter: FamilyDictFilter, page: number, itemsPerPage: number, isRefreshing: boolean = false): Promise<PaginatedList<FamilyDictDto> | null> => {
+  search: async (filter: FamilyDictFilter, isRefreshing: boolean = false): Promise<PaginatedList<FamilyDictDto> | null> => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
-      // The logic for pageNumber using get().page + 1 is missing
-      // const pageNumber = isRefreshing ? 1 : get().page + 1; // This logic needs to be re-evaluated
-
-      // Re-evaluating the pageNumber logic based on the original store and the new isRefreshing parameter
-      // If refreshing, we always fetch page 1.
-      // If not refreshing and current page in store is not 1, we increment.
-      // If not refreshing and current page in store is 1, we still fetch page 1 (initial load, or explicit page 1 request)
-      const currentPageInStore = get().page;
-      let pageNumberToFetch;
-
-      if (isRefreshing) {
-          pageNumberToFetch = 1;
-      } else {
-          // If not refreshing, use the page parameter passed in, or if it's 0/undefined, then use currentPageInStore + 1
-          pageNumberToFetch = page && page > 0 ? page : currentPageInStore + 1;
-      }
-
-      const result = await familyDictService.getFamilyDicts(filter, pageNumberToFetch, itemsPerPage);
+      const result = await familyDictService.search({
+        ...filter, // Pass the entire filter object
+        page: filter.page || 1, // Use page from filter or default to 1
+        itemsPerPage: filter.itemsPerPage || PAGE_SIZE, // Use itemsPerPage from filter or default PAGE_SIZE
+      });
       if (result.isSuccess && result.value) {
         const paginatedList: PaginatedList<FamilyDictDto> = result.value;
 
-        set((state) => ({
-          familyDicts: isRefreshing ? paginatedList.items : [...state.familyDicts, ...paginatedList.items],
-          totalItems: paginatedList.totalItems,
-          page: paginatedList.page,
-          totalPages: paginatedList.totalPages,
-          hasMore: paginatedList.totalPages > 1 && paginatedList.page < paginatedList.totalPages,
-          loading: false,
-        }));
+        set((state) => {
+          const newFamilyDicts = isRefreshing ? paginatedList.items : [...(state.familyDicts || []), ...paginatedList.items];
+
+          return {
+            familyDicts: newFamilyDicts,
+            totalItems: paginatedList.totalItems,
+            page: paginatedList.page,
+            totalPages: paginatedList.totalPages,
+            hasMore: paginatedList.totalPages > 1 && paginatedList.page < paginatedList.totalPages,
+            loading: false,
+          };
+        });
         return paginatedList;
       } else {
         const errorMessage = parseError(result.error);
@@ -98,11 +89,13 @@ export const createPublicFamilyDictStore = (
       const errorMessage = parseError(err);
       set(state => ({ ...state, error: errorMessage, loading: false }));
       return null;
+    } finally {
+      set(state => ({ ...state, loading: false })); // Ensure loading is always set to false
     }
   },
 
   clearFamilyDict: () => set(state => ({ ...state, familyDict: null })),
-  reset: () => set({ familyDicts: [], totalItems: 0, page: 1, totalPages: 0, hasMore: true, familyDict: null, loading: false, error: null }),
+  reset: () => set({ familyDicts: [], totalItems: 0, page: 1, totalPages: 0, hasMore: false, familyDict: null, loading: false, error: null }),
   setError: (error: string | null) => set(state => ({ ...state, error })),
 });
 

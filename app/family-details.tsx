@@ -13,7 +13,7 @@ export default function FamilyDetailsScreen() {
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { family, loading, error, getFamilyById } = usePublicFamilyStore();
+  const { item: family, loading, error, getById: getFamilyById } = usePublicFamilyStore();
 
   useEffect(() => {
     const loadFamilyDetails = async () => {

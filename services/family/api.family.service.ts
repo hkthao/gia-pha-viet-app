@@ -1,37 +1,68 @@
 // apps/mobile/family_tree_rn/services/family/api.family.service.ts
 
-import { ApiClientMethods } from '@/types';
-import { Result, ApiError, FamilyDetailDto, PaginatedList, FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
+import { FamilyListDto, SearchPublicFamiliesQuery, FamilyDetailDto, PaginatedList, Result as TResult } from '@/types';
 import { IFamilyService } from '@/services/family/family.service.interface';
+import { GenericService } from '../base/abstract.generic.service';
+import { ApiClientMethods } from '@/types/apiClient';
+import { Result } from '@/utils/resultUtils'; // Import Result as a value
 
-export class ApiFamilyService implements IFamilyService {
-  constructor(private api: ApiClientMethods) {}
+export class ApiFamilyService extends GenericService<FamilyListDto, SearchPublicFamiliesQuery, FamilyDetailDto> implements IFamilyService {
+  protected get baseEndpoint(): string {
+    return '/family';
+  }
 
-  async getFamilyById(id: string): Promise<Result<FamilyDetailDto>> {
+  constructor(apiClient: ApiClientMethods) {
+    super(apiClient);
+  }
+
+  // Override search to return FamilyListDto as per IFamilyService,
+  // and ensure it returns a Result object.
+  async search(filter: SearchPublicFamiliesQuery): Promise<TResult<PaginatedList<FamilyListDto>>> {
     try {
-      const response = await this.api.get<FamilyDetailDto>(`/family/${id}`);
-      return { isSuccess: true, value: response };
+      const response = await this.apiClient.get<PaginatedList<FamilyListDto>>(`${this.baseEndpoint}/search`, { params: filter });
+      return Result.success(response); // apiClient.get returns AxiosResponse, data property holds the actual response
     } catch (error: any) {
-      const apiError: ApiError = {
-        message: error.response?.data?.message || error.message || 'An unexpected error occurred.',
-        statusCode: error.response?.status,
-      };
-      return { isSuccess: false, error: apiError };
+      return Result.fail(error.response?.data?.message || error.message);
     }
   }
 
-  async searchFamilies(query: SearchPublicFamiliesQuery): Promise<Result<PaginatedList<FamilyListDto>>> {
+  // Explicitly implement getById for FamilyDetailDto
+  async getById(id: string): Promise<TResult<FamilyDetailDto>> {
     try {
-      const response = await this.api.get<PaginatedList<FamilyListDto>>('/family/search', {
-        params: query,
-      });
-      return { isSuccess: true, value: response };
+      const response = await this.apiClient.get<FamilyDetailDto>(`${this.baseEndpoint}/${id}`);
+      return Result.success(response);
     } catch (error: any) {
-      const apiError: ApiError = {
-        message: error.response?.data?.message || error.message || 'An unexpected error occurred.',
-        statusCode: error.response?.status,
-      };
-      return { isSuccess: false, error: apiError };
+      return Result.fail(error.response?.data?.message || error.message);
+    }
+  }
+
+  // Explicitly implement create for FamilyDetailDto
+  async create(entity: Partial<FamilyDetailDto>): Promise<TResult<FamilyDetailDto>> {
+    try {
+      const response = await this.apiClient.post<FamilyDetailDto>(this.baseEndpoint, entity);
+      return Result.success(response);
+    } catch (error: any) {
+      return Result.fail(error.response?.data?.message || error.message);
+    }
+  }
+
+  // Explicitly implement update for FamilyDetailDto
+  async update(id: string, entity: Partial<FamilyDetailDto>): Promise<TResult<FamilyDetailDto>> {
+    try {
+      const response = await this.apiClient.put<FamilyDetailDto>(`${this.baseEndpoint}/${id}`, entity);
+      return Result.success(response);
+    } catch (error: any) {
+      return Result.fail(error.response?.data?.message || error.message);
+    }
+  }
+
+  // Explicitly implement delete
+  async delete(id: string): Promise<TResult<void>> {
+    try {
+      await this.apiClient.delete(`${this.baseEndpoint}/${id}`);
+      return Result.success(undefined);
+    } catch (error: any) {
+      return Result.fail(error.response?.data?.message || error.message);
     }
   }
 }

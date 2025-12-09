@@ -51,7 +51,7 @@ export interface PaginatedList<T> {
   totalItems: number;
 }
 
-export interface SearchPublicFamiliesQuery {
+export interface BaseSearchQuery {
   page?: number;
   itemsPerPage?: number;
   searchTerm?: string;
@@ -59,15 +59,13 @@ export interface SearchPublicFamiliesQuery {
   sortOrder?: string; // "asc" or "desc"
 }
 
-export interface SearchPublicMembersQuery {
+
+export interface SearchPublicFamiliesQuery extends BaseSearchQuery {}
+
+export interface SearchPublicMembersQuery extends BaseSearchQuery {
   familyId: string;
-  page?: number;
-  itemsPerPage?: number;
-  searchTerm?: string;
   gender?: Gender;
   isRoot?: boolean;
-  sortBy?: string;
-  sortOrder?: string; // "asc" or "desc"
 }
 
 export enum Gender {
@@ -282,6 +280,8 @@ export interface FamilyDictFilter {
   region?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  page?: number;
+  itemsPerPage?: number;
 }
 
 export interface PaginatedFamilyDictDto {

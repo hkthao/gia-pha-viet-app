@@ -61,21 +61,29 @@ export const createPublicEventStore = (
   fetchEvents: async (familyId: string, query: SearchPublicEventsQuery, isLoadMore: boolean): Promise<PaginatedList<EventDto> | null> => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
-      const pageNumber = isLoadMore ? get().page + 1 : 1;
+      const effectivePage = query.page || 1; // Ensure it's never undefined
+
       const result = await eventService.searchEvents({
         ...query,
         familyId: familyId,
-        page: pageNumber,
+        page: effectivePage, // Use the page number from the query
         itemsPerPage: PAGE_SIZE,
       });
 
       if (result.isSuccess && result.value) {
         const response = result.value;
         const newEvents = response.items;
+        const currentEvents = get().events; // Get current events from the store directly
+
+        const filteredNewEvents = isLoadMore
+          ? newEvents.filter(
+              (newEvent) => !currentEvents.some((existingEvent: EventDto) => existingEvent.id === newEvent.id)
+            )
+          : newEvents;
+
         set((state) => ({
-          events: isLoadMore ? [...state.events, ...newEvents] : newEvents,
-          paginatedEvents: response,
-          page: pageNumber,
+          events: isLoadMore ? [...state.events, ...filteredNewEvents] : filteredNewEvents,
+          page: response.page,
           hasMore: response.page < response.totalPages,
         }));
         return response;

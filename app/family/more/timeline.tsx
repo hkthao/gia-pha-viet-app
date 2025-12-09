@@ -9,7 +9,7 @@ import { useFamilyStore } from '@/stores/useFamilyStore';
 import type { EventDto, SearchPublicEventsQuery } from '@/types';
 import { TimelineListItem } from '@/components/event';
 import { PaginatedSearchList } from '@/components/common';
-import { usePaginatedSearch, ZustandPaginatedStore } from '@/hooks'; // Import usePaginatedSearch and ZustandPaginatedStore
+import { usePaginatedSearch } from '@/hooks';
 
 const TimelineScreen = () => {
   const { t } = useTranslation();
@@ -25,21 +25,26 @@ const TimelineScreen = () => {
       loading,
       error,
       hasMore,
-      page, // Map currentPage to page
-      fetch: async (query: SearchPublicEventsQuery, isLoadMore: boolean) => {
+      page,
+      refresh: async (query: SearchPublicEventsQuery) => {
         if (!currentFamilyId) {
           Alert.alert(t('common.error'), t('timeline.familyIdNotFound'));
           setError(t('timeline.familyIdNotFound'));
           return null;
         }
-        // The fetchEvents function already handles page increment internally if isLoadMore is true
-        // It also accepts familyId and query directly
-        const result = await fetchEvents(currentFamilyId, query, isLoadMore);
-        return result; // fetchEvents now returns PaginatedList<EventDto> | null
+        return fetchEvents(currentFamilyId, query, false); // Fetch from page 1, reset existing items
+      },
+      loadMore: async (query: SearchPublicEventsQuery) => {
+        if (!currentFamilyId) {
+          Alert.alert(t('common.error'), t('timeline.familyIdNotFound'));
+          setError(t('timeline.familyIdNotFound'));
+          return null;
+        }
+        return fetchEvents(currentFamilyId, query, true); // Load more, append to existing items
       },
       reset,
       setError,
-    } as ZustandPaginatedStore<EventDto, SearchPublicEventsQuery>;
+    };
   }, [currentFamilyId, t]);
 
   const { items } = usePaginatedSearch<EventDto, SearchPublicEventsQuery>({

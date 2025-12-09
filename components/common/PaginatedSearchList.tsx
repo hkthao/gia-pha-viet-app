@@ -1,13 +1,14 @@
 import React from 'react';
 import { FlatList, View, RefreshControl, StyleProp, ViewStyle } from 'react-native';
 import { Searchbar, Text, IconButton as PaperIconButton } from 'react-native-paper';
-import { usePaginatedSearch, PaginatedSearchOptions } from '@/hooks/usePaginatedSearch';
+import { usePaginatedSearch } from '@/hooks/usePaginatedSearch';
 import { usePaginatedSearchListUI } from '@/hooks/usePaginatedSearchListUI';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 
 interface PaginatedSearchListProps<T, Q extends { searchTerm?: string }> {
-  searchOptions: Omit<PaginatedSearchOptions<T, Q>, 'useStore'>;
-  useStore: PaginatedSearchOptions<T, Q>['useStore'];
+  searchOptions: Omit<Parameters<typeof usePaginatedSearch<T, Q>>[0], 'useStore'>;
+  useStore: Parameters<typeof usePaginatedSearch<T, Q>>[0]['useStore'];
+
 
   renderItem: ({ item, index }: { item: T; index: number }) => React.ReactElement;
   keyExtractor: (item: T) => string;

@@ -5,11 +5,10 @@ import { useTheme } from 'react-native-paper';
 import { SPACING_SMALL } from '@/constants/dimensions';
 import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 import FamilyDictItem from '@/components/family-dict/FamilyDictItem';
-import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { useFamilyDictPaginatedStore } from '@/hooks/adapters/useFamilyDictPaginatedStore';
 
 interface UseFamilyDictListHook {
-  useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictSearchQuery>;
+  useStore: () => ReturnType<typeof useFamilyDictPaginatedStore>;
   renderFamilyDictItem: ({ item }: { item: FamilyDictDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;

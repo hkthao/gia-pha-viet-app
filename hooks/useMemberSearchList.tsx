@@ -7,12 +7,11 @@ import { useRouter } from 'expo-router';
 import { SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { MemberListDto, SearchPublicMembersQuery } from '@/types';
-import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { MemberItem } from '@/components';
 import { useMemberSearchPaginatedStore } from '@/hooks/adapters/useMemberSearchPaginatedStore';
 
 interface UseMemberSearchListHook {
-  useStore: ZustandPaginatedStore<MemberListDto, SearchPublicMembersQuery>;
+  useStore: ReturnType<typeof useMemberSearchPaginatedStore>;
   renderMemberItem: ({ item }: { item: MemberListDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;

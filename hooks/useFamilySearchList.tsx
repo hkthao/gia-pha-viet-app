@@ -7,11 +7,10 @@ import { SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
 import { FamilyItem } from '@/components';
-import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { useFamilySearchPaginatedStore } from '@/hooks/adapters/useFamilySearchPaginatedStore'; // New import
 
 interface UseFamilySearchListHook {
-  useStore: () => ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery>;
+  useStore: () => ReturnType<typeof useFamilySearchPaginatedStore>;
   renderFamilyItem: ({ item }: { item: FamilyListDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;

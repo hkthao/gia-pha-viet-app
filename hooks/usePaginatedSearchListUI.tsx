@@ -23,7 +23,7 @@ export function usePaginatedSearchListUI({
   itemsLength,
   hasMore,
   searchPlaceholder,
-}: UsePaginatedSearchListUIProps) {
+}: UsePaginatedSearchListUIProps) { // Dummy comment to trigger re-evaluation
   const { t } = useTranslation();
   const theme = useTheme();
 

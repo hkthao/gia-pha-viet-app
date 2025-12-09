@@ -1,9 +1,8 @@
 import { useMemo, useCallback } from 'react';
 import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
 import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
-import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 
-export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> {
+export function useFamilySearchPaginatedStore() {
   const items = usePublicFamilyStore((state) => state.items);
   const loading = usePublicFamilyStore((state) => state.loading);
   const error = usePublicFamilyStore((state) => state.error);
@@ -15,20 +14,27 @@ export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyLis
   const resetAction = usePublicFamilyStore((state) => state.reset);
   const setErrorAction = usePublicFamilyStore((state) => state.setError);
 
-  // Memoize the fetch function using useCallback to ensure its stability
-  const fetch = useCallback(
-    async (query: SearchPublicFamiliesQuery, isLoadMore: boolean) =>
-      searchAction({ ...query, page: query.page || 1 }, isLoadMore),
+  // Memoize the refresh and loadMore functions using useCallback to ensure their stability
+  const refresh = useCallback(
+    async (query: SearchPublicFamiliesQuery) =>
+      searchAction({ ...query, page: 1 }, true),
     [searchAction]
   );
 
-  const mappedStore: ZustandPaginatedStore<FamilyListDto, SearchPublicFamiliesQuery> = useMemo(() => ({
+  const loadMore = useCallback(
+    async (query: SearchPublicFamiliesQuery) =>
+      searchAction({ ...query, page: page + 1 }, false),
+    [searchAction, page]
+  );
+
+  const mappedStore = useMemo(() => ({
     items: items,
     loading: loading,
     error: error,
     hasMore: hasMore,
     page: page,
-    fetch: fetch,
+    refresh: refresh,
+    loadMore: loadMore,
     reset: resetAction,
     setError: setErrorAction,
   }), [
@@ -37,7 +43,8 @@ export function useFamilySearchPaginatedStore(): ZustandPaginatedStore<FamilyLis
     error,
     hasMore,
     page,
-    fetch,
+    refresh,
+    loadMore,
     resetAction,
     setErrorAction,
   ]);

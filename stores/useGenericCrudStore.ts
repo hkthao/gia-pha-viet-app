@@ -60,7 +60,7 @@ export const createGenericCrudStore = <TListDto, TDetailDto, TFilter>(
   search: async (filter: TFilter, isRefreshing: boolean = false): Promise<PaginatedList<TListDto> | null> => {
     set({ loading: true, error: null });
     try {
-      const currentPage = isRefreshing ? 1 : get().page;
+      const currentPage = isRefreshing ? 1 : ((filter as any).page ?? 1);
       const effectiveFilter = { ...filter, page: currentPage, itemsPerPage: pageSize };
       const result: Result<PaginatedList<TListDto>> = await service.search(effectiveFilter);
 

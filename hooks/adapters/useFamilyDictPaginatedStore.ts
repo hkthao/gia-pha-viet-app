@@ -2,9 +2,9 @@ import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
 import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
-import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 
-export function useFamilyDictPaginatedStore(): ZustandPaginatedStore<FamilyDictDto, FamilyDictSearchQuery> {
+
+export function useFamilyDictPaginatedStore() {
   const { t } = useTranslation();
 
   const items = usePublicFamilyDictStore((state) => state.items);
@@ -18,29 +18,42 @@ export function useFamilyDictPaginatedStore(): ZustandPaginatedStore<FamilyDictD
   const resetAction = usePublicFamilyDictStore((state) => state.reset);
   const setErrorAction = usePublicFamilyDictStore((state) => state.setError);
 
-  // Memoize the fetch function using useCallback to ensure its stability
-  const fetch = useCallback(
-    async (filter: FamilyDictSearchQuery, isLoadMore: boolean) => {
+  // Memoize the fetch and loadMore functions using useCallback to ensure their stability
+  const refresh = useCallback(
+    async (filter: FamilyDictSearchQuery) => {
       const newFilter: FamilyDictSearchQuery = {
         ...filter,
-        page: isLoadMore ? page + 1 : 1,
-        itemsPerPage: filter.itemsPerPage || 10, // Use 10 as default if not provided
+        page: 1,
+        itemsPerPage: filter.itemsPerPage || 10,
       };
-      return searchAction(newFilter, !isLoadMore);
+      return searchAction(newFilter, true);
+    },
+    [searchAction]
+  );
+
+  const loadMore = useCallback(
+    async (filter: FamilyDictSearchQuery) => {
+      const newFilter: FamilyDictSearchQuery = {
+        ...filter,
+        page: page + 1,
+        itemsPerPage: filter.itemsPerPage || 10,
+      };
+      return searchAction(newFilter, false);
     },
     [searchAction, page]
   );
 
-  const mappedStore: ZustandPaginatedStore<FamilyDictDto, FamilyDictSearchQuery> = useMemo(() => ({
+  const mappedStore = useMemo(() => ({
     items: items,
     loading,
     error,
     hasMore,
     page,
-    fetch: fetch,
+    refresh,
+    loadMore,
     reset: resetAction,
     setError: setErrorAction,
-  }), [items, loading, error, hasMore, page, fetch, resetAction, setErrorAction]);
+  }), [items, loading, error, hasMore, page, refresh, loadMore, resetAction, setErrorAction]);
 
   return mappedStore;
 }

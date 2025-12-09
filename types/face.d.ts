@@ -1,4 +1,4 @@
-// apps/admin/src/types/public-face.d.ts
+import { BaseSearchQuery } from './common';
 
 export interface BoundingBoxDto {
   x: number;
@@ -24,4 +24,12 @@ export interface DetectedFaceDto {
 export interface FaceDetectionResponseDto {
   imageId: string;
   detectedFaces: DetectedFaceDto[];
+}
+
+export interface SearchFacesQuery extends BaseSearchQuery {
+  familyId?: string;
+  memberId?: string;
+  minConfidence?: number;
+  maxConfidence?: number;
+  // Add other relevant search parameters for faces
 }

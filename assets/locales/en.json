@@ -195,7 +195,9 @@
     "detectionFailed": "Failed to detect faces. Please try again.",
     "facesDetected": "{{count}} face(s) detected.",
     "noFamilyIdSelected": "No family selected. Please select a family first.",
-    "imageUriError": "Could not get image URI."
+    "imageUriError": "Could not get image URI.",
+    "placeholder": "Search faces",
+    "confidence": "Confidence"
   },
   "common.error": "Error",
   "common.loading": "Loading...",
@@ -261,5 +263,6 @@
   "more.timelinePlaceholder": "More detailed timeline screen (under development)",
   "more.privacyPlaceholder": "More detailed privacy settings screen (under development)",
   "timeline.relatedMembers": "Related Members",
-  "common.noDate": "No Date"
+  "common.noDate": "No Date",
+  "family.familyName": "Family Name"
 }

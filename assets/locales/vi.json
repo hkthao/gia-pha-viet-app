@@ -197,7 +197,9 @@
     "detectionFailed": "Phát hiện khuôn mặt thất bại. Vui lòng thử lại.",
     "facesDetected": "Đã phát hiện {{count}} khuôn mặt.",
     "noFamilyIdSelected": "Chưa chọn gia đình. Vui lòng chọn một gia đình trước.",
-    "imageUriError": "Không thể lấy URI hình ảnh."
+    "imageUriError": "Không thể lấy URI hình ảnh.",
+    "placeholder": "Tìm kiếm khuôn mặt",
+    "confidence": "Độ tin cậy"
   },
   "common.error": "Lỗi",
   "common.loading": "Đang tải...",
@@ -269,5 +271,6 @@
   "timeline.noEventsFound": "Không tìm thấy sự kiện nào.",
   "timeline.relatedMembers": "Thành viên liên quan",
   "common.noTitle": "Không có tiêu đề",
-  "common.noDescription": "Không có mô tả"
+  "common.noDescription": "Không có mô tả",
+  "family.familyName": "Tên gia đình"
 }

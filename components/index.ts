@@ -7,4 +7,5 @@ export * from './family-dict';
 export * from './home';
 export * from './layout';
 export * from './member';
+export * from './face'; // Export face components
 export * from './onboarding';

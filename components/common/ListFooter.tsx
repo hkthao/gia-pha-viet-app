@@ -25,4 +25,6 @@ const ListFooter: React.FC<ListFooterProps> = React.memo(({ loading, itemsLength
   return null;
 });
 
+ListFooter.displayName = 'ListFooter';
+
 export default ListFooter;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 interface DefaultEmptyListProps {
@@ -19,5 +19,7 @@ const DefaultEmptyList: React.FC<DefaultEmptyListProps> = React.memo(({ styles, 
     </View>
   );
 });
+
+DefaultEmptyList.displayName = 'DefaultEmptyList';
 
 export default DefaultEmptyList;

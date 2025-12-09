@@ -17,9 +17,10 @@ const TimelineScreen = () => {
   const isFocused = useIsFocused();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
+  const { events, loading, error, hasMore, page, fetchEvents, reset, setError } = usePublicEventStore();
+
   // Define useStore function for usePaginatedSearch
   const useStore = useCallback(() => {
-    const { events, loading, error, hasMore, page, fetchEvents, reset, setError } = usePublicEventStore();
     return {
       items: events,
       loading,
@@ -45,7 +46,7 @@ const TimelineScreen = () => {
       reset,
       setError,
     };
-  }, [currentFamilyId, t]);
+  }, [currentFamilyId, t, events, loading, error, hasMore, page, fetchEvents, reset, setError]);
 
   const { items } = usePaginatedSearch<EventDto, SearchPublicEventsQuery>({
     useStore,

@@ -1,6 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { ActivityIndicator, View } from 'react-native';
 
 interface LoadingSpinnerProps {
   styles: any;
@@ -14,5 +13,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = React.memo(({ styles, them
     </View>
   );
 });
+
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 export default LoadingSpinner;

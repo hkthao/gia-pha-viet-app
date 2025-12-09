@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { MemberListDto, Gender } from '@/types';
+import { MemberListDto } from '@/types';
 
 interface MemberItemProps {
   item: MemberListDto;

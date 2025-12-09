@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme, Appbar } from 'react-native-paper'; // Make sure to import useTheme
+import { Chip, Appbar } from 'react-native-paper'; // Make sure to import useTheme
 import { useTranslation } from 'react-i18next';
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
@@ -17,7 +17,6 @@ interface MemberFilterProps {
 
 const MemberFilterComponent: React.FC<MemberFilterProps> = ({ filters, setFilters }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
 
   const handleFilterChange = useCallback((key: keyof SearchPublicMembersQuery, value: any) => {
     setFilters((prevFilters) => {
@@ -41,7 +40,7 @@ const MemberFilterComponent: React.FC<MemberFilterProps> = ({ filters, setFilter
     filterChip: {
       // Add any specific chip styling here
     },
-  }), [theme]);
+  }), []);
 
   return (
     <View style={styles.filterChipsContainer}>

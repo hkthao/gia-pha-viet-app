@@ -6,8 +6,7 @@ import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
 import { PieChart, BarChart } from 'react-native-chart-kit';
-import { ProfileCard } from '@/components/family'; // Import ProfileCard
-import { DetailedInfoCard } from '@/components/family'; // Import DetailedInfoCard
+import { ProfileCard, DetailedInfoCard } from '@/components/family'; // Import ProfileCard and DetailedInfoCard
 import { MetricCard } from '@/components/common'; // Import MetricCard
 import { useDashboardStore } from '@/stores/useDashboardStore'; // Import useDashboardStore
 export default function FamilyDashboardScreen() {

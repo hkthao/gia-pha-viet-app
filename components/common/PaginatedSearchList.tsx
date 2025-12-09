@@ -34,7 +34,6 @@ export function PaginatedSearchList<T, Q extends { searchQuery?: string }>(
     renderItem,
     keyExtractor,
     ListEmptyComponent,
-    ListHeaderComponent,
     FilterComponent,
     headerTitle,
     containerStyle,

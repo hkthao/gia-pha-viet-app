@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
 
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
@@ -10,7 +11,7 @@ import { FamilyListDto } from '@/types';
 
 interface FamilyItemProps {
   item: FamilyListDto;
-  onSelect: (id: string | null) => void;
+  // Removed onSelect prop
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -43,15 +44,16 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-const FamilyItem = ({ item, onSelect }: FamilyItemProps) => {
+const FamilyItem = ({ item }: FamilyItemProps) => { // Removed onSelect from destructuring
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const styles = getStyles(theme);
+  const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId); // Move inside component
 
   return (
     <Card style={[styles.familyCard, { borderRadius: theme.roundness }]} onPress={() => {
-      onSelect(item.id);
+      setCurrentFamilyId(item.id); // Use internal setCurrentFamilyId
       router.push('/family/dashboard');
     }}>
       <Card.Content style={styles.cardContent}>

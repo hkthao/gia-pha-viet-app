@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
-import { ProfileCard } from '@/components/family';
-import { DetailedInfoCard } from '@/components/family';
+import { ProfileCard, DetailedInfoCard } from '@/components/family';
 
 export default function FamilyDetailsScreen() {
   const { t } = useTranslation();

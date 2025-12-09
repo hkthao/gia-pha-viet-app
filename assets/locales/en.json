@@ -244,6 +244,7 @@
   "common.male": "Male",
   "common.female": "Female",
   "common.other": "Other",
+  "common.noMoreItems": "No more items",
   "familyDetail.tab.more": "More",
   "more.title": "More",
   "more.calendar": "Calendar",

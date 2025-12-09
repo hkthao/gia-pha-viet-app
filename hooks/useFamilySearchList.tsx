@@ -2,20 +2,16 @@ import React, { useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { SPACING_SMALL } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
+import { FamilyListDto } from '@/types';
 import { FamilyItem } from '@/components';
-import { useFamilySearchPaginatedStore } from '@/hooks/adapters/useFamilySearchPaginatedStore'; // New import
+import { useFamilySearchPaginatedStore } from '@/hooks/adapters/useFamilySearchPaginatedStore';
 
 interface UseFamilySearchListHook {
   useStore: () => ReturnType<typeof useFamilySearchPaginatedStore>;
   renderFamilyItem: ({ item }: { item: FamilyListDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;
-  router: ReturnType<typeof useRouter>;
-  setCurrentFamilyId: (id: string | null) => void;
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -31,8 +27,6 @@ const getStyles = (theme: any) => StyleSheet.create({
 export function useFamilySearchList(): UseFamilySearchListHook {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
-  const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId);
 
   const useStore = useCallback(() => useFamilySearchPaginatedStore(), []);
 
@@ -40,9 +34,9 @@ export function useFamilySearchList(): UseFamilySearchListHook {
 
   const renderFamilyItem = useCallback(
     ({ item }: { item: FamilyListDto }) => {
-      return <FamilyItem item={item} onSelect={setCurrentFamilyId} />;
+      return <FamilyItem item={item} />; // FamilyItem now handles its own onSelect
     },
-    [setCurrentFamilyId]
+    [] // Dependencies removed as setCurrentFamilyId is no longer here
   );
 
   return {
@@ -50,7 +44,5 @@ export function useFamilySearchList(): UseFamilySearchListHook {
     renderFamilyItem,
     styles,
     t,
-    router,
-    setCurrentFamilyId,
   };
 }

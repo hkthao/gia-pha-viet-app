@@ -1,4 +1,4 @@
-// apps/mobile/family_tree_rn/stores/usePublicRelationshipStore.ts
+// apps/mobile/family_tree_rn/stores/useRelationshipStore.ts
 
 import { create, StateCreator } from 'zustand';
 import { relationshipService as defaultRelationshipService } from '@/services'; // Import the new relationshipService
@@ -6,25 +6,25 @@ import { IRelationshipService } from '@/services'; // Import IRelationshipServic
 import type { RelationshipListDto } from '@/types';
 import { parseError } from '@/utils/errorUtils';
 
-interface PublicRelationshipState {
+interface RelationshipState {
   relationships: RelationshipListDto[];
   loading: boolean;
   error: string | null;
 }
 
-interface PublicRelationshipActions {
+interface RelationshipActions {
   getRelationshipsByFamilyId: (familyId: string) => Promise<void>;
   clearRelationships: () => void;
   reset: () => void; // Add reset action
   setError: (error: string | null) => void;
 }
 
-export type PublicRelationshipStore = PublicRelationshipState & PublicRelationshipActions;
+export type RelationshipStore = RelationshipState & RelationshipActions;
 
 // Factory function to create the store
-export const createPublicRelationshipStore = (
+export const createRelationshipStore = (
   relationshipService: IRelationshipService
-): StateCreator<PublicRelationshipStore> => (set) => ({
+): StateCreator<RelationshipStore> => (set) => ({
   relationships: [],
   loading: false,
   error: null,
@@ -51,4 +51,4 @@ export const createPublicRelationshipStore = (
 });
 
 // Export default store instance
-export const usePublicRelationshipStore = create<PublicRelationshipStore>(createPublicRelationshipStore(defaultRelationshipService));
+export const useRelationshipStore = create<RelationshipStore>(createRelationshipStore(defaultRelationshipService));

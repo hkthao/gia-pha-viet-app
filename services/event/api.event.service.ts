@@ -1,7 +1,7 @@
 // apps/mobile/family_tree_rn/services/event/api.event.service.ts
 
 import { ApiClientMethods } from '@/types';
-import { Result, ApiError, EventDto, PaginatedList, SearchPublicEventsQuery, GetPublicUpcomingEventsQuery } from '@/types';
+import { Result, ApiError, EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery } from '@/types';
 import { IEventService } from '@/services/event/event.service.interface';
 
 export class ApiEventService implements IEventService {
@@ -20,7 +20,7 @@ export class ApiEventService implements IEventService {
     }
   }
 
-  async searchEvents(query: SearchPublicEventsQuery): Promise<Result<PaginatedList<EventDto>>> {
+  async searchEvents(query: SearchEventsQuery): Promise<Result<PaginatedList<EventDto>>> {
     try {
       const response = await this.api.get<PaginatedList<EventDto>>('/events/search', {
         params: query,
@@ -35,7 +35,7 @@ export class ApiEventService implements IEventService {
     }
   }
 
-  async getUpcomingEvents(query: GetPublicUpcomingEventsQuery): Promise<Result<EventDto[]>> {
+  async getUpcomingEvents(query: GetUpcomingEventsQuery): Promise<Result<EventDto[]>> {
     try {
       const response = await this.api.get<EventDto[]>(`/events/upcoming`, { params: query });
       return { isSuccess: true, value: response };

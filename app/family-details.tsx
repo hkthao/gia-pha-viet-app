@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
+import { useFamilyStore } from '@/stores/useFamilyStore'; // For currentFamilyId
+import { useFamilyListStore } from '@/stores/useFamilyListStore'; // For family list operations
 import { ProfileCard, DetailedInfoCard } from '@/components/family';
 
 export default function FamilyDetailsScreen() {
@@ -12,7 +12,7 @@ export default function FamilyDetailsScreen() {
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { item: family, loading, error, getById: getFamilyById } = usePublicFamilyStore();
+  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore(); // Correct store usage
 
   useEffect(() => {
     const loadFamilyDetails = async () => {

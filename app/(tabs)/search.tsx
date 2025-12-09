@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { PaginatedSearchList } from '@/components/common';
-import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
+import { FamilyListDto, SearchFamiliesQuery } from '@/types';
 import { useFamilySearchList } from '@/hooks/useFamilySearchList';
 import { useInfiniteUpdateDetector } from '@/hooks/useInfiniteUpdateDetector'; // Import the hook
 
@@ -34,7 +34,7 @@ export default function SearchScreen() {
       <Appbar.Header>
         <Appbar.Content title={t('search.title')} />
       </Appbar.Header>
-      <PaginatedSearchList<FamilyListDto, SearchPublicFamiliesQuery>
+      <PaginatedSearchList<FamilyListDto, SearchFamiliesQuery>
         useStore={useStore} // Pass the useStore hook directly
         searchOptions={{
           initialQuery: initialQuery,

@@ -20,7 +20,7 @@
 
 ### 3. Pre-existing TypeScript Errors (Unresolved):
    - **`tests/unit/hooks/useFamilyDictList.test.tsx`**:
-     - `TS2352: Conversion of type 'UseBoundStore<StoreApi<PublicFamilyDictStore>>' to type 'Mock<any, any, any>' may be a mistake...`
+     - `TS2352: Conversion of type 'UseBoundStore<StoreApi<FamilyDictStore>>' to type 'Mock<any, any, any>' may be a mistake...`
      - These errors are related to type casting issues when mocking Zustand stores in Jest tests. These were noted as pre-existing and not addressed in this session.
 
 ### 4. Successful Refactorings/Optimizations:

@@ -1,7 +1,7 @@
 import { create, StateCreator } from 'zustand';
 import { eventService as defaultEventService } from '@/services';
 import { IEventService } from '@/services'; // Import IEventService from '@/services'
-import type { EventDto, PaginatedList, SearchPublicEventsQuery, GetPublicUpcomingEventsQuery } from '@/types';
+import type { EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery } from '@/types';
 import { parseError } from '@/utils/errorUtils';
 
 interface EventState {
@@ -17,8 +17,8 @@ interface EventState {
 
 interface EventActions {
   getEventById: (id: string) => Promise<void>;
-  fetchEvents: (familyId: string, query: SearchPublicEventsQuery, isLoadMore: boolean) => Promise<PaginatedList<EventDto> | null>;
-  fetchUpcomingEvents: (query: GetPublicUpcomingEventsQuery) => Promise<EventDto[] | null>;
+  fetchEvents: (familyId: string, query: SearchEventsQuery, isLoadMore: boolean) => Promise<PaginatedList<EventDto> | null>;
+  fetchUpcomingEvents: (query: GetUpcomingEventsQuery) => Promise<EventDto[] | null>;
   reset: () => void;
   setError: (error: string | null) => void;
 }
@@ -28,7 +28,7 @@ export type EventStore = EventState & EventActions;
 const PAGE_SIZE = 10; // Define page size for pagination
 
 // Factory function to create the store
-export const createPublicEventStore = (
+export const createEventStore = (
   eventService: IEventService
 ): StateCreator<EventStore> => (set, get) => ({
   event: null,
@@ -58,7 +58,7 @@ export const createPublicEventStore = (
     }
   },
 
-  fetchEvents: async (familyId: string, query: SearchPublicEventsQuery, isLoadMore: boolean): Promise<PaginatedList<EventDto> | null> => {
+  fetchEvents: async (familyId: string, query: SearchEventsQuery, isLoadMore: boolean): Promise<PaginatedList<EventDto> | null> => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
       const effectivePage = query.page || 1; // Ensure it's never undefined
@@ -101,7 +101,7 @@ export const createPublicEventStore = (
     }
   },
 
-  fetchUpcomingEvents: async (query: GetPublicUpcomingEventsQuery): Promise<EventDto[] | null> => {
+  fetchUpcomingEvents: async (query: GetUpcomingEventsQuery): Promise<EventDto[] | null> => {
     set(state => ({ ...state, loading: true, error: null }));
     try {
       const result = await eventService.getUpcomingEvents(query);
@@ -137,4 +137,4 @@ export const createPublicEventStore = (
 });
 
 // Export default store instance
-export const usePublicEventStore = create<EventStore>(createPublicEventStore(defaultEventService));
+export const useEventStore = create<EventStore>(createEventStore(defaultEventService));

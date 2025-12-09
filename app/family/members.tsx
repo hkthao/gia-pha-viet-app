@@ -4,22 +4,22 @@ import { Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { Gender, MemberListDto, SearchPublicMembersQuery } from '@/types';
+import { Gender, MemberListDto, SearchMembersQuery } from '@/types';
 import { PaginatedSearchList } from '@/components/common';
 import { useMemberSearchList } from '@/hooks/useMemberSearchList';
 import { useFamilyStore } from '@/stores/useFamilyStore'; // NEW IMPORT
 
 
 interface MemberFilterProps {
-  filters: SearchPublicMembersQuery;
-  setFilters: React.Dispatch<React.SetStateAction<SearchPublicMembersQuery>>;
+  filters: SearchMembersQuery;
+  setFilters: React.Dispatch<React.SetStateAction<SearchMembersQuery>>;
   toggleFilterVisibility?: () => void;
 }
 
 const MemberFilterComponent: React.FC<MemberFilterProps> = ({ filters, setFilters }) => {
   const { t } = useTranslation();
 
-  const handleFilterChange = useCallback((key: keyof SearchPublicMembersQuery, value: any) => {
+  const handleFilterChange = useCallback((key: keyof SearchMembersQuery, value: any) => {
     setFilters((prevFilters) => {
       // Toggle off if already selected
       if (prevFilters[key] === value) {
@@ -84,7 +84,7 @@ export default function FamilyMembersScreen() {
 
   return (
     <View style={styles.safeArea}>
-      <PaginatedSearchList<MemberListDto, SearchPublicMembersQuery>
+      <PaginatedSearchList<MemberListDto, SearchMembersQuery>
         useStore={() => useStore}
         searchOptions={{
           initialQuery: { familyId: '', page: 1, itemsPerPage: 10, searchQuery: '', gender: undefined, isRoot: undefined },

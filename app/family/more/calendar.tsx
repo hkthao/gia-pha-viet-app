@@ -4,7 +4,7 @@ import { StyleSheet, View, ScrollView } from 'react-native';
 import { Agenda, DateData, AgendaEntry, AgendaSchedule } from 'react-native-calendars';
 import { Divider, useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { usePublicEventStore } from '@/stores/usePublicEventStore';
+import { useEventStore } from '@/stores/useEventStore';
 import { AgendaItem } from '@/components/event';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import type { EventDto, EventType } from '@/types';
@@ -25,7 +25,7 @@ export default function FamilyEventsScreen() {
   const { t } = useTranslation();
 
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  const { error, fetchEvents } = usePublicEventStore();
+  const { error, fetchEvents } = useEventStore();
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
   const loadedMonthsRef = useRef(loadedMonths);
 

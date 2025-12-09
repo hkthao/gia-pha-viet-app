@@ -1,7 +1,7 @@
 // apps/mobile/family_tree_rn/services/dashboard/api.dashboard.service.ts
 
 import { ApiClientMethods } from '@/types';
-import { Result, ApiError, PublicDashboardDto, DashboardMetrics } from '@/types';
+import { Result, ApiError, DashboardDto, DashboardMetrics } from '@/types';
 import { IDashboardService } from '@/services/dashboard/dashboard.service.interface';
 
 // Helper function from dashboardService.ts
@@ -21,16 +21,16 @@ export class ApiDashboardService implements IDashboardService {
 
   async getDashboardData(familyId: string): Promise<Result<DashboardMetrics>> {
     try {
-      const data = await this.api.get<PublicDashboardDto>(`/dashboard`, {
+      const data = await this.api.get<DashboardDto>(`/dashboard`, {
         params: {
           familyId: familyId,
         },
       });
 
       const dashboardMetrics: DashboardMetrics = {
-        totalMembers: data.totalPublicMembers,
-        totalRelationships: data.totalPublicRelationships,
-        totalGenerations: data.totalPublicGenerations,
+        totalMembers: data.totalMembers,
+        totalRelationships: data.totalRelationships,
+        totalGenerations: data.totalGenerations,
         averageAge: data.publicAverageAge,
         livingMembers: data.publicLivingMembersCount,
         deceasedMembers: data.publicDeceasedMembersCount,
@@ -51,7 +51,7 @@ export class ApiDashboardService implements IDashboardService {
           },
         ],
         membersPerGeneration: data.publicMembersPerGeneration,
-        totalEvents: data.totalPublicEvents,
+        totalEvents: data.totalEvents,
       };
 
       return { isSuccess: true, value: dashboardMetrics };

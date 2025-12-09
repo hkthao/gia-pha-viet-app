@@ -1,22 +1,22 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
+import { useFamilyDictStore } from '@/stores/useFamilyDictStore';
 import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 
 
 export function useFamilyDictPaginatedStore() {
   const { t } = useTranslation();
 
-  const items = usePublicFamilyDictStore((state) => state.items);
-  const loading = usePublicFamilyDictStore((state) => state.loading);
-  const error = usePublicFamilyDictStore((state) => state.error);
-  const hasMore = usePublicFamilyDictStore((state) => state.hasMore);
-  const page = usePublicFamilyDictStore((state) => state.page);
+  const items = useFamilyDictStore((state) => state.items);
+  const loading = useFamilyDictStore((state) => state.loading);
+  const error = useFamilyDictStore((state) => state.error);
+  const hasMore = useFamilyDictStore((state) => state.hasMore);
+  const page = useFamilyDictStore((state) => state.page);
 
   // Extract stable actions directly
-  const searchAction = usePublicFamilyDictStore((state) => state.search);
-  const resetAction = usePublicFamilyDictStore((state) => state.reset);
-  const setErrorAction = usePublicFamilyDictStore((state) => state.setError);
+  const searchAction = useFamilyDictStore((state) => state.search);
+  const resetAction = useFamilyDictStore((state) => state.reset);
+  const setErrorAction = useFamilyDictStore((state) => state.setError);
 
   // Memoize the fetch and loadMore functions using useCallback to ensure their stability
   const refresh = useCallback(

@@ -4,7 +4,7 @@ import { PaginatedList, Result } from '@/types';
 import { parseError } from '@/utils/errorUtils';
 import { IGenericService } from './generic.service.interface';
 import { ResultHelper } from '@/utils/resultUtils';
-import { ApiClientMethods } from '@/types/apiClient'; // Import PublicApiClient interface
+import { ApiClientMethods } from '@/types/apiClient'; // Import ApiClient interface
 
 /**
  * @abstract

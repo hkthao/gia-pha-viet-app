@@ -4,9 +4,9 @@ import { useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useIsFocused } from '@react-navigation/native';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { usePublicEventStore } from '@/stores/usePublicEventStore';
+import { useEventStore } from '@/stores/useEventStore';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import type { EventDto, SearchPublicEventsQuery } from '@/types';
+import type { EventDto, SearchEventsQuery } from '@/types';
 import { TimelineListItem } from '@/components/event';
 import { PaginatedSearchList } from '@/components/common';
 import { usePaginatedSearch } from '@/hooks';
@@ -17,7 +17,7 @@ const TimelineScreen = () => {
   const isFocused = useIsFocused();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { events, loading, error, hasMore, page, fetchEvents, reset, setError } = usePublicEventStore();
+  const { events, loading, error, hasMore, page, fetchEvents, reset, setError } = useEventStore();
 
   // Define useStore function for usePaginatedSearch
   const useStore = useCallback(() => {
@@ -27,7 +27,7 @@ const TimelineScreen = () => {
       error,
       hasMore,
       page,
-      refresh: async (query: SearchPublicEventsQuery) => {
+      refresh: async (query: SearchEventsQuery) => {
         if (!currentFamilyId) {
           Alert.alert(t('common.error'), t('timeline.familyIdNotFound'));
           setError(t('timeline.familyIdNotFound'));
@@ -35,7 +35,7 @@ const TimelineScreen = () => {
         }
         return fetchEvents(currentFamilyId, query, false); // Fetch from page 1, reset existing items
       },
-      loadMore: async (query: SearchPublicEventsQuery) => {
+      loadMore: async (query: SearchEventsQuery) => {
         if (!currentFamilyId) {
           Alert.alert(t('common.error'), t('timeline.familyIdNotFound'));
           setError(t('timeline.familyIdNotFound'));
@@ -48,7 +48,7 @@ const TimelineScreen = () => {
     };
   }, [currentFamilyId, t, events, loading, error, hasMore, page, fetchEvents, reset, setError]);
 
-  const { items } = usePaginatedSearch<EventDto, SearchPublicEventsQuery>({
+  const { items } = usePaginatedSearch<EventDto, SearchEventsQuery>({
     useStore,
     initialQuery: { searchQuery: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },
     externalDependencies: [currentFamilyId, isFocused],
@@ -76,7 +76,7 @@ const TimelineScreen = () => {
 
   return (
     <View style={styles.safeArea}>
-      <PaginatedSearchList<EventDto, SearchPublicEventsQuery>
+      <PaginatedSearchList<EventDto, SearchEventsQuery>
         useStore={useStore}
         searchOptions={{
           initialQuery: { searchQuery: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },

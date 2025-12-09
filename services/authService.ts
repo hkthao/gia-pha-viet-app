@@ -47,7 +47,7 @@ class AuthService {
     }
   }
 
-  // Public method to initialize the session
+  //  method to initialize the session
   public async initSession(): Promise<void> {
     await this._loadSession();
   }

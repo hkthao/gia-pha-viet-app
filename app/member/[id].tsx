@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_LARGE, SPACING_SMALL } from '@/constants/dimensions';
-import { usePublicMemberStore } from '@/stores/usePublicMemberStore'; // Import usePublicMemberStore
+import { useMemberStore } from '@/stores/useMemberStore'; // Import useMemberStore
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Import default family avatar
 
 export default function MemberDetailsScreen() {
@@ -12,7 +12,7 @@ export default function MemberDetailsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
-  const { item, loading, error, getById } = usePublicMemberStore(); // Changed 'member' to 'item', 'getMemberById' to 'getById'
+  const { item, loading, error, getById } = useMemberStore(); // Changed 'member' to 'item', 'getMemberById' to 'getById'
 
   useEffect(() => {
     const loadMemberDetails = async () => {

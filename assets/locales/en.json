@@ -46,7 +46,7 @@
   "family.members": "Members",
   "family.generations": "Generations",
   "family.visibility": "Visibility",
-  "family.visibility.public": "Public",
+  "family.visibility.public": "",
   "family.visibility.private": "Private",
   "about.donate.title": "Support Our Project",
   "about.donate.description": "Your generous contributions help us maintain and improve the Family Tree application.",

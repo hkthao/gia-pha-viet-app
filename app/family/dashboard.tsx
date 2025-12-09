@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Text, useTheme, ActivityIndicator, Card } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
+import { useFamilyStore } from '@/stores/useFamilyStore'; // For currentFamilyId
+import { useFamilyListStore } from '@/stores/useFamilyListStore'; // For family list operations
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import { ProfileCard, DetailedInfoCard } from '@/components/family'; // Import ProfileCard and DetailedInfoCard
 import { MetricCard } from '@/components/common'; // Import MetricCard
@@ -14,7 +14,7 @@ export default function FamilyDashboardScreen() {
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   // Fetch family details (for ProfileCard and DetailedInfoCard)
-  const { item: family, loading, error, getById: getFamilyById } = usePublicFamilyStore();
+  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore(); // Correct store usage
   // Fetch dashboard metrics
   const { dashboardData, loading: loadingDashboard, error: errorDashboard, getDashboardData } = useDashboardStore();
 

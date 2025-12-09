@@ -1,12 +1,12 @@
 // apps/mobile/family_tree_rn/services/family/api.family.service.ts
 
-import { FamilyListDto, SearchPublicFamiliesQuery, FamilyDetailDto, PaginatedList, Result as TResult } from '@/types';
+import { FamilyListDto, SearchFamiliesQuery, FamilyDetailDto, PaginatedList, Result as TResult } from '@/types';
 import { IFamilyService } from '@/services/family/family.service.interface';
 import { GenericService } from '../base/abstract.generic.service';
 import { ApiClientMethods } from '@/types/apiClient';
 import { Result } from '@/utils/resultUtils'; // Import Result as a value
 
-export class ApiFamilyService extends GenericService<FamilyListDto, SearchPublicFamiliesQuery, FamilyDetailDto> implements IFamilyService {
+export class ApiFamilyService extends GenericService<FamilyListDto, SearchFamiliesQuery, FamilyDetailDto> implements IFamilyService {
   protected get baseEndpoint(): string {
     return '/family';
   }
@@ -17,7 +17,7 @@ export class ApiFamilyService extends GenericService<FamilyListDto, SearchPublic
 
   // Override search to return FamilyListDto as per IFamilyService,
   // and ensure it returns a Result object.
-  async search(filter: SearchPublicFamiliesQuery): Promise<TResult<PaginatedList<FamilyListDto>>> {
+  async search(filter: SearchFamiliesQuery): Promise<TResult<PaginatedList<FamilyListDto>>> {
     try {
       const response = await this.apiClient.get<PaginatedList<FamilyListDto>>(`${this.baseEndpoint}/search`, { params: filter });
       return Result.success(response); // apiClient.get returns AxiosResponse, data property holds the actual response

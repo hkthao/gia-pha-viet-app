@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { usePublicEventStore } from '@/stores/usePublicEventStore';
+import { useEventStore } from '@/stores/useEventStore';
 import { EventType } from '@/types'; // Import EventType from admin types
 
 export default function EventDetailsScreen() {
@@ -13,7 +13,7 @@ export default function EventDetailsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { event, loading, error, getEventById } = usePublicEventStore();
+  const { event, loading, error, getEventById } = useEventStore();
 
   const eventTypeStringMap: Record<EventType, string> = useMemo(() => ({
     [EventType.Birth]: t('eventType.birth'),

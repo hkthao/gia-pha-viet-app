@@ -6,7 +6,7 @@ export interface FamilyDetail {
   avatarUrl?: string;
   totalMembers: number;
   totalGenerations: number;
-  visibility: 'Public' | 'Private';
+  visibility: '' | 'Private';
   createdAt: string;
   lastUpdatedAt: string;
   createdBy: string;
@@ -47,7 +47,7 @@ const mockFamilies: FamilyDetail[] = [
     avatarUrl: 'https://picsum.photos/seed/family1/100/100',
     totalMembers: 50,
     totalGenerations: 5,
-    visibility: 'Public',
+    visibility: '',
     createdAt: '2023-01-15T10:00:00Z',
     lastUpdatedAt: '2024-05-20T14:30:00Z',
     createdBy: 'Nguyễn Văn A',
@@ -63,7 +63,7 @@ const mockFamilies: FamilyDetail[] = [
     avatarUrl: 'https://picsum.photos/seed/family2/100/100',
     totalMembers: 120,
     totalGenerations: 8,
-    visibility: 'Public',
+    visibility: '',
     createdAt: '2022-03-01T08:00:00Z',
     lastUpdatedAt: '2024-06-10T11:00:00Z',
     createdBy: 'Trần Thị B',

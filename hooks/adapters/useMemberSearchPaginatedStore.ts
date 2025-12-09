@@ -1,30 +1,30 @@
 import { useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { usePublicMemberStore } from '@/stores/usePublicMemberStore';
-import { MemberListDto, SearchPublicMembersQuery } from '@/types';
+import { useMemberStore, MemberStore } from '@/stores/useMemberStore'; // Import MemberStore type
+import { MemberListDto, SearchMembersQuery } from '@/types';
 
 export function useMemberSearchPaginatedStore(currentFamilyId: string | null) {
   const { t } = useTranslation();
 
-  const items = usePublicMemberStore((state) => state.items);
-  const loading = usePublicMemberStore((state) => state.loading);
-  const error = usePublicMemberStore((state) => state.error);
-  const hasMore = usePublicMemberStore((state) => state.hasMore);
-  const page = usePublicMemberStore((state) => state.page);
+  const items = useMemberStore((state: MemberStore) => state.items);
+  const loading = useMemberStore((state: MemberStore) => state.loading);
+  const error = useMemberStore((state: MemberStore) => state.error);
+  const hasMore = useMemberStore((state: MemberStore) => state.hasMore);
+  const page = useMemberStore((state: MemberStore) => state.page);
 
   // Extract stable actions directly
-  const searchAction = usePublicMemberStore((state) => state.search);
-  const resetAction = usePublicMemberStore((state) => state.reset);
-  const setErrorAction = usePublicMemberStore((state) => state.setError);
+  const searchAction = useMemberStore((state: MemberStore) => state.search);
+  const resetAction = useMemberStore((state: MemberStore) => state.reset);
+  const setErrorAction = useMemberStore((state: MemberStore) => state.setError);
 
   // Memoize the refresh and loadMore functions using useCallback to ensure their stability
   const refresh = useCallback(
-    async (query: SearchPublicMembersQuery) => {
+    async (query: SearchMembersQuery) => {
       if (!currentFamilyId) {
         setErrorAction(t('memberSearch.errors.noFamilyId'));
         return null;
       }
-      const newQuery: SearchPublicMembersQuery = {
+      const newQuery: SearchMembersQuery = {
         ...query,
         familyId: currentFamilyId,
         page: 1,
@@ -35,12 +35,12 @@ export function useMemberSearchPaginatedStore(currentFamilyId: string | null) {
   );
 
   const loadMore = useCallback(
-    async (query: SearchPublicMembersQuery) => {
+    async (query: SearchMembersQuery) => {
       if (!currentFamilyId) {
         setErrorAction(t('memberSearch.errors.noFamilyId'));
         return null;
       }
-      const newQuery: SearchPublicMembersQuery = {
+      const newQuery: SearchMembersQuery = {
         ...query,
         familyId: currentFamilyId,
         page: page + 1,

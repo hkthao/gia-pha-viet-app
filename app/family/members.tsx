@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, Appbar } from 'react-native-paper'; // Make sure to import useTheme
+import { Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { Gender, MemberListDto, SearchPublicMembersQuery } from '@/types'; // Import necessary types
+import { Gender, MemberListDto, SearchPublicMembersQuery } from '@/types';
 import { PaginatedSearchList } from '@/components/common';
-import { useMemberSearchList } from '@/hooks/useMemberSearchList'; // Import the new hook
+import { useMemberSearchList } from '@/hooks/useMemberSearchList';
+import { useFamilyStore } from '@/stores/useFamilyStore'; // NEW IMPORT
 
 
 interface MemberFilterProps {
@@ -78,13 +79,11 @@ const MemberFilterComponent: React.FC<MemberFilterProps> = ({ filters, setFilter
 
 
 export default function FamilyMembersScreen() {
-  const { useStore, renderMemberItem, styles, t, currentFamilyId } = useMemberSearchList();
+  const { useStore, renderMemberItem, styles, t } = useMemberSearchList();
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId directly
 
   return (
     <View style={styles.safeArea}>
-      <Appbar.Header>
-        <Appbar.Content title={t('memberSearch.title')} />
-      </Appbar.Header>
       <PaginatedSearchList<MemberListDto, SearchPublicMembersQuery>
         useStore={() => useStore}
         searchOptions={{

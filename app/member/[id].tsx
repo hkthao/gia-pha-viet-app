@@ -5,7 +5,6 @@ import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Di
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_LARGE, SPACING_SMALL } from '@/constants/dimensions';
 import { usePublicMemberStore } from '@/stores/usePublicMemberStore'; // Import usePublicMemberStore
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Import default family avatar
 
 export default function MemberDetailsScreen() {
@@ -13,9 +12,7 @@ export default function MemberDetailsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
-
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId from store
-  const { member, loading, error, getMemberById } = usePublicMemberStore();
+  const { item, loading, error, getById } = usePublicMemberStore(); // Changed 'member' to 'item', 'getMemberById' to 'getById'
 
   useEffect(() => {
     const loadMemberDetails = async () => {
@@ -23,15 +20,14 @@ export default function MemberDetailsScreen() {
         // setError(t('memberDetail.errors.noMemberId')); // Error state is managed by store
         return;
       }
-      if (!currentFamilyId) {
-        // setError(t('memberDetail.errors.noFamilyId')); // Error state is managed by store
-        return;
-      }
+      // currentFamilyId is no longer needed for getById as per IGenericService
+      // If it's still functionally needed, the backend getById endpoint must use /members/{id}
+      // or the ID itself needs to be composite with familyId.
       const memberId = Array.isArray(id) ? id[0] : id;
-      await getMemberById(memberId, currentFamilyId);
+      await getById(memberId); // Changed getMemberById to getById, removed currentFamilyId
     };
     loadMemberDetails();
-  }, [id, currentFamilyId, getMemberById]);
+  }, [id, getById]); // Removed currentFamilyId from dependencies
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -122,7 +118,7 @@ export default function MemberDetailsScreen() {
     );
   }
 
-  if (!member) {
+  if (!item) {
     return (
       <View style={{ flex: 1 }}>
         <Appbar.Header>
@@ -144,46 +140,46 @@ export default function MemberDetailsScreen() {
     <View style={{ flex: 1 }}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={member.fullName || t('memberDetail.title')} />
+        <Appbar.Content title={item.fullName || t('memberDetail.title')} />
       </Appbar.Header>
         <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
           <Card style={styles.card}>
             <Card.Content style={styles.cardContent}>
-              <Avatar.Image size={100} source={member.avatarUrl ? { uri: member.avatarUrl } : DefaultFamilyAvatar} style={styles.avatar} />
+              <Avatar.Image size={100} source={item.avatarUrl ? { uri: item.avatarUrl } : DefaultFamilyAvatar} style={styles.avatar} />
               <View style={styles.detailsContainer}>
-                <Text variant="headlineMedium" style={{ textAlign: 'center' }}>{member.fullName}</Text>
-                {member.occupation && <Text variant="bodyLarge" style={{ textAlign: 'center' }}>{member.occupation}</Text>}
-                {member.birthDeathYears && <Text variant="bodyMedium" style={{ textAlign: 'center' }}>{member.birthDeathYears}</Text>}
+                <Text variant="headlineMedium" style={{ textAlign: 'center' }}>{item.fullName}</Text>
+                {item.occupation && <Text variant="bodyLarge" style={{ textAlign: 'center' }}>{item.occupation}</Text>}
+                {item.birthDeathYears && <Text variant="bodyMedium" style={{ textAlign: 'center' }}>{item.birthDeathYears}</Text>}
 
                 <View style={styles.chipsContainer}>
-                  {member.gender && (
+                  {item.gender && (
                     <Chip icon="gender-male-female" style={styles.chip} compact={true}>
-                      {t(`memberSearch.filter.gender.${member.gender.toLowerCase()}`)}
+                      {t(`memberSearch.filter.gender.${item.gender.toLowerCase()}`)}
                     </Chip>
                   )}
-                  {member.isRoot && (
+                  {item.isRoot && (
                     <Chip icon="account-star" style={styles.chip} compact={true}>
                       {t('memberDetail.isRoot')}
                     </Chip>
                   )}
-                  {member.fatherFullName && (
+                  {item.fatherFullName && (
                     <Chip icon="human-male-boy" style={styles.chip} compact={true}>
-                      {member.fatherFullName}
+                      {item.fatherFullName}
                     </Chip>
                   )}
-                  {member.motherFullName && (
+                  {item.motherFullName && (
                     <Chip icon="human-female-girl" style={styles.chip} compact={true}>
-                      {member.motherFullName}
+                      {item.motherFullName}
                     </Chip>
                   )}
-                  {member.husbandFullName && (
+                  {item.husbandFullName && (
                     <Chip icon="heart" style={styles.chip} compact={true}>
-                      {member.husbandFullName}
+                      {item.husbandFullName}
                     </Chip>
                   )}
-                  {member.wifeFullName && (
+                  {item.wifeFullName && (
                     <Chip icon="heart" style={styles.chip} compact={true}>
-                      {member.wifeFullName}
+                      {item.wifeFullName}
                     </Chip>
                   )}
                 </View>
@@ -200,7 +196,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.lastName')}
                     left={() => <List.Icon icon="account" />}
-                    right={() => <Chip compact={true}>{member.lastName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.lastName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -208,7 +204,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.firstName')}
                     left={() => <List.Icon icon="account" />}
-                    right={() => <Chip compact={true}>{member.firstName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.firstName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -216,7 +212,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.nickname')}
                     left={() => <List.Icon icon="tag" />}
-                    right={() => <Chip compact={true}>{member.nickname || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.nickname || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -224,7 +220,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.dateOfBirth')}
                     left={() => <List.Icon icon="calendar-account" />}
-                    right={() => <Chip compact={true}>{member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.dateOfBirth ? new Date(item.dateOfBirth).toLocaleDateString() : t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -232,7 +228,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.dateOfDeath')}
                     left={() => <List.Icon icon="calendar-remove" />}
-                    right={() => <Chip compact={true}>{member.dateOfDeath ? new Date(member.dateOfDeath).toLocaleDateString() : t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.dateOfDeath ? new Date(item.dateOfDeath).toLocaleDateString() : t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -240,7 +236,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.placeOfBirth')}
                     left={() => <List.Icon icon="map-marker" />}
-                    right={() => <Chip compact={true}>{member.placeOfBirth || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.placeOfBirth || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -248,7 +244,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.placeOfDeath')}
                     left={() => <List.Icon icon="map-marker-off" />}
-                    right={() => <Chip compact={true}>{member.placeOfDeath || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.placeOfDeath || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -256,7 +252,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.email')}
                     left={() => <List.Icon icon="email" />}
-                    right={() => <Chip compact={true}>{member.email || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.email || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -264,7 +260,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.phone')}
                     left={() => <List.Icon icon="phone" />}
-                    right={() => <Chip compact={true}>{member.phone || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.phone || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -272,7 +268,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.address')}
                     left={() => <List.Icon icon="home-map-marker" />}
-                    right={() => <Chip compact={true}>{member.address || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.address || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -280,7 +276,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('memberDetail.occupation')}
                     left={() => <List.Icon icon="briefcase" />}
-                    right={() => <Chip compact={true}>{member.occupation || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.occupation || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -291,7 +287,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('member.father')}
                     left={() => <List.Icon icon="human-male-boy" />}
-                    right={() => <Chip compact={true}>{member.fatherFullName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.fatherFullName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -299,7 +295,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('member.mother')}
                     left={() => <List.Icon icon="human-female-girl" />}
-                    right={() => <Chip compact={true}>{member.motherFullName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.motherFullName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -307,7 +303,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('member.husband')}
                     left={() => <List.Icon icon="heart" />}
-                    right={() => <Chip compact={true}>{member.husbandFullName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.husbandFullName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -315,7 +311,7 @@ export default function MemberDetailsScreen() {
                   <List.Item
                     title={t('member.wife')}
                     left={() => <List.Icon icon="heart" />}
-                    right={() => <Chip compact={true}>{member.wifeFullName || t('common.not_available')}</Chip>}
+                    right={() => <Chip compact={true}>{item.wifeFullName || t('common.not_available')}</Chip>}
                   />
                   <Divider />
                 </>
@@ -326,7 +322,7 @@ export default function MemberDetailsScreen() {
           <Card style={styles.card}>
             <Card.Title title={t('memberDetail.biography')} titleVariant="titleMedium" />
             <Card.Content>
-              <Text variant="bodyMedium">{member.biography || t('memberDetail.noBiography')}</Text>
+              <Text variant="bodyMedium">{item.biography || t('memberDetail.noBiography')}</Text>
             </Card.Content>
           </Card>
         </ScrollView>

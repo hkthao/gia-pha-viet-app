@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 import { SPACING_SMALL } from '@/constants/dimensions';
-import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
+import { FamilyDictDto } from '@/types';
 import FamilyDictItem from '@/components/family-dict/FamilyDictItem';
 import { useFamilyDictPaginatedStore } from '@/hooks/adapters/useFamilyDictPaginatedStore';
 

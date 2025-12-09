@@ -5,31 +5,62 @@ import { MemberListDto, SearchPublicMembersQuery } from '@/types';
 
 export function useMemberSearchPaginatedStore(currentFamilyId: string | null) {
   const { t } = useTranslation();
-  const store = usePublicMemberStore();
+
+  const items = usePublicMemberStore((state) => state.items);
+  const loading = usePublicMemberStore((state) => state.loading);
+  const error = usePublicMemberStore((state) => state.error);
+  const hasMore = usePublicMemberStore((state) => state.hasMore);
+  const page = usePublicMemberStore((state) => state.page);
+
+  // Extract stable actions directly
+  const searchAction = usePublicMemberStore((state) => state.search);
+  const resetAction = usePublicMemberStore((state) => state.reset);
+  const setErrorAction = usePublicMemberStore((state) => state.setError);
+
+  // Memoize the refresh and loadMore functions using useCallback to ensure their stability
+  const refresh = useCallback(
+    async (query: SearchPublicMembersQuery) => {
+      if (!currentFamilyId) {
+        setErrorAction(t('memberSearch.errors.noFamilyId'));
+        return null;
+      }
+      const newQuery: SearchPublicMembersQuery = {
+        ...query,
+        familyId: currentFamilyId,
+        page: 1,
+      };
+      return searchAction(newQuery, true);
+    },
+    [currentFamilyId, t, searchAction, setErrorAction]
+  );
+
+  const loadMore = useCallback(
+    async (query: SearchPublicMembersQuery) => {
+      if (!currentFamilyId) {
+        setErrorAction(t('memberSearch.errors.noFamilyId'));
+        return null;
+      }
+      const newQuery: SearchPublicMembersQuery = {
+        ...query,
+        familyId: currentFamilyId,
+        page: page + 1,
+      };
+      return searchAction(newQuery, false);
+    },
+    [currentFamilyId, page, t, searchAction, setErrorAction]
+  );
 
   const mappedStore = useMemo(() => ({
-    items: store.members,
-    loading: store.loading,
-    error: store.error,
-    hasMore: store.hasMore,
-    page: store.page,
-    refresh: async (query: SearchPublicMembersQuery) => {
-      if (!currentFamilyId) {
-        store.setError(t('memberSearch.errors.noFamilyId'));
-        return null;
-      }
-      return store.fetchMembers({ ...query, familyId: currentFamilyId, page: 1 }, true);
-    },
-    loadMore: async (query: SearchPublicMembersQuery) => {
-      if (!currentFamilyId) {
-        store.setError(t('memberSearch.errors.noFamilyId'));
-        return null;
-      }
-      return store.fetchMembers({ ...query, familyId: currentFamilyId, page: store.page + 1 }, false);
-    },
-    reset: store.reset,
-    setError: store.setError,
-  }), [currentFamilyId, t, store.members, store.loading, store.error, store.hasMore, store.page, store.reset, store.setError]);
+    items: items,
+    loading,
+    error,
+    hasMore,
+    page,
+    refresh,
+    loadMore,
+    reset: resetAction,
+    setError: setErrorAction,
+  }), [items, loading, error, hasMore, page, refresh, loadMore, resetAction, setErrorAction]);
 
   return mappedStore;
 }

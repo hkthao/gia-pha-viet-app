@@ -10,7 +10,6 @@ import { MemberListDto } from '@/types';
 
 interface MemberItemProps {
   item: MemberListDto;
-  onSelect: (id: string) => void;
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -40,7 +39,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-const MemberItem = ({ item, onSelect }: MemberItemProps) => {
+const MemberItem = ({ item }: MemberItemProps) => { // onSelect removed
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -48,7 +47,6 @@ const MemberItem = ({ item, onSelect }: MemberItemProps) => {
 
   return (
     <Card style={[styles.memberCard, { borderRadius: theme.roundness }]} onPress={() => {
-      onSelect(item.id);
       router.push(`/member/${item.id}`);
     }}>
       <Card.Content style={styles.cardContent}>

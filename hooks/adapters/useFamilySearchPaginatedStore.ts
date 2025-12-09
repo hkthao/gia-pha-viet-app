@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 import { usePublicFamilyStore } from '@/stores/usePublicFamilyStore';
-import { FamilyListDto, SearchPublicFamiliesQuery } from '@/types';
+import { SearchPublicFamiliesQuery } from '@/types';
 
 export function useFamilySearchPaginatedStore() {
   const items = usePublicFamilyStore((state) => state.items);

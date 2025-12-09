@@ -40,6 +40,7 @@ class AuthService {
   private idToken: string | null = null;
   private refreshToken: string | null = null; // New private member for refresh token
   private nonce: string | null = null;
+  private codeVerifier: string | null = null; // New private member for PKCE code verifier
 
   constructor() {
     if (!AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
@@ -116,6 +117,7 @@ class AuthService {
   private async _refreshAccessToken(): Promise<boolean> {
     if (!this.refreshToken) {
       console.warn('Không có refresh token. Vui lòng đăng nhập lại.');
+      await this._clearSession(); // Clear session if no refresh token
       return false;
     }
 
@@ -173,16 +175,30 @@ class AuthService {
     console.log('AUTH0_CLIENT_ID:', AUTH0_CLIENT_ID);
     const redirectUri = this.getRedirectUri();
 
-    // Generate nonce
-    this.nonce = nanoid();
+    // Generate PKCE parameters
+    const codeVerifierBytes = Crypto.getRandomValues(new Uint8Array(32));
+    const codeVerifier = btoa(String.fromCharCode(...codeVerifierBytes))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+    const codeChallenge = (await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      codeVerifier,
+      { encoding: Crypto.CryptoEncoding.BASE64 } // Corrected case and usage
+    ))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+    this.codeVerifier = codeVerifier; // Store for later use
 
     const authUrl = `https://${AUTH0_DOMAIN}/authorize?` +
       `scope=openid profile email offline_access&` + // Thêm offline_access scope
       `audience=${AUTH0_AUDIENCE}&` +
-      `response_type=token id_token&` + // response_type=code or token depends on the flow
+      `response_type=code&` + // Changed to code for Authorization Code Flow
       `client_id=${AUTH0_CLIENT_ID}&` +
       `redirect_uri=${redirectUri}&` +
-      `nonce=${this.nonce}`;
+      `code_challenge=${codeChallenge}&` +
+      `code_challenge_method=S256`;
     console.log('Constructed Auth URL:', authUrl);
 
     const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
@@ -190,54 +206,72 @@ class AuthService {
 
     if (result.type === 'success') {
       const url = new URL(result.url);
-      const hashParams = new URLSearchParams(url.hash.substring(1));
+      const queryParams = new URLSearchParams(url.search);
 
       const parsedUrl: { [key: string]: string | undefined } = {};
-      for (const [key, value] of hashParams.entries()) {
+      for (const [key, value] of queryParams.entries()) {
         parsedUrl[key] = value;
       }
 
       if (parsedUrl.error) {
         console.error('AuthSession error:', parsedUrl.error_description || parsedUrl.error);
+        this.codeVerifier = null; // Clear codeVerifier on error
         return false;
       }
 
-      this.accessToken = parsedUrl.access_token ?? null;
-      this.idToken = parsedUrl.id_token ?? null;
-      this.refreshToken = parsedUrl.refresh_token ?? null;
-
-      if (!this.accessToken) {
-        console.error('Access token không được trả về từ Auth0.');
-        this.nonce = null;
+      const code = parsedUrl.code;
+      if (!code) {
+        console.error('Không nhận được mã ủy quyền (code) từ Auth0.');
+        this.codeVerifier = null;
         return false;
       }
 
-      if (!this.idToken) {
-        console.error('ID token không được trả về từ Auth0.');
-        this.nonce = null;
+      // Exchange the code for tokens
+      try {
+        const tokenResponse = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            client_id: AUTH0_CLIENT_ID || '',
+            code: code,
+            redirect_uri: redirectUri,
+            code_verifier: this.codeVerifier || '', // Use stored codeVerifier
+          }).toString(),
+        });
+
+        const data = await tokenResponse.json();
+
+        if (tokenResponse.ok) {
+          this.accessToken = data.access_token;
+          this.idToken = data.id_token;
+          this.refreshToken = data.refresh_token;
+
+          if (this.idToken) {
+            this.user = jwtDecode<IdTokenPayload>(this.idToken);
+          }
+          console.log('Người dùng đã đăng nhập thành công và nhận token.');
+          this.codeVerifier = null; // Clear codeVerifier after use
+          await this._saveSession();
+          return true;
+        } else {
+          console.error('Lỗi khi đổi mã ủy quyền lấy token:', data);
+          this.codeVerifier = null;
+          return false;
+        }
+      } catch (error) {
+        console.error('Lỗi mạng hoặc lỗi không xác định khi đổi mã ủy quyền:', error);
+        this.codeVerifier = null;
         return false;
       }
-
-      const decodedIdToken = jwtDecode<IdTokenPayload>(this.idToken);
-
-      // Verify nonce
-      if (!decodedIdToken.nonce || decodedIdToken.nonce !== this.nonce) {
-        console.error('Nonce không khớp hoặc thiếu nonce trong ID token. Có thể là tấn công replay.');
-        this.nonce = null;
-        return false;
-      }
-
-      this.user = decodedIdToken;
-      console.log('Người dùng đã đăng nhập:', this.user);
-      this.nonce = null;
-      await this._saveSession();
-      return true;
     } else if (result.type === 'cancel') {
       console.log('Authentication cancelled by user.');
     } else if (result.type === 'dismiss') {
       console.log('Authentication dismissed by user.');
     }
-    this.nonce = null;
+    this.codeVerifier = null; // Clear codeVerifier on cancel/dismiss
     return false;
   }
 

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Card, Text, useTheme } from 'react-native-paper';
+import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 
@@ -30,6 +30,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   // New style for horizontal layout of details
   detailsRow: {
+    marginTop: SPACING_SMALL,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -58,14 +59,40 @@ const FaceItem = ({ item }: FaceItemProps) => {
         <Avatar.Image size={40} source={faceImageSource} style={styles.thumbnail} />
         <View style={styles.cardText}>
           <Text variant="titleMedium">{item.memberName || t('common.unknown')}</Text>
-          <View style={styles.detailsRow}> 
-            {item.familyName ? <Text variant="bodySmall">{t('family.familyName')}: {item.familyName}</Text> : <></>}
-            {item.confidence ? <Text variant="bodySmall">{t('faceSearch.confidence')}: {item.confidence.toFixed(2)}</Text> : <></>}
-            {(item.birthYear || item.deathYear) &&
-              <Text variant="bodySmall">
+          <View style={[styles.detailsRow, { gap: SPACING_SMALL }]}>
+            {item.familyName && (
+              <Chip
+                icon={({ size, color }: { size: number, color: string }) => (
+                  <Avatar.Image
+                    size={size}
+                    source={getAvatarSource(item.familyAvatarUrl)}
+                    style={{ backgroundColor: 'transparent' }}
+                  />
+                )}
+                compact
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              >
+                {item.familyName}
+              </Chip>
+            )}
+            {item.confidence && (
+              <Chip
+                icon="face-recognition"
+                compact
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              >
+                {t('faceSearch.confidence')}: {item.confidence.toFixed(2)}
+              </Chip>
+            )}
+            {(item.birthYear || item.deathYear) && (
+              <Chip
+                icon="calendar"
+                compact
+                style={{ backgroundColor: theme.colors.surfaceVariant }}
+              >
                 ({item.birthYear || t('common.not_available')} - {item.deathYear || t('common.not_available')})
-              </Text>
-            }
+              </Chip>
+            )}
           </View>
         </View>
       </Card.Content>

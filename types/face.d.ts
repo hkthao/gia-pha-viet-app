@@ -20,6 +20,7 @@ export interface DetectedFaceDto {
   familyName?: string;
   birthYear?: number;
   deathYear?: number;
+  familyAvatarUrl?: string;
 }
 
 export interface FaceDetectionResponseDto {

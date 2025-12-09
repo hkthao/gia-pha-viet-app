@@ -5,12 +5,12 @@ export interface DashboardDto {
   totalMembers: number;
   totalRelationships: number;
   totalGenerations: number;
-  publicMaleRatio: number;
-  publicFemaleRatio: number;
-  publicLivingMembersCount: number;
-  publicDeceasedMembersCount: number;
+  maleRatio: number;
+  femaleRatio: number;
+  livingMembersCount: number;
+  deceasedMembersCount: number;
   publicAverageAge: number;
-  publicMembersPerGeneration: { [key: number]: number };
+  membersPerGeneration: { [key: number]: number };
   totalEvents: number;
 }
 

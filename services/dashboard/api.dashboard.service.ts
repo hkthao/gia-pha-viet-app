@@ -21,7 +21,7 @@ export class ApiDashboardService implements IDashboardService {
 
   async getDashboardData(familyId: string): Promise<Result<DashboardMetrics>> {
     try {
-      const data = await this.api.get<DashboardDto>(`/dashboard`, {
+      const data = await this.api.get<DashboardDto>(`/dashboard/stats`, {
         params: {
           familyId: familyId,
         },
@@ -32,25 +32,25 @@ export class ApiDashboardService implements IDashboardService {
         totalRelationships: data.totalRelationships,
         totalGenerations: data.totalGenerations,
         averageAge: data.publicAverageAge,
-        livingMembers: data.publicLivingMembersCount,
-        deceasedMembers: data.publicDeceasedMembersCount,
+        livingMembers: data.livingMembersCount,
+        deceasedMembers: data.deceasedMembersCount,
         genderDistribution: [
           {
             name: 'Male',
-            population: Number((data.publicMaleRatio * 100).toFixed(2)), // Convert ratio to percentage and round for display
+            population: Number((data.maleRatio * 100).toFixed(2)), // Convert ratio to percentage and round for display
             color: getGenderColor('male'),
             legendFontColor: '#7F7F7F',
             legendFontSize: 15,
           },
           {
             name: 'Female',
-            population: Number((data.publicFemaleRatio * 100).toFixed(2)), // Convert ratio to percentage and round for display
+            population: Number((data.femaleRatio * 100).toFixed(2)), // Convert ratio to percentage and round for display
             color: getGenderColor('female'),
             legendFontColor: '#7F7F7F',
             legendFontSize: 15,
           },
         ],
-        membersPerGeneration: data.publicMembersPerGeneration,
+        membersPerGeneration: data.membersPerGeneration,
         totalEvents: data.totalEvents,
       };
 

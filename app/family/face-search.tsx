@@ -53,7 +53,7 @@ export default function FamilyFaceSearchScreen() {
           fileName: fileName,
           fileType: fileType,
           familyId: currentFamilyId,
-          returnCrop: true, // Defaulting to true as per API description
+          returnCrop: false, // Defaulting to true as per API description
         });
 
         if (result.isSuccess && result.value && result.value.detectedFaces) {

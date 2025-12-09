@@ -1,8 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { create, StoreApi, UseBoundStore } from 'zustand';
-import { createPublicFamilyDictStore, PublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
-import { IFamilyDictService } from '@/services';
-import { FamilyDictDto, PaginatedList, FamilyDictFilter, Result as TResult } from '@/types';
+import { IFamilyDictService } from '@/services/familyDict/familyDict.service.interface';
+import { usePublicFamilyDictStore } from '@/stores/usePublicFamilyDictStore';
+import { FamilyDictDto, PaginatedList, FamilyDictSearchQuery, Result as TResult } from '@/types';
 import { Result } from '@/utils/resultUtils'; // Import Result as a value
 
 // Mock authService to prevent it from trying to initialize Auth0 components and AsyncStorage
@@ -17,6 +16,20 @@ jest.mock('@/services/authService', () => ({
     getTokenClaims: jest.fn(() => null),
     isAuthenticated: jest.fn(() => false),
   },
+}));
+
+// Mock the familyDictService module that usePublicFamilyDictStore imports
+const mockFamilyDictService: IFamilyDictService = {
+  getById: jest.fn(),
+  search: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
+};
+
+jest.mock('@/services', () => ({
+  ...jest.requireActual('@/services'), // Keep actual implementations for other exports
+  familyDictService: mockFamilyDictService,
 }));
 
 // Mock FamilyDict data for testing
@@ -60,136 +73,112 @@ const mockFamilyDictsSinglePage: PaginatedList<FamilyDictDto> = {
 };
 
 describe('usePublicFamilyDictStore', () => {
-  let mockFamilyDictService: IFamilyDictService;
-  let useStore: UseBoundStore<StoreApi<PublicFamilyDictStore>>;
 
-  beforeEach(() => {
-    mockFamilyDictService = {
-      getById: jest.fn(),
-      search: jest.fn(),
-      create: jest.fn(), // Added
-      update: jest.fn(), // Added
-      delete: jest.fn(), // Added
-    };
-
-    const storeFactory = createPublicFamilyDictStore(mockFamilyDictService);
-    useStore = create(storeFactory);
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('should return initial state', () => {
-    const { result } = renderHook(() => useStore((state) => state));
+    const { result } = renderHook(() => usePublicFamilyDictStore());
 
-    expect(result.current.familyDict).toBeNull();
-    expect(result.current.familyDicts).toEqual([]);
+    expect(result.current.item).toBeNull();
+    expect(result.current.items).toEqual([]);
     expect(result.current.totalItems).toBe(0);
     expect(result.current.page).toBe(1);
     expect(result.current.totalPages).toBe(0);
     expect(result.current.loading).toBeFalsy();
     expect(result.current.error).toBeNull();
-    expect(result.current.hasMore).toBeFalsy(); // Corrected expectation
+    expect(result.current.hasMore).toBeFalsy();
   });
 
   describe('getById', () => { // Renamed from getFamilyDictById
     it('should fetch family dict by id successfully', async () => {
-      (mockFamilyDictService.getById as jest.Mock).mockImplementationOnce(async (id: string) => {
-        await Promise.resolve(); // Simulate microtask queue
-        return Result.success(mockFamilyDict) as TResult<FamilyDictDto>; // Using Result.success
-      });
+      (mockFamilyDictService.getById as jest.Mock).mockResolvedValueOnce(
+        Result.success(mockFamilyDict) as TResult<FamilyDictDto>
+      );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.getById('dict1'); // Renamed
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.getById).toHaveBeenCalledWith('dict1');
-      expect(result.current.familyDict).toEqual(mockFamilyDict);
+      expect(result.current.item).toEqual(mockFamilyDict);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBeNull();
     });
 
     it('should handle API error when fetching family dict by id', async () => {
       const errorMessage = 'Entry not found';
-      (mockFamilyDictService.getById as jest.Mock).mockImplementationOnce(async (id: string) => {
-        await Promise.resolve(); // Simulate microtask queue
-        return Result.fail(errorMessage) as TResult<FamilyDictDto>; // Using Result.fail
-      });
+      (mockFamilyDictService.getById as jest.Mock).mockResolvedValueOnce(
+        Result.fail(errorMessage) as TResult<FamilyDictDto>
+      );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.getById('dict1'); // Renamed
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.getById).toHaveBeenCalledWith('dict1');
-      expect(result.current.familyDict).toBeNull();
+      expect(result.current.item).toBeNull();
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
     it('should handle thrown error when fetching family dict by id', async () => {
       const errorMessage = 'Network error';
-      (mockFamilyDictService.getById as jest.Mock).mockImplementationOnce(async (id: string) => {
-        await Promise.resolve(); // Simulate microtask queue
-        throw new Error(errorMessage);
-      });
+      (mockFamilyDictService.getById as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.getById('dict1'); // Renamed
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.getById).toHaveBeenCalledWith('dict1');
-      expect(result.current.familyDict).toBeNull();
+      expect(result.current.item).toBeNull();
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
   });
 
-  describe('fetchFamilyDicts', () => {
-    const filter: FamilyDictFilter = { searchTerm: 'relation' };
+  describe('search', () => {
+    const filter: FamilyDictSearchQuery = { searchTerm: 'relation' };
     const page = 1;
     const itemsPerPage = 10;
 
-    it('should fetch initial family dicts successfully', async () => {
-      (mockFamilyDictService.search as jest.Mock).mockImplementationOnce(async (filter: FamilyDictFilter) => {
-        await Promise.resolve(); // Simulate microtask queue
-        return Result.success(mockFamilyDictsPage1) as TResult<PaginatedList<FamilyDictDto>>; // Using Result.success
-      });
+    it('should fetch initial items successfully', async () => {
+      (mockFamilyDictService.search as jest.Mock).mockResolvedValueOnce(
+        Result.success(mockFamilyDictsPage1) as TResult<PaginatedList<FamilyDictDto>>
+      );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.search).toHaveBeenCalledWith({ ...filter, page: page, itemsPerPage: itemsPerPage });
-      expect(result.current.familyDicts).toEqual(mockFamilyDictsPage1.items);
+      expect(result.current.items).toEqual(mockFamilyDictsPage1.items);
       expect(result.current.totalItems).toBe(mockFamilyDictsPage1.totalItems);
       expect(result.current.page).toBe(mockFamilyDictsPage1.page);
       expect(result.current.totalPages).toBe(mockFamilyDictsPage1.totalPages);
@@ -198,35 +187,34 @@ describe('usePublicFamilyDictStore', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should refresh family dicts successfully', async () => {
+    it('should refresh items successfully', async () => {
       // Setup initial state with some data first
       (mockFamilyDictService.search as jest.Mock)
-        .mockImplementationOnce(async (filter, page, itemsPerPage) => {
-          await Promise.resolve(); // Simulate microtask queue
-          return Result.success(mockFamilyDictsPage1) as TResult<PaginatedList<FamilyDictDto>>; // Using Result.success
-        })
-        .mockImplementationOnce(async (filter, page, itemsPerPage) => { // Mock for refresh
-          await Promise.resolve(); // Simulate microtask queue
-          return Result.success(mockFamilyDictsPage2) as TResult<PaginatedList<FamilyDictDto>>; // Using Result.success
-        });
+        .mockResolvedValueOnce(
+          Result.success(mockFamilyDictsPage1) as TResult<PaginatedList<FamilyDictDto>>
+        )
+        .mockResolvedValueOnce( // Mock for refresh
+          Result.success(mockFamilyDictsPage2) as TResult<PaginatedList<FamilyDictDto>>
+        );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       await act(async () => {
         await result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, false);
       });
-      expect(result.current.familyDicts).toEqual(mockFamilyDictsPage1.items);
+      expect(result.current.items).toEqual(mockFamilyDictsPage1.items);
 
       // Now refresh
       act(() => {
         result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, true);
       });
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.search).toHaveBeenCalledWith({ ...filter, page: page, itemsPerPage: itemsPerPage });
-      expect(result.current.familyDicts).toEqual(mockFamilyDictsPage2.items); // Should be replaced
+      expect(result.current.items).toEqual(mockFamilyDictsPage2.items); // Should be replaced
       expect(result.current.totalItems).toBe(mockFamilyDictsPage2.totalItems);
       expect(result.current.page).toBe(mockFamilyDictsPage2.page);
       expect(result.current.totalPages).toBe(mockFamilyDictsPage2.totalPages);
@@ -235,73 +223,68 @@ describe('usePublicFamilyDictStore', () => {
       expect(result.current.error).toBeNull();
     });
 
-    it('should handle API error when fetching family dicts', async () => {
+    it('should handle API error when fetching items', async () => {
       const errorMessage = 'Failed to load entries';
-      (mockFamilyDictService.search as jest.Mock).mockImplementationOnce(async (filter: FamilyDictFilter) => {
-        await Promise.resolve(); // Simulate microtask queue
-        return Result.fail(errorMessage) as TResult<PaginatedList<FamilyDictDto>>; // Using Result.fail
-      });
+      (mockFamilyDictService.search as jest.Mock).mockResolvedValueOnce(
+        Result.fail(errorMessage) as TResult<PaginatedList<FamilyDictDto>>
+      );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.search).toHaveBeenCalledWith({ ...filter, page: page, itemsPerPage: itemsPerPage });
-      expect(result.current.familyDicts).toEqual([]); // Initial state, not updated
+      expect(result.current.items).toEqual([]); // Initial state, not updated
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
-    it('should handle thrown error when fetching family dicts', async () => {
+    it('should handle thrown error when fetching items', async () => {
       const errorMessage = 'Server issue';
-      (mockFamilyDictService.search as jest.Mock).mockImplementationOnce(async (filter: FamilyDictFilter) => {
-        await Promise.resolve(); // Simulate microtask queue
-        throw new Error(errorMessage);
-      });
+      (mockFamilyDictService.search as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.search).toHaveBeenCalledWith({ ...filter, page: page, itemsPerPage: itemsPerPage });
-      expect(result.current.familyDicts).toEqual([]);
+      expect(result.current.items).toEqual([]);
       expect(result.current.loading).toBeFalsy();
       expect(result.current.error).toBe(errorMessage);
     });
 
     it('should correctly set hasMore to false when totalPages is 1', async () => {
-      (mockFamilyDictService.search as jest.Mock).mockImplementationOnce(async (filter: FamilyDictFilter) => {
-        await Promise.resolve(); // Simulate microtask queue
-        return Result.success(mockFamilyDictsSinglePage) as TResult<PaginatedList<FamilyDictDto>>; // Using Result.success
-      });
+      (mockFamilyDictService.search as jest.Mock).mockResolvedValueOnce(
+        Result.success(mockFamilyDictsSinglePage) as TResult<PaginatedList<FamilyDictDto>>
+      );
 
-      const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
       act(() => {
         result.current.search({ ...filter, page: page, itemsPerPage: itemsPerPage }, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
       await waitForNextUpdate();
 
       expect(mockFamilyDictService.search).toHaveBeenCalledWith({ ...filter, page: page, itemsPerPage: itemsPerPage });
-      expect(result.current.familyDicts).toEqual(mockFamilyDictsSinglePage.items);
+      expect(result.current.items).toEqual(mockFamilyDictsSinglePage.items);
       expect(result.current.totalItems).toBe(mockFamilyDictsSinglePage.totalItems);
       expect(result.current.page).toBe(mockFamilyDictsSinglePage.page);
       expect(result.current.totalPages).toBe(mockFamilyDictsSinglePage.totalPages);
@@ -311,24 +294,20 @@ describe('usePublicFamilyDictStore', () => {
     });
   });
 
-  it('should clear family dict', () => {
-    // Set a family dict first
+  it('should clear item', () => {
+    // Set an item first
     act(() => {
-      useStore.getState().getById('dict1'); // Renamed
-    });
-    // Assuming getById would set it (not fully testing its effect here, but for scenario)
-    act(() => {
-      useStore.setState({ familyDict: mockFamilyDict });
+      usePublicFamilyDictStore.setState({ item: mockFamilyDict });
     });
 
-    const { result } = renderHook(() => useStore((state) => state));
-    expect(result.current.familyDict).toEqual(mockFamilyDict);
+    const { result } = renderHook(() => usePublicFamilyDictStore());
+    expect(result.current.item).toEqual(mockFamilyDict);
 
     act(() => {
-      result.current.clearFamilyDict();
+      result.current.clearItem();
     });
 
-    expect(result.current.familyDict).toBeNull();
+    expect(result.current.item).toBeNull();
   });
 
   it('should reset the store state', async () => {
@@ -337,16 +316,20 @@ describe('usePublicFamilyDictStore', () => {
 
     (mockFamilyDictService.search as jest.Mock).mockResolvedValueOnce(Result.success(mockFamilyDictsPage1) as TResult<PaginatedList<FamilyDictDto>>);
 
-    const { result, waitForNextUpdate } = renderHook(() => useStore((state) => state));
+    const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyDictStore());
 
     act(() => {
-      result.current.getById('dict1'); // Renamed
-      result.current.search({ page: 1, itemsPerPage: 10 } as FamilyDictFilter, false);
+      result.current.getById('dict1');
     });
+    await act(async () => {}); // Allow microtasks to complete for Zustand state update
+    act(() => {
+      result.current.search({ page: 1, itemsPerPage: 10 } as FamilyDictSearchQuery, false);
+    });
+    await act(async () => {}); // Allow microtasks to complete for Zustand state update
     await waitForNextUpdate(); // Wait for data to be fetched
 
-    expect(result.current.familyDict).toEqual(mockFamilyDict);
-    expect(result.current.familyDicts).toEqual(mockFamilyDictsPage1.items);
+    expect(result.current.item).toEqual(mockFamilyDict);
+    expect(result.current.items).toEqual(mockFamilyDictsPage1.items);
     expect(result.current.loading).toBeFalsy();
 
     // Now, reset the store
@@ -354,18 +337,18 @@ describe('usePublicFamilyDictStore', () => {
       result.current.reset();
     });
 
-    expect(result.current.familyDict).toBeNull();
-    expect(result.current.familyDicts).toEqual([]);
+    expect(result.current.item).toBeNull();
+    expect(result.current.items).toEqual([]);
     expect(result.current.totalItems).toBe(0);
     expect(result.current.page).toBe(1);
     expect(result.current.totalPages).toBe(0);
     expect(result.current.loading).toBeFalsy();
     expect(result.current.error).toBeNull();
-    expect(result.current.hasMore).toBeFalsy(); // Corrected expectation
+    expect(result.current.hasMore).toBeFalsy();
   });
 
   it('should set an error message', () => {
-    const { result } = renderHook(() => useStore((state) => state));
+    const { result } = renderHook(() => usePublicFamilyDictStore());
 
     act(() => {
       result.current.setError('Custom error message');

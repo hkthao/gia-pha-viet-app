@@ -59,7 +59,6 @@ export interface BaseSearchQuery {
   sortOrder?: string; // "asc" or "desc"
 }
 
-
 export interface SearchPublicFamiliesQuery extends BaseSearchQuery {}
 
 export interface SearchPublicMembersQuery extends BaseSearchQuery {
@@ -221,17 +220,12 @@ export interface GetEventsQuery {
   relatedMemberId?: string;
 }
 
-export interface SearchPublicEventsQuery {
+export interface SearchPublicEventsQuery extends BaseSearchQuery  {
   familyId?: string;
-  searchTerm?: string;
   startDate?: string; // DateTime in C# maps to string in TypeScript
   endDate?: string; // DateTime in C# maps to string in TypeScript
   type?: EventType;
   relatedMemberId?: string;
-  page?: number;
-  itemsPerPage?: number;
-  sortBy?: string;
-  sortOrder?: string; // "asc" or "desc"
 }
 
 export interface GetPublicUpcomingEventsQuery {
@@ -239,8 +233,6 @@ export interface GetPublicUpcomingEventsQuery {
   startDate?: string; // DateTime in C# maps to string in TypeScript
   endDate?: string; // DateTime in C# maps to string in TypeScript
 }
-
-
 
 // Add FamilyDict types
 export enum FamilyDictType {
@@ -274,14 +266,9 @@ export interface FamilyDictDto {
   namesByRegion: NamesByRegionDto;
 }
 
-export interface FamilyDictFilter {
-  searchTerm?: string;
+export interface FamilyDictSearchQuery extends BaseSearchQuery {
   lineage?: FamilyDictLineage;
   region?: string;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  itemsPerPage?: number;
 }
 
 export interface PaginatedFamilyDictDto {

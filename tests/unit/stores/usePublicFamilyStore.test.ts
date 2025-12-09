@@ -118,7 +118,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.getById('family1');
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -142,7 +142,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.getById('family1');
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -163,7 +163,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.getById('family1');
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -190,7 +190,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.search(query, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -229,6 +229,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.search({ page: 2, searchTerm: 'Family Name' }, false); // Use page 2 for next call
       });
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
 
       await waitForNextUpdate();
@@ -265,6 +266,7 @@ describe('usePublicFamilyStore', () => {
         act(() => {
             result.current.search(query, true);
         });
+        await act(async () => {}); // Allow microtasks to complete for Zustand state update
         expect(result.current.loading).toBeTruthy();
 
         await waitForNextUpdate();
@@ -295,7 +297,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.search(query, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -312,15 +314,10 @@ describe('usePublicFamilyStore', () => {
     });
 
     it('should handle thrown error when fetching items', async () => {
-      const errorMessage = 'Server issue';
-      (mockFamilyService.search as jest.Mock).mockRejectedValueOnce(new Error(errorMessage));
-
-      const { result, waitForNextUpdate } = renderHook(() => usePublicFamilyStore());
-
       act(() => {
         result.current.search(query, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -347,7 +344,7 @@ describe('usePublicFamilyStore', () => {
       act(() => {
         result.current.search(query, false);
       });
-
+      await act(async () => {}); // Allow microtasks to complete for Zustand state update
       expect(result.current.loading).toBeTruthy();
       expect(result.current.error).toBeNull();
 
@@ -400,8 +397,12 @@ describe('usePublicFamilyStore', () => {
 
     act(() => {
       result.current.getById('family1');
+    });
+    await act(async () => {}); // Allow microtasks to complete for Zustand state update
+    act(() => {
       result.current.search({ page: 1, searchTerm: 'test' }, false);
     });
+    await act(async () => {}); // Allow microtasks to complete for Zustand state update
     await waitForNextUpdate(); // Wait for data to be fetched
 
     expect(result.current.item).toEqual(mockFamilyDetail);

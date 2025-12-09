@@ -90,10 +90,8 @@ export function usePaginatedSearch<T, Q extends QueryParams>( // Extend Q to alw
         await fetch(query, state.page > 1);
         // After a successful fetch, update the lastFetchedQueryRef
         lastFetchedQueryRef.current = query;
-        // Mark initial data as loaded if it was the first page fetch
-        if (query.page === 1) {
-          initialDataLoadedRef.current = true;
-        }
+        initialDataLoadedRef.current = true; // Mark as loaded after any successful fetch
+
       } finally {
         if (state.refreshing) {
           dispatch({ type: "END_REFRESH" });

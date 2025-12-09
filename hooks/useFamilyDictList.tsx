@@ -3,13 +3,13 @@ import { StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 import { SPACING_SMALL } from '@/constants/dimensions';
-import { FamilyDictDto, FamilyDictFilter } from '@/types';
+import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 import FamilyDictItem from '@/components/family-dict/FamilyDictItem';
 import { ZustandPaginatedStore } from '@/hooks/usePaginatedSearch';
 import { useFamilyDictPaginatedStore } from '@/hooks/adapters/useFamilyDictPaginatedStore';
 
 interface UseFamilyDictListHook {
-  useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictFilter>;
+  useStore: () => ZustandPaginatedStore<FamilyDictDto, FamilyDictSearchQuery>;
   renderFamilyDictItem: ({ item }: { item: FamilyDictDto }) => React.JSX.Element;
   styles: ReturnType<typeof getStyles>;
   t: (key: string) => string;

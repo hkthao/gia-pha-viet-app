@@ -45,7 +45,7 @@ export function searchReducer<Q extends QueryParams>(
     case "RESET":
       return {
         ...state,
-        search: action.payload.searchTerm || "",
+        search: action.payload.searchQuery || "",
         filters: action.payload,
         page: 1,
         refreshing: false, // Reset refreshing state on full reset

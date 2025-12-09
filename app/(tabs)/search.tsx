@@ -27,7 +27,7 @@ export default function SearchScreen() {
     ],
   });
 
-  const initialQuery = useMemo(() => ({ page: 1, itemsPerPage: 10, searchTerm: '' }), []);
+  const initialQuery = useMemo(() => ({ page: 1, itemsPerPage: 10, searchQuery: '' }), []);
 
   return (
     <View style={styles.safeArea}>

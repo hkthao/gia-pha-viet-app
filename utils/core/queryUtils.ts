@@ -3,7 +3,7 @@ import { shallowEqual } from './shallowEqual';
 
 // Định nghĩa lại các kiểu dữ liệu cần thiết cho hàm thuần túy
 export interface QueryParams {
-  searchTerm?: string;
+  searchQuery?: string;
   page?: number;
   itemsPerPage?: number;
   [key: string]: any; // Cho phép các thuộc tính khác
@@ -25,8 +25,8 @@ export function buildQuery<Q extends QueryParams>(
   return {
     ...initialQuery,
     ...filters,
-    // Prioritize debouncedSearch if it has a value, otherwise use searchTerm from filters
-    searchTerm: debouncedSearch || filters.searchTerm,
+    // Prioritize debouncedSearch if it has a value, otherwise use searchQuery from filters
+    searchQuery: debouncedSearch || filters.searchQuery,
   } as Q;
 }
 

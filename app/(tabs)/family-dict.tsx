@@ -16,7 +16,7 @@ export default function FamilyDictScreen() {
       <PaginatedSearchList<FamilyDictDto, FamilyDictSearchQuery>
         useStore={useStore}
         searchOptions={{
-          initialQuery: { searchTerm: '', sortBy: 'name', sortOrder: 'asc' },
+          initialQuery: { searchQuery: '', sortBy: 'name', sortOrder: 'asc' },
         }}
         renderItem={renderFamilyDictItem}
         keyExtractor={(item) => item.id}

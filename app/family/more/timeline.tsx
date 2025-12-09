@@ -49,7 +49,7 @@ const TimelineScreen = () => {
 
   const { items } = usePaginatedSearch<EventDto, SearchPublicEventsQuery>({
     useStore,
-    initialQuery: { searchTerm: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },
+    initialQuery: { searchQuery: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },
     externalDependencies: [currentFamilyId, isFocused],
   });
 
@@ -78,7 +78,7 @@ const TimelineScreen = () => {
       <PaginatedSearchList<EventDto, SearchPublicEventsQuery>
         useStore={useStore}
         searchOptions={{
-          initialQuery: { searchTerm: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },
+          initialQuery: { searchQuery: '', familyId: '', page: 1, itemsPerPage: 10, sortBy: 'startDate', sortOrder: 'desc' },
           externalDependencies: [currentFamilyId, isFocused],
         }}
         renderItem={renderEventItem}

@@ -54,7 +54,7 @@ export interface PaginatedList<T> {
 export interface BaseSearchQuery {
   page?: number;
   itemsPerPage?: number;
-  searchTerm?: string;
+  searchQuery?: string;
   sortBy?: string;
   sortOrder?: string; // "asc" or "desc"
 }

@@ -22,11 +22,11 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
   const { useStore, initialQuery, debounceTime = 400 } = options;
   const { items, loading, error, hasMore, page: storePage, refresh, loadMore, reset } = useStore();
 
-  const [searchTerm, setSearchTerm] = useState(initialQuery.searchTerm || "");
+  const [searchQuery, setSearchQuery] = useState(initialQuery.searchQuery || "");
   const [filters, setFilters] = useState<Q>(initialQuery);
   const [refreshing, setRefreshing] = useState(false);
 
-  const debouncedSearch = useDebouncedValue(searchTerm, debounceTime);
+  const debouncedSearch = useDebouncedValue(searchQuery, debounceTime);
 
   /** Build final query (without page, as refresh/loadMore handle it) */
   const query = useMemo(
@@ -37,11 +37,12 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
 
   /** Fetch on any query change (triggers refresh) */
   useEffect(() => {
+    reset(); // Ensure store is reset before new query fetch
     refresh(query).finally(() => {
       // Only set refreshing to false if it was initiated by a refresh cycle
       // The refreshing state is now controlled by handleRefresh directly after its fetch
     });
-  }, [query, refresh]); // Removed 'refreshing' from dependencies
+  }, [query, refresh, reset]); // Add 'reset' to dependencies
 
   /** Load more */
   const handleLoadMore = useCallback(() => {
@@ -64,7 +65,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
     });
 
     setFilters(initialQuery); // This will cause 'query' to change, but useEffect should not refetch if handleRefresh already did.
-    setSearchTerm(initialQuery.searchTerm || "");
+    setSearchQuery(initialQuery.searchQuery || "");
   }, [refreshing, initialQuery, reset, refresh]); // Add 'refresh' and 'reset' to dependencies
 
 
@@ -80,7 +81,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
   /** Reset all */
   const resetAll = useCallback(() => {
     reset();
-    setSearchTerm(initialQuery.searchTerm || "");
+    setSearchQuery(initialQuery.searchQuery || "");
     setFilters(initialQuery);
   }, [initialQuery]);
 
@@ -90,8 +91,8 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
     error,
     hasMore,
     refreshing,
-    searchQuery: searchTerm,
-    setSearchQuery: setSearchTerm,
+    searchQuery: searchQuery,
+    setSearchQuery: setSearchQuery,
     filters,
     setFilters: updateFilters,
     handleLoadMore,

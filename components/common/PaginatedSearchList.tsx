@@ -5,7 +5,7 @@ import { usePaginatedSearch } from '@/hooks/usePaginatedSearch';
 import { usePaginatedSearchListUI } from '@/hooks/usePaginatedSearchListUI';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 
-interface PaginatedSearchListProps<T, Q extends { searchTerm?: string }> {
+interface PaginatedSearchListProps<T, Q extends { searchQuery?: string }> {
   searchOptions: Omit<Parameters<typeof usePaginatedSearch<T, Q>>[0], 'useStore'>;
   useStore: Parameters<typeof usePaginatedSearch<T, Q>>[0]['useStore'];
 
@@ -25,7 +25,7 @@ interface PaginatedSearchListProps<T, Q extends { searchTerm?: string }> {
   error?: string | null; // Added error prop
 }
 
-export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
+export function PaginatedSearchList<T, Q extends { searchQuery?: string }>(
   props: PaginatedSearchListProps<T, Q>
 ) {
   const {
@@ -96,6 +96,8 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
     [styles.container, contentContainerStyle]
   );
 
+  const handleClearSearch = React.useCallback(() => setSearchQuery(''), [setSearchQuery]);
+
   return (
     <View style={safeAreaCombinedStyle}>
       {headerTitle && (
@@ -117,7 +119,7 @@ export function PaginatedSearchList<T, Q extends { searchTerm?: string }>(
                 icon="close-circle"
                 size={20}
                 iconColor={color}
-                onPress={React.useCallback(() => setSearchQuery(''), [setSearchQuery])}
+                onPress={handleClearSearch}
               />
             ) : undefined}
           />

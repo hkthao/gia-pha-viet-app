@@ -89,7 +89,7 @@ export default function FamilyMembersScreen() {
       <PaginatedSearchList<MemberListDto, SearchPublicMembersQuery>
         useStore={() => useStore}
         searchOptions={{
-          initialQuery: { familyId: '', page: 1, itemsPerPage: 10, searchTerm: '', gender: undefined, isRoot: undefined },
+          initialQuery: { familyId: '', page: 1, itemsPerPage: 10, searchQuery: '', gender: undefined, isRoot: undefined },
           externalDependencies: [currentFamilyId],
         }}
         renderItem={renderMemberItem}

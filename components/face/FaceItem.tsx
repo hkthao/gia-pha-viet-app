@@ -28,6 +28,11 @@ const getStyles = (theme: any) => StyleSheet.create({
   cardText: {
     flex: 1,
   },
+  // New style for horizontal layout of details
+  detailsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
 });
 
 const FaceItem = ({ item }: FaceItemProps) => {
@@ -52,11 +57,16 @@ const FaceItem = ({ item }: FaceItemProps) => {
       <Card.Content style={styles.cardContent}>
         <Avatar.Image size={40} source={faceImageSource} style={styles.thumbnail} />
         <View style={styles.cardText}>
-          <Text variant="titleMedium">{item.memberName || t('common.unknown')}</Text>{item.familyName && <Text variant="bodySmall">{t('family.familyName')}: {item.familyName}</Text>}{item.confidence && <Text variant="bodySmall">{t('faceSearch.confidence')}: {item.confidence.toFixed(2)}</Text>}{(item.birthYear || item.deathYear) && (
-            <Text variant="bodySmall">
-              ({item.birthYear || t('common.not_available')} - {item.deathYear || t('common.not_available')})
-            </Text>
-          )}
+          <Text variant="titleMedium">{item.memberName || t('common.unknown')}</Text>
+          <View style={styles.detailsRow}> 
+            {item.familyName ? <Text variant="bodySmall">{t('family.familyName')}: {item.familyName}</Text> : <></>}
+            {item.confidence ? <Text variant="bodySmall">{t('faceSearch.confidence')}: {item.confidence.toFixed(2)}</Text> : <></>}
+            {(item.birthYear || item.deathYear) &&
+              <Text variant="bodySmall">
+                ({item.birthYear || t('common.not_available')} - {item.deathYear || t('common.not_available')})
+              </Text>
+            }
+          </View>
         </View>
       </Card.Content>
     </Card>

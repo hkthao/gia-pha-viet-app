@@ -5,28 +5,41 @@ import { useMemberSearchList } from '@/hooks/useMemberSearchList';
 import { MemberItem } from '@/components';
 import { MemberListDto, SearchMembersQuery } from '@/types';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { Modal, Portal, useTheme } from 'react-native-paper';
-import { Dimensions } from 'react-native'; // Import Dimensions
-import { SPACING_SMALL } from '@/constants/dimensions';
+import { Modal, Portal, useTheme, Text, IconButton } from 'react-native-paper';
+import { Dimensions, View, StyleSheet } from 'react-native'; // Import Dimensions, View, StyleSheet
+import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 
 const screenHeight = Dimensions.get('window').height;
+
+const styles = StyleSheet.create({
+  headerStyle: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    marginBottom: SPACING_MEDIUM,
+  },
+  titleStyle: {
+    textAlign: "center",
+    flex: 1,
+  }
+});
 
 // -----------------------------------------------------------------------------
 // MemberSelectModal Component
 // -----------------------------------------------------------------------------
-interface MemberSelectModalProps {
+interface MemberSelectModalProps<TFieldName extends string> {
   isVisible: boolean;
   onClose: () => void;
-  onSelectMember: (member: MemberListDto, fieldName: 'member1' | 'member2') => void;
-  fieldName: 'member1' | 'member2'; // To indicate which member is being selected (member1 or member2)
+  onSelectMember: (member: MemberListDto, fieldName: TFieldName) => void;
+  fieldName: TFieldName;
 }
 
-const MemberSelectModalComponent: React.FC<MemberSelectModalProps> = ({
+const MemberSelectModalComponent = <TFieldName extends string>({
   isVisible,
   onClose,
   onSelectMember,
   fieldName,
-}) => {
+}: MemberSelectModalProps<TFieldName>) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
@@ -53,25 +66,30 @@ const MemberSelectModalComponent: React.FC<MemberSelectModalProps> = ({
     backgroundColor: theme.colors.background
   }), [theme.colors.background, theme.roundness]);
 
+
   return (
     <Portal>
       <Modal visible={isVisible} onDismiss={onClose} style={modalStyle} contentContainerStyle={containerStyle}>
-        <PaginatedSearchList<MemberListDto, SearchMembersQuery>
-          useStore={() => useStore}
-          searchOptions={{
-            initialQuery: { familyId: currentFamilyId || '', searchQuery: '' },
-            externalDependencies: [currentFamilyId],
-            debounceTime: 400,
-          }}
-          renderItem={customRenderItem}
-          keyExtractor={(item) => item.id}
-          searchPlaceholder={t('memberSearch.placeholder')}
-          containerStyle={{
-            height: screenHeight * 0.9,
-            backgroundColor: theme.colors.background
-          }}
-          showFilterButton={false}
-        />
+          <View style={styles.headerStyle}>
+            <Text style={styles.titleStyle} variant="headlineSmall">{t('memberSelectModal.title')}</Text>
+            <IconButton icon="close" onPress={onClose} ></IconButton>
+          </View>
+          <PaginatedSearchList<MemberListDto, SearchMembersQuery>
+            useStore={() => useStore}
+            searchOptions={{
+              initialQuery: { familyId: currentFamilyId || '', searchQuery: '' },
+              externalDependencies: [currentFamilyId],
+              debounceTime: 400,
+            }}
+            renderItem={customRenderItem}
+            keyExtractor={(item) => item.id}
+            searchPlaceholder={t('memberSearch.placeholder')}
+            containerStyle={{
+              height: screenHeight * 0.9,
+              backgroundColor: theme.colors.background
+            }}
+            showFilterButton={false}
+          />
       </Modal>
     </Portal>
   );
@@ -80,18 +98,18 @@ const MemberSelectModalComponent: React.FC<MemberSelectModalProps> = ({
 // -----------------------------------------------------------------------------
 // useMemberSelectModal Hook
 // -----------------------------------------------------------------------------
-interface UseMemberSelectModal {
-  showMemberSelectModal: (onSelect: (member: MemberListDto, fieldName: 'member1' | 'member2') => void, fieldName: 'member1' | 'member2') => void;
+interface UseMemberSelectModal<TFieldName extends string> {
+  showMemberSelectModal: (onSelect: (member: MemberListDto, fieldName: TFieldName) => void, fieldName: TFieldName) => void;
   MemberSelectModal: React.FC;
 }
 
-export function useMemberSelectModal(): UseMemberSelectModal {
+export function useMemberSelectModal<TFieldName extends string>(): UseMemberSelectModal<TFieldName> {
   const [isVisible, setIsVisible] = useState(false);
-  const [selectCallback, setSelectCallback] = useState<(member: MemberListDto, fieldName: 'member1' | 'member2') => void>(() => () => { });
-  const [currentFieldName, setCurrentFieldName] = useState<'member1' | 'member2'>('member1');
+  const [selectCallback, setSelectCallback] = useState<(member: MemberListDto, fieldName: TFieldName) => void>(() => () => { });
+  const [currentFieldName, setCurrentFieldName] = useState<TFieldName | undefined>(undefined);
 
   const showMemberSelectModal = useCallback(
-    (onSelect: (member: MemberListDto, fieldName: 'member1' | 'member2') => void, fieldName: 'member1' | 'member2') => {
+    (onSelect: (member: MemberListDto, fieldName: TFieldName) => void, fieldName: TFieldName) => {
       setSelectCallback(() => onSelect);
       setCurrentFieldName(fieldName);
       setIsVisible(true);
@@ -104,7 +122,7 @@ export function useMemberSelectModal(): UseMemberSelectModal {
   }, []);
 
   const handleSelectMember = useCallback(
-    (member: MemberListDto, fieldName: 'member1' | 'member2') => {
+    (member: MemberListDto, fieldName: TFieldName) => {
       selectCallback(member, fieldName);
       hideModal();
     },
@@ -112,14 +130,19 @@ export function useMemberSelectModal(): UseMemberSelectModal {
   );
 
   const MemoizedMemberSelectModal = useMemo(() => {
-    const Component: React.FC = () => (
-      <MemberSelectModalComponent
-        isVisible={isVisible}
-        onClose={hideModal}
-        onSelectMember={handleSelectMember}
-        fieldName={currentFieldName}
-      />
-    );
+    const Component: React.FC = () => {
+      if (currentFieldName === undefined) {
+        return null;
+      }
+      return (
+        <MemberSelectModalComponent<TFieldName>
+          isVisible={isVisible}
+          onClose={hideModal}
+          onSelectMember={handleSelectMember}
+          fieldName={currentFieldName}
+        />
+      );
+    };
     return Component;
   }, [isVisible, hideModal, handleSelectMember, currentFieldName]);
 

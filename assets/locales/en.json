@@ -250,6 +250,7 @@
   "common.female": "Female",
   "common.other": "Other",
   "common.noMoreItems": "No more items",
+  "common.dismiss": "Dismiss",
   "familyDetail.tab.more": "More",
   "more.title": "More",
   "more.calendar": "Calendar",
@@ -304,5 +305,6 @@
   "permissionDenied.accessDenied": "You do not have permission to view this page.",
   "permissionDenied.message": "Please contact the administrator or go back to the previous page.",
   "permissionDenied.goBack": "Go Back",
-  "permissionDenied.logout": "Logout"
+  "permissionDenied.logout": "Logout",
+  "memberSelectModal.title": "Select Member"
 }

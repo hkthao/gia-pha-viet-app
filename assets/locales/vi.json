@@ -252,6 +252,7 @@
   "common.female": "Nữ",
   "common.other": "Khác",
   "common.noMoreItems": "Không còn mục nào",
+  "common.dismiss": "Đóng",
   "familyDetail.tab.more": "Thêm nữa",
   "more.title": "Thêm nữa",
   "more.calendar": "Lịch",
@@ -307,5 +308,6 @@
   "detectRelationship.description": "Mô tả",
   "detectRelationship.edges": "Các cạnh",
   "detectRelationship.path": "Đường dẫn",
-  "memberSelect.title": "Chọn thành viên"
+  "memberSelect.title": "Chọn thành viên",
+  "memberSelectModal.title": "Chọn thành viên"
 }

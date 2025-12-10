@@ -21,7 +21,7 @@ export default function DetectRelationshipScreen() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal(); // Use the hook
+  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal<'member1' | 'member2'>(); // Use the hook
 
   const handleMemberSelected = useCallback((member: MemberListDto, fieldName: 'member1' | 'member2') => {
     if (fieldName === 'member1') {
@@ -52,13 +52,6 @@ export default function DetectRelationshipScreen() {
       setLoading(false);
     }
   }, [member1Id, member2Id, t, setError, setLoading, setRelationshipResult]);
-
-  // useEffect hook is no longer needed as modal handles callback
-  // useEffect(() => {
-  //   if (params?.selectedMemberId && params?.selectedMemberName && params?.fieldName) {
-  //     // ... logic is now in handleMemberSelected
-  //   }
-  // }, [params]);
 
   const styles = StyleSheet.create({
     container: {

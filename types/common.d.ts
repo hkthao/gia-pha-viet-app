@@ -21,3 +21,5 @@ export interface BaseSearchQuery {
   sortBy?: string;
   sortOrder?: string; // "asc" or "desc"
 }
+
+

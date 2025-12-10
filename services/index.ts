@@ -8,6 +8,8 @@ import { ApiRelationshipService, IRelationshipService } from './relationship';
 import { ApiFaceService, IFaceService } from './face';
 import { ApiFamilyDictService, IFamilyDictService } from './familyDict';
 import { ApiDashboardService, IDashboardService } from './dashboard';
+import { ApiPrivacyService, IPrivacyService } from './privacy';
+
 import { apiClientWithAuth, publicApiClient } from './api';
 
 // Initialize services
@@ -19,6 +21,8 @@ export const relationshipService: IRelationshipService = new ApiRelationshipServ
 export const faceService: IFaceService = new ApiFaceService(apiClientWithAuth);
 export const familyDictService: IFamilyDictService = new ApiFamilyDictService(apiClientWithAuth);
 export const dashboardService: IDashboardService = new ApiDashboardService(apiClientWithAuth);
+export const privacyService: IPrivacyService = new ApiPrivacyService(apiClientWithAuth);
+
 
 // Re-export API clients for direct use if needed
 export { apiClientWithAuth, publicApiClient };
@@ -33,3 +37,5 @@ export * from './face';
 export * from './familyDict';
 export * from './dashboard';
 export * from './api';
+export * from './privacy';
+

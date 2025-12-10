@@ -8,4 +8,5 @@ export * from './useMemberStore';
 export * from './useRelationshipStore';
 export * from './useUserProfileStore';
 export * from './useGenericCrudStore';
+export * from './usePrivacyStore';
 

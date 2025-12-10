@@ -272,5 +272,16 @@
   "timeline.relatedMembers": "Thành viên liên quan",
   "common.noTitle": "Không có tiêu đề",
   "common.noDescription": "Không có mô tả",
+  "common.save": "Lưu",
+  "family.privacy.title": "Cấu hình quyền riêng tư",
+  "family.privacy.description": "Chọn các thuộc tính của thành viên gia đình sẽ hiển thị công khai. Các thuộc tính không được chọn sẽ chỉ hiển thị cho thành viên gia đình.",
+  "family.privacy.noFamilyIdError": "Không tìm thấy ID gia đình để cấu hình quyền riêng tư.",
+  "family.privacy.fetchError": "Tải cấu hình quyền riêng tư thất bại.",
+  "family.privacy.saveSuccess": "Cấu hình quyền riêng tư đã được lưu thành công.",
+  "family.privacy.saveError": "Lưu cấu hình quyền riêng tư thất bại.",
+  "member.fatherFullName": "Tên đầy đủ của Cha",
+  "member.motherFullName": "Tên đầy đủ của Mẹ",
+  "member.husbandFullName": "Tên đầy đủ của Chồng",
+  "member.wifeFullName": "Tên đầy đủ của Vợ",
   "family.familyName": "Tên gia đình"
 }

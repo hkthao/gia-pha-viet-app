@@ -1,1 +1,1 @@
-export * from './FaceItem';
+export { default as FaceItem } from './FaceItem';

@@ -45,13 +45,13 @@ const FaceFilterComponent: React.FC<FaceFilterProps> = ({ filters, setFilters })
   return (
     <View style={styles.filterChipsContainer}>
       {/* Example: Add chips for minConfidence, maxConfidence if applicable */}
-      {/* <Chip
+      <Chip
         selected={filters.minConfidence === 0.8}
         onPress={() => handleFilterChange('minConfidence', 0.8)}
         style={styles.filterChip}
       >
         {t('faceSearch.filter.minConfidence')}
-      </Chip> */}
+      </Chip>
     </View>
   );
 };
@@ -73,8 +73,8 @@ export default function FamilyFaceDataScreen() {
         keyExtractor={(item) => item.id}
         searchPlaceholder={t('faceSearch.placeholder')} // Assuming this key exists
         containerStyle={styles.container}
-        showFilterButton={false} // Adjust based on whether FaceFilterComponent is used
-        FilterComponent={FaceFilterComponent} // Conditionally render
+        showFilterButton={true} // Set to true to use FilterComponent
+        FilterComponent={FaceFilterComponent}
       />
     </View>
   );

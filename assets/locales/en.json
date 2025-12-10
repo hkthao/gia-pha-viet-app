@@ -269,5 +269,16 @@
   "timeline.failedToLoadEvents": "Failed to load events.",
   "timeline.searchPlaceholder": "Search events",
   "timeline.noMoreEvents": "No more events.",
-  "timeline.noEventsFound": "No events found."
+  "timeline.noEventsFound": "No events found.",
+  "common.save": "Save",
+  "family.privacy.title": "Privacy Configuration",
+  "family.privacy.description": "Select family member properties that will be publicly visible. Unselected properties will only be visible to family members.",
+  "family.privacy.noFamilyIdError": "No family ID found for privacy configuration.",
+  "family.privacy.fetchError": "Failed to load privacy configuration.",
+  "family.privacy.saveSuccess": "Privacy configuration saved successfully.",
+  "family.privacy.saveError": "Failed to save privacy configuration.",
+  "member.fatherFullName": "Father's Full Name",
+  "member.motherFullName": "Mother's Full Name",
+  "member.husbandFullName": "Husband's Full Name",
+  "member.wifeFullName": "Wife's Full Name"
 }

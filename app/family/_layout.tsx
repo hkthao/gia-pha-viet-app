@@ -30,6 +30,18 @@ export default function FamilyDetailLayout() {
         return t('familyDetail.tab.faceSearch');
       case 'more':
         return t('familyDetail.tab.more');
+      case 'calendar':
+        return t('more.calendar');
+      case 'face-data':
+        return t('more.faceData');
+      case 'memories':
+        return t('more.memories');
+      case 'timeline':
+        return t('more.timeline');
+      case 'privacy':
+        return t('more.privacy');
+      case 'detect-relationship':
+        return t('detectRelationship.title');
       default:
         return t('familyDetail.title'); // Fallback title
     }

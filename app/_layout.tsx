@@ -85,7 +85,6 @@ function AppContent() {
                 <Stack.Screen name="faq-webview" options={{ headerShown: false }} />
                 <Stack.Screen name="feature-under-development" options={{ headerShown: false }} />
                 <Stack.Screen name="permission-denied" options={{ headerShown: false }} />
-                <Stack.Screen name="family/more/relationships" options={{ headerShown: false }} />
               </Stack>
             </NavigationThemeProvider>
           </SnackbarProvider>

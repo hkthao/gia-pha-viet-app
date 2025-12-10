@@ -294,5 +294,17 @@
   "more.data": "Dữ liệu",
   "more.privacyPolicy": "Chính sách riêng tư",
   "more.tools": "Công cụ",
-  "more.underDevelopment": "Đang phát triển"
+  "more.underDevelopment": "Đang phát triển",
+  "detectRelationship.title": "Phát hiện mối quan hệ",
+  "detectRelationship.member1Label": "ID thành viên 1",
+  "detectRelationship.member2Label": "ID thành viên 2",
+  "detectRelationship.member1Placeholder": "Nhập ID thành viên thứ nhất",
+  "detectRelationship.member2Placeholder": "Nhập ID thành viên thứ hai",
+  "detectRelationship.validationError": "Vui lòng nhập ID cho cả hai thành viên.",
+  "detectRelationship.fetchError": "Lấy thông tin mối quan hệ thất bại.",
+  "detectRelationship.detectButton": "Xác định mối quan hệ",
+  "detectRelationship.resultTitle": "Kết quả mối quan hệ",
+  "detectRelationship.description": "Mô tả",
+  "detectRelationship.edges": "Các cạnh",
+  "detectRelationship.path": "Đường dẫn"
 }

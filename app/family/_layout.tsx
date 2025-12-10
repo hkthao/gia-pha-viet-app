@@ -69,7 +69,7 @@ export default function FamilyDetailLayout() {
     }
   }, [familyDetailUrl, t]);
 
-  const moreTabs = ['more', 'calendar', 'face-data', 'memories', 'timeline', 'privacy'];
+  const moreTabs = ['more', 'calendar', 'face-data', 'memories', 'timeline', 'privacy' ,'detect-relationship'];
   const isMoreTab = moreTabs.includes(currentTab)
 
   return (

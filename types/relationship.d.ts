@@ -38,3 +38,9 @@ export interface RelationshipListDto {
   sourceMember?: RelationshipMemberDto;
   targetMember?: RelationshipMemberDto;
 }
+
+export interface DetectRelationshipResult {
+  description: string;
+  edges: string[];
+  path: string[];
+}

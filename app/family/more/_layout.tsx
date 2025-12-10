@@ -34,6 +34,7 @@ export default function MoreLayout() {
         <Stack.Screen name="memories" options={{ title: t('more.memories') }} />
         <Stack.Screen name="timeline" options={{ title: t('more.timeline') }} />
         <Stack.Screen name="privacy" options={{ title: t('more.privacy') }} />
+        <Stack.Screen name="detect-relationship" options={{ title: t('detectRelationship.title') }} />
       </Stack>
     </View>
   );

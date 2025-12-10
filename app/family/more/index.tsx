@@ -77,7 +77,7 @@ export default function MoreOptionsScreen() {
           title={t('more.relationships')}
           left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/relationships')}
+          onPress={() => navigateTo('/family/more/detect-relationship')}
           style={styles.listItem}
         />
       </Card>

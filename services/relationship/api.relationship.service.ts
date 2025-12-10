@@ -1,7 +1,6 @@
 // apps/mobile/family_tree_rn/services/relationship/api.relationship.service.ts
 
-import { ApiClientMethods } from '@/types';
-import { Result, ApiError, RelationshipListDto } from '@/types';
+import { ApiClientMethods, DetectRelationshipResult, Result, ApiError, RelationshipListDto } from '@/types';
 import { IRelationshipService } from '@/services/relationship/relationship.service.interface';
 
 export class ApiRelationshipService implements IRelationshipService {
@@ -17,6 +16,19 @@ export class ApiRelationshipService implements IRelationshipService {
         statusCode: error.response?.status,
       };
       return { isSuccess: false, error: apiError };
+    }
+  }
+
+  async detectRelationship(member1Id: string, member2Id: string): Promise<DetectRelationshipResult> {
+    try {
+      const response = await this.api.post<DetectRelationshipResult>('/relationships/detect', {
+        member1Id,
+        member2Id,
+      });
+      return response;
+    } catch (error: any) {
+      // Handle API errors
+      throw new Error(error.response?.data?.message || error.message || 'An unexpected error occurred during relationship detection.');
     }
   }
 }

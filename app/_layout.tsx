@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth'; // Import useAuth
 import { StatusBar } from 'expo-status-bar'; // Import StatusBar
 import { LoadingOverlayProvider } from '@/hooks/useLoadingOverlay'; // Import LoadingOverlayProvider
 import { SnackbarProvider } from '@/hooks/useGlobalSnackbar'; // Import SnackbarProvider
+import { usePermissionStore } from '@/stores/usePermissionStore'; // Import usePermissionStore
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -23,6 +24,7 @@ export const unstable_settings = {
 export default function RootLayout() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
   const { isLoadingAuth } = useAuth(); // Get isLoadingAuth from useAuth
+  const { loadMyAccess } = usePermissionStore(); // Destructure loadMyAccess
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -43,8 +45,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (hasOnboarded !== null && !isLoadingAuth) { // Only hide splash screen if auth is loaded
       SplashScreen.hideAsync();
+      // Load user permissions after authentication is complete
+      loadMyAccess();
     }
-  }, [hasOnboarded, isLoadingAuth]);
+  }, [hasOnboarded, isLoadingAuth, loadMyAccess]); // Add loadMyAccess to dependencies
 
   if (hasOnboarded === null || isLoadingAuth) { // Show loading until onboarding and auth are checked
     return null

@@ -9,4 +9,5 @@ export * from './useRelationshipStore';
 export * from './useUserProfileStore';
 export * from './useGenericCrudStore';
 export * from './usePrivacyStore';
+export * from './usePermissionStore';
 

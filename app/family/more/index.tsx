@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, ScrollView } from 'react-native';
-import { List, useTheme, Divider } from 'react-native-paper'; // Import Appbar
+import { List, useTheme, Divider, Card } from 'react-native-paper'; // Import Appbar
 import { useTranslation } from 'react-i18next';
 import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { SPACING_MEDIUM } from '@/constants/dimensions';
+import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 
 export default function MoreOptionsScreen() {
   const { t } = useTranslation();
@@ -13,16 +13,19 @@ export default function MoreOptionsScreen() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      padding: SPACING_MEDIUM,
+      paddingHorizontal: SPACING_MEDIUM,
+      paddingVertical: SPACING_MEDIUM / 2,
     },
     listSection: {
-      marginBottom: SPACING_MEDIUM,
-      backgroundColor: theme.colors.surface, // Use theme surface color
-      borderRadius: theme.roundness, // Use global roundness from theme
-      elevation: 2,
+      marginTop: SPACING_MEDIUM,
+      padding: SPACING_SMALL,
+      borderRadius: theme.roundness
+    },
+    listSubheader: {
+      paddingLeft: SPACING_MEDIUM,
     },
     listItem: {
-      paddingRight: 0, 
+      paddingRight: SPACING_MEDIUM, 
       paddingStart: SPACING_MEDIUM,
       borderRadius: theme.roundness,
     },
@@ -36,7 +39,8 @@ export default function MoreOptionsScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <List.Section style={styles.listSection}>
+      <Card style={styles.listSection}>
+        <List.Subheader style={styles.listSubheader}>{t('more.data')}</List.Subheader>
         <List.Item
           title={t('more.calendar')}
           left={() => <MaterialCommunityIcons name="calendar-month-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
@@ -70,13 +74,36 @@ export default function MoreOptionsScreen() {
         />
         <Divider />
         <List.Item
-          title={t('more.privacy')}
+          title={t('more.relationships')}
+          left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+          right={() => <List.Icon icon="chevron-right" />}
+          onPress={() => navigateTo('/family/more/relationships')}
+          style={styles.listItem}
+        />
+      </Card>
+
+      <Card style={styles.listSection}>
+        <List.Subheader style={styles.listSubheader}>{t('more.privacy')}</List.Subheader>
+        <List.Item
+          title={t('more.privacyPolicy')}
           left={() => <MaterialCommunityIcons name="shield-lock-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
           onPress={() => navigateTo('/family/more/privacy')}
           style={styles.listItem}
         />
-      </List.Section>
+      </Card>
+
+      <Card style={styles.listSection}>
+        <List.Subheader style={styles.listSubheader}>{t('more.tools')}</List.Subheader>
+        {/* Placeholder for future tools */}
+        <List.Item
+          title={t('more.underDevelopment')}
+          left={() => <MaterialCommunityIcons name="tools" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+          right={() => <List.Icon icon="chevron-right" />}
+          onPress={() => navigateTo('/feature-under-development')}
+          style={styles.listItem}
+        />
+      </Card>
     </ScrollView>
   );
 }

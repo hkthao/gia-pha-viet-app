@@ -1,20 +1,21 @@
-import React, { useCallback, useMemo } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native'; // Remove FlatList if not needed
+import React, { useCallback } from 'react';
+import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { router, useLocalSearchParams } from 'expo-router';
-import { PaginatedSearchList } from '@/components/common/PaginatedSearchList'; // Re-import PaginatedSearchList
-import { useMemberSearchList } from '@/hooks/useMemberSearchList'; // Keep this
-import { MemberListDto, SearchMembersQuery } from '@/types'; // Ensure SearchMembersQuery is imported
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
+import { PaginatedSearchList } from '@/components/common/PaginatedSearchList';
+import { useMemberSearchList } from '@/hooks/useMemberSearchList';
+import { MemberItem } from '@/components';
+import { MemberListDto, SearchMembersQuery } from '@/types';
+import { useFamilyStore } from '@/stores/useFamilyStore';
+
 
 export default function MemberSelectScreen() {
   const { t } = useTranslation();
   const { returnTo, fieldName } = useLocalSearchParams<{ returnTo: string, fieldName: string }>();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
   // Use the useMemberSearchList hook
-  const { useStore, renderMemberItem, styles: memberSearchListStyles } = useMemberSearchList();
+  const { useStore, styles: memberSearchListStyles } = useMemberSearchList();
 
   const handleSelectMember = useCallback((member: MemberListDto) => {
     router.navigate({
@@ -27,17 +28,10 @@ export default function MemberSelectScreen() {
     });
   }, [returnTo, fieldName]);
 
-  const memberItemStyles = useMemo(() => StyleSheet.create({
-    touchable: {
-    },
-  }), []);
-
   // Custom render item to add selection functionality
-  const renderSelectableMemberItem = useCallback(({ item }: { item: MemberListDto, index: number }) => (
-    <TouchableOpacity onPress={() => handleSelectMember(item)} style={memberItemStyles.touchable}>
-      {renderMemberItem({ item })}
-    </TouchableOpacity>
-  ), [handleSelectMember, memberItemStyles.touchable, renderMemberItem]); // Include renderMemberItem in dependencies
+  const renderSelectableMemberItem = useCallback(({ item, index }: { item: MemberListDto, index: number }) => (
+    <MemberItem item={item} onPress={() => handleSelectMember(item)} />
+  ), [handleSelectMember]); // renderMemberItem is not needed here
 
   return (
     <View style={memberSearchListStyles.safeArea}>

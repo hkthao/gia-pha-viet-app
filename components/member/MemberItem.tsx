@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -10,6 +10,7 @@ import { MemberListDto } from '@/types';
 
 interface MemberItemProps {
   item: MemberListDto;
+  onPress?: () => void; // Added optional onPress prop
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -39,16 +40,23 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-const MemberItem = ({ item }: MemberItemProps) => { // onSelect removed
+// ...
+const MemberItem = ({ item, onPress }: MemberItemProps) => { // Destructure onPress
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
   const styles = getStyles(theme);
 
-  return (
-    <Card style={[styles.memberCard, { borderRadius: theme.roundness }]} onPress={() => {
+  const handleCardPress = useCallback(() => {
+    if (onPress) {
+      onPress();
+    } else {
       router.push(`/member/${item.id}`);
-    }}>
+    }
+  }, [onPress, item.id, router]);
+
+  return (
+    <Card style={[styles.memberCard, { borderRadius: theme.roundness }]} onPress={handleCardPress}>
       <Card.Content style={styles.cardContent}>
         <Avatar.Image size={48} source={item.avatarUrl ? { uri: item.avatarUrl } : DefaultFamilyAvatar} style={styles.avatar} />
         <View style={styles.cardText}>

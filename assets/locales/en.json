@@ -307,5 +307,6 @@
   "permissionDenied.goBack": "Go Back",
   "permissionDenied.logout": "Logout",
   "memberSelectModal.title": "Select Member",
-  "common.clearSelection": "Clear Selection"
+  "common.clearSelection": "Clear Selection",
+  "common.add": "Add"
 }

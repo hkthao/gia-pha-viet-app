@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { View } from 'react-native';
-import { Appbar } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { Appbar, FAB } from 'react-native-paper';
 import { PaginatedSearchList } from '@/components/common';
+import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { FamilyListDto, SearchFamiliesQuery } from '@/types';
 import { useFamilySearchList } from '@/hooks/useFamilySearchList';
 import { useInfiniteUpdateDetector } from '@/hooks/useInfiniteUpdateDetector'; // Import the hook
@@ -29,6 +30,15 @@ export default function SearchScreen() {
 
   const initialQuery = useMemo(() => ({ page: 1, itemsPerPage: 10, searchQuery: '' }), []);
 
+  const fabStyles = useMemo(() => StyleSheet.create({
+    fab: {
+      position: 'absolute',
+      margin: SPACING_MEDIUM,
+      right: 0,
+      bottom: 0,
+    },
+  }), []);
+
   return (
     <View style={styles.safeArea}>
       <Appbar.Header>
@@ -44,6 +54,11 @@ export default function SearchScreen() {
         searchPlaceholder={t('search.placeholder')}
         containerStyle={styles.container}
         error={error} // Pass the error state
+      />
+      <FAB
+        style={fabStyles.fab}
+        icon="plus"
+        onPress={() => console.log('Add Family')} // Placeholder action
       />
     </View>
   );

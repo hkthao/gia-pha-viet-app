@@ -72,14 +72,6 @@ export default function MoreOptionsScreen() {
           onPress={() => navigateTo('/family/more/timeline')}
           style={styles.listItem}
         />
-        <Divider />
-        <List.Item
-          title={t('more.relationships')}
-          left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
-          right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/detect-relationship')}
-          style={styles.listItem}
-        />
       </Card>
 
       <Card style={styles.listSection}>
@@ -95,12 +87,11 @@ export default function MoreOptionsScreen() {
 
       <Card style={styles.listSection}>
         <List.Subheader style={styles.listSubheader}>{t('more.tools')}</List.Subheader>
-        {/* Placeholder for future tools */}
         <List.Item
-          title={t('more.underDevelopment')}
-          left={() => <MaterialCommunityIcons name="tools" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+          title={t('more.relationships')}
+          left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/feature-under-development')}
+          onPress={() => navigateTo('/family/more/detect-relationship')}
           style={styles.listItem}
         />
       </Card>

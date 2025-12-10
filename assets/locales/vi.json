@@ -310,5 +310,6 @@
   "detectRelationship.path": "Đường dẫn",
   "memberSelect.title": "Chọn thành viên",
   "memberSelectModal.title": "Chọn thành viên",
-  "common.clearSelection": "Xóa lựa chọn"
+  "common.clearSelection": "Xóa lựa chọn",
+  "common.add": "Thêm"
 }

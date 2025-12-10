@@ -19,12 +19,11 @@ export class ApiRelationshipService implements IRelationshipService {
     }
   }
 
-  async detectRelationship(member1Id: string, member2Id: string): Promise<DetectRelationshipResult> {
+  async detectRelationship(familyId: string, memberAId: string, memberBId: string): Promise<DetectRelationshipResult> {
     try {
-      const response = await this.api.post<DetectRelationshipResult>('/relationships/detect', {
-        member1Id,
-        member2Id,
-      });
+      const response = await this.api.get<DetectRelationshipResult>(
+        `/relationship/detect-relationship?familyId=${familyId}&memberAId=${memberAId}&memberBId=${memberBId}`
+      );
       return response;
     } catch (error: any) {
       // Handle API errors

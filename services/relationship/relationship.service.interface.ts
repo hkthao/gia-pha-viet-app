@@ -5,6 +5,6 @@ import { RelationshipListDto } from '@/types';
 
 export interface IRelationshipService {
   getRelationshipsByFamilyId(familyId: string): Promise<Result<RelationshipListDto[]>>;
-  detectRelationship(member1Id: string, member2Id: string): Promise<DetectRelationshipResult>;
+  detectRelationship(familyId: string, memberAId: string, memberBId: string): Promise<DetectRelationshipResult>;
 }
 

@@ -1,40 +1,59 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
-import { useTheme, Button, Text, Surface } from 'react-native-paper';
+import { useTheme, Button, Text, IconButton, Card } from 'react-native-paper';
+import { MemberItem } from '@/components';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { relationshipService } from '@/services';
 import { DetectRelationshipResult, MemberListDto } from '@/types';
 import { useTranslation } from 'react-i18next';
-// import { router } from 'expo-router'; // No longer needed
+import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
 import { useMemberSelectModal } from '@/hooks/useMemberSelectModal'; // Import the new hook
+
+const DEFAULT_MEMBER_A: MemberListDto = {
+  id: 'placeholder-A',
+  fullName: 'detectRelationship.memberAPlaceholder', // Use translation key
+  avatarUrl: '', // Or a placeholder image URL
+  lastName: '',
+  firstName: '',
+  code: '',
+  familyId: '',
+  isRoot: false,
+  created: '', // Add this line
+};
+
+const DEFAULT_MEMBER_B: MemberListDto = {
+  id: 'placeholder-B',
+  fullName: 'detectRelationship.memberBPlaceholder', // Use translation key
+  avatarUrl: '', // Or a placeholder image URL
+  lastName: '',
+  firstName: '',
+  code: '',
+  familyId: '',
+  isRoot: false,
+  created: '', // Add this line
+};
 
 export default function DetectRelationshipScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  // const params = useLocalSearchParams(); // No longer needed, as modal handles selection callback
-
-  const [member1Id, setMember1Id] = useState<string>('');
-  const [member1Name, setMember1Name] = useState<string>('');
-  const [member2Id, setMember2Id] = useState<string>('');
-  const [member2Name, setMember2Name] = useState<string>('');
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); 
+  const [selectedMember1, setSelectedMember1] = useState<MemberListDto>(DEFAULT_MEMBER_A);
+  const [selectedMember2, setSelectedMember2] = useState<MemberListDto>(DEFAULT_MEMBER_B);
   const [relationshipResult, setRelationshipResult] = useState<DetectRelationshipResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal<'memberA' | 'memberB'>(); 
 
-  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal<'member1' | 'member2'>(); // Use the hook
-
-  const handleMemberSelected = useCallback((member: MemberListDto, fieldName: 'member1' | 'member2') => {
-    if (fieldName === 'member1') {
-      setMember1Id(member.id);
-      setMember1Name(member.fullName || member.id); // Display full name or ID
-    } else if (fieldName === 'member2') {
-      setMember2Id(member.id);
-      setMember2Name(member.fullName || member.id); // Display full name or ID
+  const handleMemberSelected = useCallback((member: MemberListDto, fieldName: 'memberA' | 'memberB') => {
+    if (fieldName === 'memberA') {
+      setSelectedMember1(member);
+    } else if (fieldName === 'memberB') {
+      setSelectedMember2(member);
     }
   }, []);
 
   const handleDetectRelationship = useCallback(async () => {
-    if (!member1Id || !member2Id) {
+    if (!selectedMember1?.id || !selectedMember2?.id || !currentFamilyId) {
       setError(t('detectRelationship.validationError'));
       return;
     }
@@ -44,14 +63,14 @@ export default function DetectRelationshipScreen() {
     setRelationshipResult(null);
 
     try {
-      const result = await relationshipService.detectRelationship(member1Id, member2Id);
+      const result = await relationshipService.detectRelationship(currentFamilyId, selectedMember1.id, selectedMember2.id);
       setRelationshipResult(result);
     } catch (e: any) {
       setError(e.message || t('detectRelationship.fetchError'));
     } finally {
       setLoading(false);
     }
-  }, [member1Id, member2Id, t, setError, setLoading, setRelationshipResult]);
+  }, [selectedMember1, selectedMember2, currentFamilyId, t, setError, setLoading, setRelationshipResult]);
 
   const styles = StyleSheet.create({
     container: {
@@ -61,26 +80,21 @@ export default function DetectRelationshipScreen() {
     content: {
       padding: SPACING_MEDIUM,
     },
-    memberSelectButton: {
-      justifyContent: 'flex-start',
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      marginBottom: SPACING_MEDIUM,
-    },
-    memberSelectButtonContent: {
-      justifyContent: 'flex-start',
-    },
-    selectedMemberText: {
-      textAlign: 'left',
+    selectedMemberWrapper: {
+      position: "relative"
     },
     button: {
-      marginTop: SPACING_MEDIUM,
-      marginBottom: SPACING_MEDIUM * 2,
+      borderRadius: theme.roundness
+    },
+    clearButton: {
+      position: "absolute",
+      right: -5,
+      top: -5
     },
     resultContainer: {
-      padding: SPACING_MEDIUM,
       borderRadius: theme.roundness,
-      marginBottom: SPACING_MEDIUM,
+      padding: SPACING_MEDIUM,
+      marginTop: SPACING_MEDIUM,
     },
     resultTitle: {
       fontWeight: 'bold',
@@ -95,31 +109,50 @@ export default function DetectRelationshipScreen() {
     },
   });
 
-  const handleOpenMemberSelect = useCallback((fieldName: 'member1' | 'member2') => {
+  const handleOpenMemberSelect = useCallback((fieldName: 'memberA' | 'memberB') => {
     showMemberSelectModal(handleMemberSelected, fieldName);
   }, [showMemberSelectModal, handleMemberSelected]);
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
-        <Button
-          mode="outlined"
-          onPress={() => handleOpenMemberSelect('member1')}
-          style={styles.memberSelectButton}
-          contentStyle={styles.memberSelectButtonContent}
-          labelStyle={styles.selectedMemberText}
-        >
-          {member1Name || t('detectRelationship.member1Placeholder')}
-        </Button>
-        <Button
-          mode="outlined"
-          onPress={() => handleOpenMemberSelect('member2')}
-          style={styles.memberSelectButton}
-          contentStyle={styles.memberSelectButtonContent}
-          labelStyle={styles.selectedMemberText}
-        >
-          {member2Name || t('detectRelationship.member2Placeholder')}
-        </Button>
+        <View style={styles.selectedMemberWrapper}>
+          <MemberItem
+            item={{
+              ...selectedMember1,
+              fullName: selectedMember1.id === DEFAULT_MEMBER_A.id ? t(DEFAULT_MEMBER_A.fullName) : selectedMember1.fullName,
+            }}
+            onPress={() => handleOpenMemberSelect('memberA')}
+          />
+          {selectedMember1.id !== DEFAULT_MEMBER_A.id && (
+            <IconButton
+              icon="close-circle"
+              size={24}
+              style={styles.clearButton}
+              onPress={() => setSelectedMember1(DEFAULT_MEMBER_A)}
+              accessibilityLabel={t('common.clearSelection')}
+            />
+          )}
+        </View>
+
+        <View style={styles.selectedMemberWrapper}>
+          <MemberItem
+            item={{
+              ...selectedMember2,
+              fullName: selectedMember2.id === DEFAULT_MEMBER_B.id ? t(DEFAULT_MEMBER_B.fullName) : selectedMember2.fullName,
+            }}
+            onPress={() => handleOpenMemberSelect('memberB')}
+          />
+          {selectedMember2.id !== DEFAULT_MEMBER_B.id && (
+            <IconButton
+              icon="close-circle"
+              size={24}
+              style={styles.clearButton}
+              onPress={() => setSelectedMember2(DEFAULT_MEMBER_B)}
+              accessibilityLabel={t('common.clearSelection')}
+            />
+          )}
+        </View>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -127,28 +160,21 @@ export default function DetectRelationshipScreen() {
           mode="contained"
           onPress={handleDetectRelationship}
           loading={loading}
-          disabled={loading || !member1Id || !member2Id}
+          disabled={loading || selectedMember1.id === DEFAULT_MEMBER_A.id || selectedMember2.id === DEFAULT_MEMBER_B.id || !currentFamilyId}
           style={styles.button}
         >
           {t('detectRelationship.detectButton')}
         </Button>
 
         {relationshipResult && (
-          <Surface style={styles.resultContainer} elevation={1}>
-            <Text style={styles.resultTitle}>{t('detectRelationship.resultTitle')}</Text>
-            <Text style={styles.resultText}>
-              <Text style={{ fontWeight: 'bold' }}>{t('detectRelationship.description')}: </Text>
-              {relationshipResult.description}
-            </Text>
-            <Text style={styles.resultText}>
-              <Text style={{ fontWeight: 'bold' }}>{t('detectRelationship.edges')}: </Text>
-              {relationshipResult.edges?.join(', ')}
-            </Text>
-            <Text style={styles.resultText}>
-              <Text style={{ fontWeight: 'bold' }}>{t('detectRelationship.path')}: </Text>
-              {relationshipResult.path?.join(' -> ')}
-            </Text>
-          </Surface>
+          <Card style={styles.resultContainer} >
+            <Card.Title title={t('detectRelationship.resultTitle')} />
+            <Card.Content>
+              <Text style={styles.resultText}>
+                {relationshipResult.description}
+              </Text>
+            </Card.Content>
+          </Card>
         )}
       </ScrollView>
       <MemberSelectModalComponent />

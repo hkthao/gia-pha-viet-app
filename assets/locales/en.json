@@ -274,8 +274,8 @@
   "detectRelationship.title": "Detect Relationship",
   "detectRelationship.member1Label": "Member 1 ID",
   "detectRelationship.member2Label": "Member 2 ID",
-  "detectRelationship.member1Placeholder": "Enter first member ID",
-  "detectRelationship.member2Placeholder": "Enter second member ID",
+  "detectRelationship.memberAPlaceholder": "Select Member A",
+  "detectRelationship.memberBPlaceholder": "Select Member B",
   "detectRelationship.validationError": "Please enter IDs for both members.",
   "detectRelationship.fetchError": "Failed to fetch relationship information.",
   "detectRelationship.detectButton": "Detect Relationship",
@@ -306,5 +306,6 @@
   "permissionDenied.message": "Please contact the administrator or go back to the previous page.",
   "permissionDenied.goBack": "Go Back",
   "permissionDenied.logout": "Logout",
-  "memberSelectModal.title": "Select Member"
+  "memberSelectModal.title": "Select Member",
+  "common.clearSelection": "Clear Selection"
 }

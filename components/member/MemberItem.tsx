@@ -17,6 +17,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   memberCard: {
     marginBottom: SPACING_MEDIUM,
     marginHorizontal: 1,
+    width: "100%"
   },
   cardContent: {
     flexDirection: 'row',

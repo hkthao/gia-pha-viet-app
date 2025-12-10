@@ -10,6 +10,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from '@/app/onboarding';
 import { useAuth } from '@/hooks/useAuth'; // Import useAuth
 import { StatusBar } from 'expo-status-bar'; // Import StatusBar
+import { LoadingOverlayProvider } from '@/hooks/useLoadingOverlay'; // Import LoadingOverlayProvider
+import { SnackbarProvider } from '@/hooks/useGlobalSnackbar'; // Import SnackbarProvider
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -53,25 +55,31 @@ export default function RootLayout() {
   </ThemeProvider> : <OnboardingScreen />;
 }
 
+
+
 function AppContent() {
   const { colorScheme } = useThemeContext();
   const paperTheme = getPaperTheme(colorScheme);
   return (
     <PaperProvider theme={paperTheme}>
       <Portal.Host>
-        <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <StatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="family" options={{ headerShown: false }} />
-            <Stack.Screen name="member/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-            <Stack.Screen name="legal-webview" options={{ headerShown: false }} />
-            <Stack.Screen name="feedback-webview" options={{ headerShown: false }} />
-            <Stack.Screen name="faq-webview" options={{ headerShown: false }} />
-            <Stack.Screen name="feature-under-development" options={{ headerShown: false }} />
-          </Stack>
-        </NavigationThemeProvider>
+        <LoadingOverlayProvider> {/* Wrap with LoadingOverlayProvider */}
+          <SnackbarProvider> {/* Wrap with SnackbarProvider */}
+            <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <StatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="family" options={{ headerShown: false }} />
+                <Stack.Screen name="member/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="legal-webview" options={{ headerShown: false }} />
+                <Stack.Screen name="feedback-webview" options={{ headerShown: false }} />
+                <Stack.Screen name="faq-webview" options={{ headerShown: false }} />
+                <Stack.Screen name="feature-under-development" options={{ headerShown: false }} />
+              </Stack>
+            </NavigationThemeProvider>
+          </SnackbarProvider>
+        </LoadingOverlayProvider>
       </Portal.Host>
     </PaperProvider>
   );

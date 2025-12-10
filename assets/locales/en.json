@@ -277,6 +277,7 @@
   "family.privacy.fetchError": "Failed to load privacy configuration.",
   "family.privacy.saveSuccess": "Privacy configuration saved successfully.",
   "family.privacy.saveError": "Failed to save privacy configuration.",
+  "family.privacy.propertyVisibility": "Property Visibility",
   "member.fatherFullName": "Father's Full Name",
   "member.motherFullName": "Mother's Full Name",
   "member.husbandFullName": "Husband's Full Name",

@@ -279,6 +279,7 @@
   "family.privacy.fetchError": "Tải cấu hình quyền riêng tư thất bại.",
   "family.privacy.saveSuccess": "Cấu hình quyền riêng tư đã được lưu thành công.",
   "family.privacy.saveError": "Lưu cấu hình quyền riêng tư thất bại.",
+  "family.privacy.propertyVisibility": "Hiển thị thuộc tính",
   "member.fatherFullName": "Tên đầy đủ của Cha",
   "member.motherFullName": "Tên đầy đủ của Mẹ",
   "member.husbandFullName": "Tên đầy đủ của Chồng",

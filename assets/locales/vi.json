@@ -284,5 +284,10 @@
   "member.motherFullName": "Tên đầy đủ của Mẹ",
   "member.husbandFullName": "Tên đầy đủ của Chồng",
   "member.wifeFullName": "Tên đầy đủ của Vợ",
+  "permissionDenied.title": "Truy cập bị từ chối",
+  "permissionDenied.accessDenied": "Bạn không có quyền truy cập trang này.",
+  "permissionDenied.message": "Vui lòng liên hệ quản trị viên hoặc quay lại trang trước.",
+  "permissionDenied.goBack": "Quay lại",
+  "permissionDenied.logout": "Đăng xuất",
   "family.familyName": "Tên gia đình"
 }

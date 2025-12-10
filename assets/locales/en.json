@@ -281,5 +281,10 @@
   "member.fatherFullName": "Father's Full Name",
   "member.motherFullName": "Mother's Full Name",
   "member.husbandFullName": "Husband's Full Name",
-  "member.wifeFullName": "Wife's Full Name"
+  "member.wifeFullName": "Wife's Full Name",
+  "permissionDenied.title": "Access Denied",
+  "permissionDenied.accessDenied": "You do not have permission to view this page.",
+  "permissionDenied.message": "Please contact the administrator or go back to the previous page.",
+  "permissionDenied.goBack": "Go Back",
+  "permissionDenied.logout": "Logout"
 }

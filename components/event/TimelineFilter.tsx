@@ -43,35 +43,35 @@ const TimelineFilterComponent: React.FC<TimelineFilterProps> = ({ filters, setFi
         onPress={() => handleFilterChange('type', EventType.Birth)}
         style={styles.filterChip}
       >
-        {t('event.type.birth')}
+        {t('eventType.birth')}
       </Chip>
       <Chip
         selected={filters.type === EventType.Marriage}
         onPress={() => handleFilterChange('type', EventType.Marriage)}
         style={styles.filterChip}
       >
-        {t('event.type.marriage')}
+        {t('eventType.marriage')}
       </Chip>
       <Chip
         selected={filters.type === EventType.Death}
         onPress={() => handleFilterChange('type', EventType.Death)}
         style={styles.filterChip}
       >
-        {t('event.type.death')}
+        {t('eventType.death')}
       </Chip>
       <Chip
         selected={filters.type === EventType.Anniversary}
         onPress={() => handleFilterChange('type', EventType.Anniversary)}
         style={styles.filterChip}
       >
-        {t('event.type.anniversary')}
+        {t('eventType.anniversary')}
       </Chip>
       <Chip
         selected={filters.type === EventType.Other}
         onPress={() => handleFilterChange('type', EventType.Other)}
         style={styles.filterChip}
       >
-        {t('event.type.other')}
+        {t('eventType.other')}
       </Chip>
     </View>
   );

@@ -264,5 +264,10 @@
   "more.privacyPlaceholder": "More detailed privacy settings screen (under development)",
   "timeline.relatedMembers": "Related Members",
   "common.noDate": "No Date",
-  "family.familyName": "Family Name"
+  "family.familyName": "Family Name",
+  "timeline.familyIdNotFound": "Family ID not found.",
+  "timeline.failedToLoadEvents": "Failed to load events.",
+  "timeline.searchPlaceholder": "Search events",
+  "timeline.noMoreEvents": "No more events.",
+  "timeline.noEventsFound": "No events found."
 }

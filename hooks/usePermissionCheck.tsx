@@ -1,5 +1,5 @@
 import { usePermissionStore } from '@/stores/usePermissionStore';
-import { FamilyRole } from '@/types/family';
+import { FamilyRole } from '@/types';
 import { useAuth } from './useAuth'; // Assuming useAuth provides current user details, including system roles
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
 
@@ -10,10 +10,9 @@ import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import us
  * @returns An object with permission checking functions.
  */
 export const usePermissionCheck = (familyId?: string) => {
-  const { user, isAdmin: authIsSystemAdmin } = useAuth(); // Get current user and system admin status from useAuth
+  const { isAdmin: authIsSystemAdmin } = useAuth(); // Get current user and system admin status from useAuth
   const { userProfile } = useUserProfileStore(); // Get userProfile from userProfileStore
   const currentUserId = userProfile?.userId; // Use userProfile.userId for the application's internal user ID
-
   const { hasFamilyRole: storeHasFamilyRole } = usePermissionStore(); // Only need hasFamilyRole from store
 
   const checkFamilyRole = (role: FamilyRole): boolean => {
@@ -22,9 +21,8 @@ export const usePermissionCheck = (familyId?: string) => {
       return false;
     }
     if (!currentUserId) {
-      console.warn("usePermissionCheck: currentUserId is required for checking family roles.");
       return false;
-    }
+    } 
     return storeHasFamilyRole(familyId, role, currentUserId);
   };
 

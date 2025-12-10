@@ -8,6 +8,7 @@ import { useLoadingOverlay } from '@/hooks/useLoadingOverlay'; // Import useLoad
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { usePrivacyStore } from '@/stores/usePrivacyStore';
+import { usePermissionCheck } from '@/hooks/usePermissionCheck';
 import { PrivacyConfigurationDto, UpdatePrivacyConfigurationCommand } from '@/types/privacy';
 import { Result } from '@/types/api';
 
@@ -25,6 +26,9 @@ const PrivacyScreen: React.FC = () => {
   const { showLoading, hideLoading } = useLoadingOverlay();
 
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined); // Check permissions for the current family, ensure undefined for null
+  const hasPermit = canManageFamily || isAdmin;
+
   const {
     item, // Renamed from privacyConfiguration 
     loading,
@@ -216,6 +220,7 @@ const PrivacyScreen: React.FC = () => {
                   <Switch
                     value={selectedProperties.includes(prop.value)}
                     onValueChange={() => handleToggleProperty(prop.value)}
+                    disabled={!hasPermit} // Disable if not manager or admin
                   />
                 )}
                 // Apply custom style for List.Item to include bottom border, except for the last item
@@ -227,17 +232,19 @@ const PrivacyScreen: React.FC = () => {
             ))}
           </List.Section>
         </View>
-        <Button
-          mode="contained"
-          onPress={savePrivacySettings}
-          // The Button's loading prop is used to show a spinner on the button itself.
-          // The global overlay handles blocking the UI.
-          loading={loading} // Keep for button specific loading
-          disabled={loading}
-          style={styles.saveButton}
-        >
-          {t('common.save')}
-        </Button>
+        {hasPermit && ( // Conditionally render the button if hasPermit
+          <Button
+            mode="contained"
+            onPress={savePrivacySettings}
+            // The Button's loading prop is used to show a spinner on the button itself.
+            // The global overlay handles blocking the UI.
+            loading={loading} // Keep for button specific loading
+            disabled={loading || !hasPermit} // Disable if not manager or admin
+            style={styles.saveButton}
+          >
+            {t('common.save')}
+          </Button>
+        )}
       </ScrollView>
     </View>
   );

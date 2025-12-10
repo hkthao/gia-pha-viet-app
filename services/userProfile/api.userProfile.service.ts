@@ -8,7 +8,7 @@ export class ApiUserProfileService implements IUserProfileService {
 
   async getCurrentUserProfile(): Promise<Result<UserProfileDto>> {
     try {
-      const response = await this.api.get<UserProfileDto>('/api/user-profile/me');
+      const response = await this.api.get<UserProfileDto>('/user-profile/me');
       return { isSuccess: true, value: response };
     } catch (error: any) {
       // Basic error handling, can be expanded for more detail

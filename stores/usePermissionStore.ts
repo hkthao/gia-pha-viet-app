@@ -1,6 +1,6 @@
 import { create, StateCreator } from 'zustand';
-import { IPermissionService, permissionService as defaultPermissionService } from '@/services';
-import { FamilyRole, FamilyUserDto } from '@/types/family'; // Import FamilyRole and FamilyUserDto from types/family
+import { IFamilyService, familyService as defaultFamilyService } from '@/services'; // Updated import for familyService
+import { FamilyRole, FamilyUserDto } from '@/types'; // Import FamilyRole and FamilyUserDto from types/family
 import { parseError } from '@/utils/errorUtils';
 import { Result } from '@/types/api';
 
@@ -25,7 +25,7 @@ interface PermissionActions {
 export type PermissionStore = PermissionState & PermissionActions;
 
 export const createPermissionStore = (
-  permissionService: IPermissionService
+  familyService: IFamilyService // Change parameter name and type
 ): StateCreator<PermissionStore> => (set, get) => {
 
   return {
@@ -37,7 +37,7 @@ export const createPermissionStore = (
     loadMyAccess: async (): Promise<Result<FamilyUserDto[] | null>> => {
       set({ loading: true, error: null });
       try {
-        const result = await permissionService.getMyAccess();
+        const result = await familyService.getMyAccess(); // Call familyService.getMyAccess()
         if (result.isSuccess) {
           set({ accessData: result.value, lastLoaded: Date.now() });
           return { isSuccess: true, value: result.value };
@@ -59,8 +59,12 @@ export const createPermissionStore = (
       const { accessData } = get();
       if (!accessData) return false;
       const hasPermission = accessData.some(access => {
+        // If the requested role is Viewer, and the user is Manager, they also have Viewer permissions.
+        const hasViewerAccessByManager = (role === FamilyRole.Viewer && access.role === FamilyRole.Manager);
+        
         return access.familyId === familyId &&
-          access.userId === userId && access.role === role;
+               access.userId === userId &&
+               (access.role === role || hasViewerAccessByManager);
       });
       return hasPermission;
     },
@@ -69,4 +73,4 @@ export const createPermissionStore = (
   };
 };
 
-export const usePermissionStore = create<PermissionStore>(createPermissionStore(defaultPermissionService));
+export const usePermissionStore = create<PermissionStore>(createPermissionStore(defaultFamilyService));

@@ -40,5 +40,5 @@ export * from './familyDict';
 export * from './dashboard';
 export * from './api';
 export * from './privacy';
-export * from './permissionService';
+
 

@@ -6,12 +6,11 @@ interface User {
   email: string;
   phoneNumber?: string;
   avatarUrl?: string;
-  sub: string; // Add sub for Auth0 user ID
+  sub: string;
 }
 
 export const useAuth = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true); // New loading state
 
@@ -29,12 +28,9 @@ export const useAuth = () => {
             avatarUrl: auth0User.picture,
             sub: auth0User.sub,
           });
-          // TODO: Fetch user roles from a backend API based on auth0User.sub
-          setUserRoles(['User']); // Default role for now
         }
       } else {
         setUser(null);
-        setUserRoles([]);
       }
       setIsLoadingAuth(false); // Set loading to false after status check
     };
@@ -54,8 +50,6 @@ export const useAuth = () => {
           avatarUrl: auth0User.picture,
           sub: auth0User.sub,
         });
-        // TODO: Fetch user roles from a backend API
-        setUserRoles(['User']); // Default role for now
       }
     }
     return success;
@@ -65,29 +59,12 @@ export const useAuth = () => {
     await authService.logout();
     setIsLoggedIn(false);
     setUser(null);
-    setUserRoles([]);
   };
-
-  const hasRole = (roles: string | string[]): boolean => {
-    if (!isLoggedIn) {
-      return false;
-    }
-    const rolesToCheck = Array.isArray(roles) ? roles : [roles];
-    return rolesToCheck.some(role => userRoles.includes(role));
-  };
-
-  const isAdmin = hasRole('Admin');
-  const isFamilyManager = hasRole('FamilyManager');
-
   return {
     isLoggedIn,
     user,
-    userRoles,
-    hasRole,
-    isAdmin,
-    isFamilyManager,
     login,
     logout,
-    isLoadingAuth, // Return isLoadingAuth state
+    isLoadingAuth, 
   };
 };

@@ -1,7 +1,6 @@
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { jwtDecode } from 'jwt-decode';
-import { nanoid } from 'nanoid';
 import * as Crypto from 'expo-crypto'; // Import expo-crypto
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Add AsyncStorage import
 
@@ -32,6 +31,7 @@ interface IdTokenPayload {
   sub: string;
   nonce?: string;
   exp?: number; // Thêm trường exp (expiration time) vào IdTokenPayload
+  roles: [],
 }
 
 class AuthService {
@@ -39,7 +39,6 @@ class AuthService {
   private accessToken: string | null = null;
   private idToken: string | null = null;
   private refreshToken: string | null = null; // New private member for refresh token
-  private nonce: string | null = null;
   private codeVerifier: string | null = null; // New private member for PKCE code verifier
 
   constructor() {
@@ -132,7 +131,7 @@ class AuthService {
           client_id: AUTH0_CLIENT_ID || '',
           refresh_token: this.refreshToken,
         }).toString(),
-      });
+      }); 
 
       const data = await response.json();
 

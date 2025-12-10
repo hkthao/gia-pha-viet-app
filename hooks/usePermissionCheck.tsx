@@ -10,10 +10,11 @@ import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import us
  * @returns An object with permission checking functions.
  */
 export const usePermissionCheck = (familyId?: string) => {
-  const { isAdmin: authIsSystemAdmin } = useAuth(); // Get current user and system admin status from useAuth
   const { userProfile } = useUserProfileStore(); // Get userProfile from userProfileStore
   const currentUserId = userProfile?.userId; // Use userProfile.userId for the application's internal user ID
   const { hasFamilyRole: storeHasFamilyRole } = usePermissionStore(); // Only need hasFamilyRole from store
+
+  const isAdmin = userProfile?.roles.includes("Admin");
 
   const checkFamilyRole = (role: FamilyRole): boolean => {
     if (!familyId) {
@@ -22,18 +23,18 @@ export const usePermissionCheck = (familyId?: string) => {
     }
     if (!currentUserId) {
       return false;
-    } 
+    }
     return storeHasFamilyRole(familyId, role, currentUserId);
   };
 
   // Convenience checks
-  const canManageFamily = authIsSystemAdmin || checkFamilyRole(FamilyRole.Manager);
-  const canViewFamily = authIsSystemAdmin || canManageFamily || checkFamilyRole(FamilyRole.Viewer)
+  const canManageFamily = isAdmin || checkFamilyRole(FamilyRole.Manager);
+  const canViewFamily = isAdmin || canManageFamily || checkFamilyRole(FamilyRole.Viewer)
 
   return {
     checkFamilyRole,
     canManageFamily,
     canViewFamily,
-    isAdmin: authIsSystemAdmin, // Return authIsSystemAdmin as isAdmin
+    isAdmin: isAdmin
   };
 };

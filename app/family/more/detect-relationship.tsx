@@ -1,24 +1,37 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { useTheme, Button, Text, Surface } from 'react-native-paper';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { relationshipService } from '@/services';
-import { DetectRelationshipResult } from '@/types';
+import { DetectRelationshipResult, MemberListDto } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { router, useLocalSearchParams } from 'expo-router'; // Import router and useLocalSearchParams
+// import { router } from 'expo-router'; // No longer needed
+import { useMemberSelectModal } from '@/hooks/useMemberSelectModal'; // Import the new hook
 
 export default function DetectRelationshipScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const params = useLocalSearchParams(); // Get local search params
+  // const params = useLocalSearchParams(); // No longer needed, as modal handles selection callback
 
   const [member1Id, setMember1Id] = useState<string>('');
-  const [member1Name, setMember1Name] = useState<string>(''); // State for member 1 name
+  const [member1Name, setMember1Name] = useState<string>('');
   const [member2Id, setMember2Id] = useState<string>('');
-  const [member2Name, setMember2Name] = useState<string>(''); // State for member 2 name
+  const [member2Name, setMember2Name] = useState<string>('');
   const [relationshipResult, setRelationshipResult] = useState<DetectRelationshipResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal(); // Use the hook
+
+  const handleMemberSelected = useCallback((member: MemberListDto, fieldName: 'member1' | 'member2') => {
+    if (fieldName === 'member1') {
+      setMember1Id(member.id);
+      setMember1Name(member.fullName || member.id); // Display full name or ID
+    } else if (fieldName === 'member2') {
+      setMember2Id(member.id);
+      setMember2Name(member.fullName || member.id); // Display full name or ID
+    }
+  }, []);
 
   const handleDetectRelationship = useCallback(async () => {
     if (!member1Id || !member2Id) {
@@ -40,26 +53,12 @@ export default function DetectRelationshipScreen() {
     }
   }, [member1Id, member2Id, t, setError, setLoading, setRelationshipResult]);
 
-  useEffect(() => {
-    if (params?.selectedMemberId && params?.selectedMemberName && params?.fieldName) {
-      const { selectedMemberId, selectedMemberName, fieldName } = params as {
-        selectedMemberId: string;
-        selectedMemberName: string;
-        fieldName: 'member1' | 'member2';
-      };
-
-      if (fieldName === 'member1') {
-        setMember1Id(selectedMemberId);
-        setMember1Name(selectedMemberName);
-      } else if (fieldName === 'member2') {
-        setMember2Id(selectedMemberId);
-        setMember2Name(selectedMemberName);
-      }
-
-      // Clear the search params after processing
-      router.setParams({ selectedMemberId: undefined, selectedMemberName: undefined, fieldName: undefined });
-    }
-  }, [params]);
+  // useEffect hook is no longer needed as modal handles callback
+  // useEffect(() => {
+  //   if (params?.selectedMemberId && params?.selectedMemberName && params?.fieldName) {
+  //     // ... logic is now in handleMemberSelected
+  //   }
+  // }, [params]);
 
   const styles = StyleSheet.create({
     container: {
@@ -103,22 +102,16 @@ export default function DetectRelationshipScreen() {
     },
   });
 
-  const handleSelectMember = useCallback((fieldName: 'member1' | 'member2') => {
-    router.push({
-      pathname: '/member/select',
-      params: {
-        returnTo: '/family/more/detect-relationship',
-        fieldName: fieldName,
-      },
-    });
-  }, []);
+  const handleOpenMemberSelect = useCallback((fieldName: 'member1' | 'member2') => {
+    showMemberSelectModal(handleMemberSelected, fieldName);
+  }, [showMemberSelectModal, handleMemberSelected]);
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
         <Button
           mode="outlined"
-          onPress={() => handleSelectMember('member1')}
+          onPress={() => handleOpenMemberSelect('member1')}
           style={styles.memberSelectButton}
           contentStyle={styles.memberSelectButtonContent}
           labelStyle={styles.selectedMemberText}
@@ -127,7 +120,7 @@ export default function DetectRelationshipScreen() {
         </Button>
         <Button
           mode="outlined"
-          onPress={() => handleSelectMember('member2')}
+          onPress={() => handleOpenMemberSelect('member2')}
           style={styles.memberSelectButton}
           contentStyle={styles.memberSelectButtonContent}
           labelStyle={styles.selectedMemberText}
@@ -165,6 +158,7 @@ export default function DetectRelationshipScreen() {
           </Surface>
         )}
       </ScrollView>
+      <MemberSelectModalComponent />
     </View>
   );
 }

@@ -11,7 +11,7 @@ export default function MemberLayout() {
     <View style={{ flex: 1 }}>
       <Appbar.Header elevated>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={t('memberSelect.title')} />
+        <Appbar.Content title={t('memberDetail.title')} />
       </Appbar.Header>
       <Stack
         screenOptions={{
@@ -21,8 +21,6 @@ export default function MemberLayout() {
           },
         }}
       >
-        <Stack.Screen name="select" options={{ title: t('memberSelect.title') }} />
-        {/* Other member-related screens will go here */}
       </Stack>
     </View>
   );

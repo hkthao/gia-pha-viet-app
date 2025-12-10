@@ -3,3 +3,4 @@
 export * from './useAuth';
 export * from './usePaginatedSearch';
 export * from './useInfiniteUpdateDetector';
+export * from './useEventSearchList';

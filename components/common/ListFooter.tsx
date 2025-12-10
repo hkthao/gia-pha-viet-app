@@ -20,9 +20,12 @@ const ListFooter: React.FC<ListFooterProps> = React.memo(({ loading, itemsLength
     );
   }
   if (!hasMore && itemsLength > 0) {
-    return <Text style={styles.emptyListText}>{t('common.noMoreItems')}</Text>;
+    return (<View style={styles.footer}>
+      <Text style={styles.emptyListText}>{t('common.noMoreItems')}</Text>
+    </View>
+    );
   }
-  return null;
+  return <></>;
 });
 
 ListFooter.displayName = 'ListFooter';

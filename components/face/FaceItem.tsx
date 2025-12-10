@@ -60,9 +60,9 @@ const FaceItem = ({ item }: FaceItemProps) => {
         <View style={styles.cardText}>
           <Text variant="titleMedium">{item.memberName || t('common.unknown')}</Text>
           <View style={[styles.detailsRow, { gap: SPACING_SMALL }]}>
-            {item.familyName && (
+            {item.familyName ? (
               <Chip
-                icon={({ size, color }: { size: number, color: string }) => (
+                icon={({ size }: { size: number, color: string }) => (
                   <Avatar.Image
                     size={size}
                     source={getAvatarSource(item.familyAvatarUrl)}
@@ -74,8 +74,8 @@ const FaceItem = ({ item }: FaceItemProps) => {
               >
                 {item.familyName}
               </Chip>
-            )}
-            {item.confidence && (
+            ):<></>}
+            {item.confidence ? (
               <Chip
                 icon="face-recognition"
                 compact
@@ -83,7 +83,7 @@ const FaceItem = ({ item }: FaceItemProps) => {
               >
                 {t('faceSearch.confidence')}: {item.confidence.toFixed(2)}
               </Chip>
-            )}
+            ):<></>}
             {(item.birthYear || item.deathYear) && (
               <Chip
                 icon="calendar"

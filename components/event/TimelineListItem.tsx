@@ -10,7 +10,7 @@ interface TimelineListItemProps {
   item: EventDto;
   index: number;
   isFirst: boolean;
-  isLast: boolean;
+  isLast?: boolean;
   // Props to replicate timeline style
   circleSize?: number;
   circleColor?: string;

@@ -3,3 +3,4 @@
 export { default as TimelineListItem } from './TimelineListItem';
 export { default as AgendaItem } from './AgendaItem';
 export { default as TimelineEventDetail } from './TimelineEventDetail';
+export { default as TimelineFilterComponent } from './TimelineFilter';

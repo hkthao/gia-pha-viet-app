@@ -22,7 +22,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: SPACING_SMALL,
+    padding: SPACING_SMALL,
   },
 });
 

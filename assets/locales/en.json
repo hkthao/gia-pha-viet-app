@@ -282,6 +282,7 @@
   "detectRelationship.description": "Description",
   "detectRelationship.edges": "Edges",
   "detectRelationship.path": "Path",
+  "memberSelect.title": "Select Member",
   "timeline.familyIdNotFound": "Family ID not found.",
   "timeline.failedToLoadEvents": "Failed to load events.",
   "timeline.searchPlaceholder": "Search events",

@@ -306,5 +306,6 @@
   "detectRelationship.resultTitle": "Kết quả mối quan hệ",
   "detectRelationship.description": "Mô tả",
   "detectRelationship.edges": "Các cạnh",
-  "detectRelationship.path": "Đường dẫn"
+  "detectRelationship.path": "Đường dẫn",
+  "memberSelect.title": "Chọn thành viên"
 }

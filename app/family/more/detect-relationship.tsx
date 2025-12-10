@@ -1,17 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
-import { useTheme, Button, Text, Surface, TextInput } from 'react-native-paper';
+import { useTheme, Button, Text, Surface } from 'react-native-paper';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { relationshipService } from '@/services'; // Import the instance of the service
+import { relationshipService } from '@/services';
 import { DetectRelationshipResult } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { router, useLocalSearchParams } from 'expo-router'; // Import router and useLocalSearchParams
 
 export default function DetectRelationshipScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const params = useLocalSearchParams(); // Get local search params
 
   const [member1Id, setMember1Id] = useState<string>('');
+  const [member1Name, setMember1Name] = useState<string>(''); // State for member 1 name
   const [member2Id, setMember2Id] = useState<string>('');
+  const [member2Name, setMember2Name] = useState<string>(''); // State for member 2 name
   const [relationshipResult, setRelationshipResult] = useState<DetectRelationshipResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +38,28 @@ export default function DetectRelationshipScreen() {
     } finally {
       setLoading(false);
     }
-  }, [member1Id, member2Id, t]);
+  }, [member1Id, member2Id, t, setError, setLoading, setRelationshipResult]);
+
+  useEffect(() => {
+    if (params?.selectedMemberId && params?.selectedMemberName && params?.fieldName) {
+      const { selectedMemberId, selectedMemberName, fieldName } = params as {
+        selectedMemberId: string;
+        selectedMemberName: string;
+        fieldName: 'member1' | 'member2';
+      };
+
+      if (fieldName === 'member1') {
+        setMember1Id(selectedMemberId);
+        setMember1Name(selectedMemberName);
+      } else if (fieldName === 'member2') {
+        setMember2Id(selectedMemberId);
+        setMember2Name(selectedMemberName);
+      }
+
+      // Clear the search params after processing
+      router.setParams({ selectedMemberId: undefined, selectedMemberName: undefined, fieldName: undefined });
+    }
+  }, [params]);
 
   const styles = StyleSheet.create({
     container: {
@@ -44,8 +69,17 @@ export default function DetectRelationshipScreen() {
     content: {
       padding: SPACING_MEDIUM,
     },
-    input: {
+    memberSelectButton: {
+      justifyContent: 'flex-start',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
       marginBottom: SPACING_MEDIUM,
+    },
+    memberSelectButtonContent: {
+      justifyContent: 'flex-start',
+    },
+    selectedMemberText: {
+      textAlign: 'left',
     },
     button: {
       marginTop: SPACING_MEDIUM,
@@ -69,25 +103,37 @@ export default function DetectRelationshipScreen() {
     },
   });
 
+  const handleSelectMember = useCallback((fieldName: 'member1' | 'member2') => {
+    router.push({
+      pathname: '/member/select',
+      params: {
+        returnTo: '/family/more/detect-relationship',
+        fieldName: fieldName,
+      },
+    });
+  }, []);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content}>
-        <TextInput
-          label={t('detectRelationship.member1Label')}
-          value={member1Id}
-          onChangeText={setMember1Id}
-          style={styles.input}
+        <Button
           mode="outlined"
-          placeholder={t('detectRelationship.member1Placeholder')}
-        />
-        <TextInput
-          label={t('detectRelationship.member2Label')}
-          value={member2Id}
-          onChangeText={setMember2Id}
-          style={styles.input}
+          onPress={() => handleSelectMember('member1')}
+          style={styles.memberSelectButton}
+          contentStyle={styles.memberSelectButtonContent}
+          labelStyle={styles.selectedMemberText}
+        >
+          {member1Name || t('detectRelationship.member1Placeholder')}
+        </Button>
+        <Button
           mode="outlined"
-          placeholder={t('detectRelationship.member2Placeholder')}
-        />
+          onPress={() => handleSelectMember('member2')}
+          style={styles.memberSelectButton}
+          contentStyle={styles.memberSelectButtonContent}
+          labelStyle={styles.selectedMemberText}
+        >
+          {member2Name || t('detectRelationship.member2Placeholder')}
+        </Button>
 
         {error && <Text style={styles.errorText}>{error}</Text>}
 

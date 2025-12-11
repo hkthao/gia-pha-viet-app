@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import { i18n } from 'i18next'; // Import i18n instance
+import { FamilyUserDto, FamilyRole } from '@/types/family'; // Import FamilyUserDto and FamilyRole
 
 // Assume this is passed from the component via a context or prop
 // We need the i18n instance to get translated messages
@@ -39,6 +40,14 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
     .string()
     .oneOf(['Public', 'Private'], () => globalI18n.t('familyForm.validation.visibilityInvalid'))
     .required(() => globalI18n.t('familyForm.validation.visibilityRequired')) as yup.Schema<'Public' | 'Private'>,
+  familyUsers: yup.array(
+    yup.object({
+      familyId: yup.string().required(),
+      userId: yup.string().required(),
+      userName: yup.string().optional(),
+      role: yup.number().oneOf(Object.values(FamilyRole).filter(v => typeof v === 'number')).required(), // Validate against enum values
+    })
+  ).optional(), // Make the array itself optional
 });
 
 export type FamilyFormData = {
@@ -48,4 +57,5 @@ export type FamilyFormData = {
   avatarUrl?: string;   // Optional means string | undefined
   avatarBase64?: string; // Add this line
   visibility: 'Public' | 'Private';
+  familyUsers?: FamilyUserDto[]; // Make this optional
 };

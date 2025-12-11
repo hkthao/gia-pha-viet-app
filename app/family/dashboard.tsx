@@ -3,20 +3,23 @@ import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Text, useTheme, ActivityIndicator, Card } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // For currentFamilyId
-import { useFamilyListStore } from '@/stores/useFamilyListStore'; // For family list operations
+import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useFamilyListStore } from '@/stores/useFamilyListStore';
 import { PieChart, BarChart } from 'react-native-chart-kit';
-import { ProfileCard, DetailedInfoCard } from '@/components/family'; // Import ProfileCard and DetailedInfoCard
-import { MetricCard } from '@/components/common'; // Import MetricCard
-import { useDashboardStore } from '@/stores/useDashboardStore'; // Import useDashboardStore
+import { ProfileCard, DetailedInfoCard } from '@/components/family';
+import { MetricCard } from '@/components/common';
+import { useDashboardStore } from '@/stores/useDashboardStore';
+import { useFamilyDashboardChartsData } from '@/hooks/dashboard/useFamilyDashboardChartsData'; // Import the new hook
+
 export default function FamilyDashboardScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  // Fetch family details (for ProfileCard and DetailedInfoCard)
-  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore(); // Correct store usage
-  // Fetch dashboard metrics
+
+  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore();
   const { dashboardData, loading: loadingDashboard, error: errorDashboard, getDashboardData } = useDashboardStore();
+
+  const { generationsData, translatedGenderDistribution } = useFamilyDashboardChartsData(dashboardData);
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -43,7 +46,7 @@ export default function FamilyDashboardScreen() {
       marginBottom: SPACING_MEDIUM,
     },
     metricCard: {
-      width: '48%', // Approx 2 cards per row with some spacing
+      width: '48%',
       marginBottom: SPACING_MEDIUM,
       borderRadius: theme.roundness,
       elevation: 2,
@@ -73,7 +76,7 @@ export default function FamilyDashboardScreen() {
     },
     chartCardContent: {
       padding: SPACING_MEDIUM,
-      paddingBottom: SPACING_MEDIUM * 2, // Increased padding to prevent overlap
+      paddingBottom: SPACING_MEDIUM * 2,
     },
     chartTitle: {
       marginBottom: SPACING_SMALL,
@@ -83,11 +86,10 @@ export default function FamilyDashboardScreen() {
     },
     chartContainer: {
       alignItems: 'center',
-      paddingVertical: SPACING_MEDIUM, // Added vertical padding
+      paddingVertical: SPACING_MEDIUM,
     },
-    // Styles for bar chart
     barChartLabel: {
-      color: theme.colors.onSurface, // Make labels visible
+      color: theme.colors.onSurface,
     },
   }), [theme]);
 
@@ -95,8 +97,8 @@ export default function FamilyDashboardScreen() {
   const chartConfig = {
     backgroundGradientFrom: theme.colors.background,
     backgroundGradientTo: theme.colors.background,
-    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // Use a neutral color for lines/text
-    labelColor: (_ = 1) => theme.colors.onSurface, // Changed to use theme.colors.onSurface
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    labelColor: (_ = 1) => theme.colors.onSurface,
     strokeWidth: 2,
     barPercentage: 0.5,
     useShadowColorFromDataset: false,
@@ -104,42 +106,17 @@ export default function FamilyDashboardScreen() {
     fillShadowGradientOpacity: 0.5
   };
 
-  const generationsData = useMemo(() => {
-    if (!dashboardData?.membersPerGeneration) {
-      return [];
-    }
-    return Object.keys(dashboardData.membersPerGeneration)
-      .sort((a, b) => parseInt(a) - parseInt(b)) // Sort by generation number
-      .map(generation => ({
-        generation: parseInt(generation),
-        members: dashboardData.membersPerGeneration[parseInt(generation)],
-      }));
-  }, [dashboardData]);
-
-
-  const translatedGenderDistribution = useMemo(() => {
-    if (!dashboardData?.genderDistribution) {
-      return [];
-    }
-    return dashboardData.genderDistribution.map(item => ({
-      ...item,
-      name: item.name === 'Male' ? t('common.male') : (item.name === 'Female' ? t('common.female') : item.name)
-    }));
-  }, [dashboardData, t]);
-
   useEffect(() => {
     const loadData = async () => {
       if (!currentFamilyId) {
         return;
       }
-      // Fetch family details for cards
       await getFamilyById(currentFamilyId);
-      // Fetch dashboard metrics
-      await getDashboardData(currentFamilyId); // <-- Pass currentFamilyId here
+      await getDashboardData(currentFamilyId);
     };
     loadData();
-  }, [currentFamilyId, getFamilyById, getDashboardData, theme]); // Keep currentFamilyId for getFamilyById
-  // Combined loading and error handling
+  }, [currentFamilyId, getFamilyById, getDashboardData]);
+
   const isLoading = loading || loadingDashboard;
   const hasError = error || errorDashboard;
   if (isLoading) {
@@ -167,9 +144,7 @@ export default function FamilyDashboardScreen() {
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Profile Card */}
         <ProfileCard family={family} />
-        {/* Metric Cards */}
         <View style={styles.cardsContainer}>
           <MetricCard
             icon="account-multiple"
@@ -197,14 +172,12 @@ export default function FamilyDashboardScreen() {
             label={t('familyDashboard.livingMembers')}
           />
           <MetricCard
-            icon="grave-stone" // No direct outline alternative, keeping as is
+            icon="grave-stone"
             value={dashboardData.deceasedMembers}
             label={t('familyDashboard.deceasedMembers')}
           />
         </View>
-        {/* Detailed Info Card */}
         <DetailedInfoCard family={family} />
-        {/* Biểu đồ giới tính */}
         <Card style={styles.chartCard}>
           <Card.Content style={styles.chartCardContent}>
             <Text variant="titleMedium" style={styles.chartTitle}>
@@ -224,7 +197,6 @@ export default function FamilyDashboardScreen() {
             </View>
           </Card.Content>
         </Card>
-        {/* Biểu đồ thành viên theo thế hệ */}
         <Card style={styles.chartCard}>
           <Card.Content style={styles.chartCardContent}>
             <Text variant="titleMedium" style={styles.chartTitle}>
@@ -233,7 +205,7 @@ export default function FamilyDashboardScreen() {
             <View style={styles.chartContainer}>
               <BarChart
                 data={{
-                  labels: generationsData.map(item => item.generation.toString()), // Convert to string
+                  labels: generationsData.map(item => item.generation.toString()),
                   datasets: [
                     {
                       data: generationsData.map(item => item.members),
@@ -246,10 +218,10 @@ export default function FamilyDashboardScreen() {
                 yAxisSuffix=""
                 chartConfig={{
                   ...chartConfig,
-                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`, // Example color
+                  color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
                   barPercentage: 0.7,
                   propsForLabels: {
-                    fill: theme.colors.onSurface, // Explicitly set fill for labels
+                    fill: theme.colors.onSurface,
                   },
                 }}
                 verticalLabelRotation={30}

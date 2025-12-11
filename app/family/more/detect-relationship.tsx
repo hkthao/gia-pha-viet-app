@@ -1,48 +1,53 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { useTheme, Button, Text, IconButton, Card } from 'react-native-paper';
 import { MemberItem } from '@/components';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { relationshipService } from '@/services';
-import { DetectRelationshipResult, MemberListDto } from '@/types';
+import { MemberListDto } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
-import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal'; // Import the new hook
+import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
+import { useRelationshipDetection } from '@/hooks/relationship/useRelationshipDetection'; // Import the new hook
 
 const DEFAULT_MEMBER_A: MemberListDto = {
   id: 'placeholder-A',
-  fullName: 'detectRelationship.memberAPlaceholder', // Use translation key
-  avatarUrl: '', // Or a placeholder image URL
+  fullName: 'detectRelationship.memberAPlaceholder',
+  avatarUrl: '',
   lastName: '',
   firstName: '',
   code: '',
   familyId: '',
   isRoot: false,
-  created: '', // Add this line
+  created: '',
 };
 
 const DEFAULT_MEMBER_B: MemberListDto = {
   id: 'placeholder-B',
-  fullName: 'detectRelationship.memberBPlaceholder', // Use translation key
-  avatarUrl: '', // Or a placeholder image URL
+  fullName: 'detectRelationship.memberBPlaceholder',
+  avatarUrl: '',
   lastName: '',
   firstName: '',
   code: '',
   familyId: '',
   isRoot: false,
-  created: '', // Add this line
+  created: '',
 };
 
 export default function DetectRelationshipScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); 
-  const [selectedMember1, setSelectedMember1] = useState<MemberListDto>(DEFAULT_MEMBER_A);
-  const [selectedMember2, setSelectedMember2] = useState<MemberListDto>(DEFAULT_MEMBER_B);
-  const [relationshipResult, setRelationshipResult] = useState<DetectRelationshipResult | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal<'memberA' | 'memberB'>(); 
+
+  const {
+    selectedMember1,
+    setSelectedMember1,
+    selectedMember2,
+    setSelectedMember2,
+    relationshipResult,
+    loading,
+    error,
+    handleDetectRelationship,
+  } = useRelationshipDetection(DEFAULT_MEMBER_A, DEFAULT_MEMBER_B);
+
+  const { showMemberSelectModal, MemberSelectModal: MemberSelectModalComponent } = useMemberSelectModal<'memberA' | 'memberB'>();
 
   const handleMemberSelected = useCallback((member: MemberListDto, fieldName: 'memberA' | 'memberB') => {
     if (fieldName === 'memberA') {
@@ -50,27 +55,7 @@ export default function DetectRelationshipScreen() {
     } else if (fieldName === 'memberB') {
       setSelectedMember2(member);
     }
-  }, []);
-
-  const handleDetectRelationship = useCallback(async () => {
-    if (!selectedMember1?.id || !selectedMember2?.id || !currentFamilyId) {
-      setError(t('detectRelationship.validationError'));
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setRelationshipResult(null);
-
-    try {
-      const result = await relationshipService.detectRelationship(currentFamilyId, selectedMember1.id, selectedMember2.id);
-      setRelationshipResult(result);
-    } catch (e: any) {
-      setError(e.message || t('detectRelationship.fetchError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedMember1, selectedMember2, currentFamilyId, t, setError, setLoading, setRelationshipResult]);
+  }, [setSelectedMember1, setSelectedMember2]);
 
   const styles = StyleSheet.create({
     container: {
@@ -160,7 +145,7 @@ export default function DetectRelationshipScreen() {
           mode="contained"
           onPress={handleDetectRelationship}
           loading={loading}
-          disabled={loading || selectedMember1.id === DEFAULT_MEMBER_A.id || selectedMember2.id === DEFAULT_MEMBER_B.id || !currentFamilyId}
+          disabled={loading || selectedMember1.id === DEFAULT_MEMBER_A.id || selectedMember2.id === DEFAULT_MEMBER_B.id}
           style={styles.button}
         >
           {t('detectRelationship.detectButton')}

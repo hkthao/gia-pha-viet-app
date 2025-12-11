@@ -1,47 +1,17 @@
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
-import { Agenda, DateData, AgendaEntry, AgendaSchedule } from 'react-native-calendars';
+import { Agenda, AgendaEntry } from 'react-native-calendars';
 import { Divider, useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useEventStore } from '@/stores/useEventStore';
 import { AgendaItem } from '@/components/event';
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import type { EventDto, EventType } from '@/types';
-import { debounce } from '@/utils/debounce';
-
-interface EventItem extends AgendaEntry {
-  id: string;
-  name: string;
-  height: number;
-  day: string;
-  type: EventType;
-}
+import { useFamilyAgendaEvents } from '@/hooks/lists/useFamilyAgendaEvents'; // Import the new hook
 
 export default function FamilyEventsScreen() {
-  const [items, setItems] = useState<AgendaSchedule>({});
-  const [markedDates, setMarkedDates] = useState({});
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  const { error, search } = useEventStore();
-  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
-  const loadedMonthsRef = useRef(loadedMonths);
-
-  useEffect(() => {
-    loadedMonthsRef.current = loadedMonths;
-  }, [loadedMonths]);
-
-  useEffect(() => {
-    const updatedMarkedDates: { [key: string]: { marked: boolean } } = {};
-    Object.keys(items).forEach(date => {
-      if (items[date] && items[date].length > 0) {
-        updatedMarkedDates[date] = { marked: true };
-      }
-    });
-    setMarkedDates(updatedMarkedDates);
-  }, [items]);
+  const { items, markedDates, loadItemsForMonth, error, getDayName, rowHasChanged } = useFamilyAgendaEvents();
 
   const styles = useMemo(() => StyleSheet.create({
     emptyDate: {
@@ -115,76 +85,13 @@ export default function FamilyEventsScreen() {
     },
   }), [theme]);
 
-  const timeToString = (time: number) => {
-    const date = new Date(time);
-    return date.toISOString().split('T')[0];
-  };
-
-  const getDayName = (dateString: string) => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
-    return new Intl.DateTimeFormat('vi-VN', options).format(date);
-  };
-
-  const loadItems = useMemo(() => debounce(async (day: DateData) => {
-    if (!currentFamilyId) {
-      return;
-    }
-
-    const monthString = new Date(day.timestamp).toISOString().slice(0, 7); // YYYY-MM
-    if (loadedMonthsRef.current.has(monthString)) {
-      return; // Already loaded for this month
-    }
-
-    const startDate = timeToString(day.timestamp);
-    const endDate = timeToString(day.timestamp + (30 * 24 * 60 * 60 * 1000)); // Load for a month
-
-    const fetchedPaginatedEvents = await search({
-      familyId: currentFamilyId,
-      startDate,
-      endDate,
-      page: 1,
-      itemsPerPage: 100,
-      sortBy :"startDate"
-    });
-
-    if (fetchedPaginatedEvents) {
-      setLoadedMonths(prev => new Set(prev).add(monthString)); // Mark month as loaded
-    }
-
-    setItems((prevItems) => {
-      const mergedItems = { ...prevItems };
-      fetchedPaginatedEvents?.items?.forEach((event: EventDto) => {
-        const eventDate = timeToString(new Date(event.startDate).getTime());
-        if (!mergedItems[eventDate]) {
-          mergedItems[eventDate] = [];
-        }
-        // Check for duplicates before adding
-        if (!(mergedItems[eventDate] as EventItem[]).some(item => item.id === event.id)) {
-          mergedItems[eventDate].push({
-            id: event.id,
-            name: event.name || t('eventDetail.noTitle'),
-            height: 80, // Fixed height for now, can be dynamic
-            day: eventDate,
-            type: event.type,
-          } as EventItem);
-        }
-      });
-      return mergedItems;
-    });
-  }, 300), [currentFamilyId, search, t]); // Removed loadedMonths from dependencies
-
   const renderEmptyDate = useCallback(() => {
     return (
       <View style={[styles.emptyDate, { backgroundColor: theme.colors.background }]}>
         <Text style={{ color: theme.colors.onBackground }}>{t('eventScreen.noEvents')}</Text>
       </View>
     );
-  }, [theme.colors, t, styles.emptyDate]);
-
-  const rowHasChanged = useCallback((r1: AgendaEntry, r2: AgendaEntry) => {
-    return r1.name !== r2.name;
-  }, []);
+  }, [theme.colors.background, theme.colors.onBackground, t, styles.emptyDate]);
 
   const renderList = useCallback((listProps: any) => {
     const sections = Object.keys(listProps.items).map(date => ({
@@ -212,7 +119,7 @@ export default function FamilyEventsScreen() {
               <View style={styles.sectionRightColumn}>
                 {section.data.map((item: AgendaEntry, index: number) => (
                   <View key={item.day + item.name + index}>
-                    <AgendaItem reservation={item as EventItem} isFirst={index === 0} />
+                    <AgendaItem reservation={item as any} isFirst={index === 0} />
 
                     {index === section.data.length - 1 && section.data.length > 1 && <Divider style={{ margin: SPACING_MEDIUM }} />}
                   </View>
@@ -223,7 +130,7 @@ export default function FamilyEventsScreen() {
         })}
       </ScrollView>
     );
-  }, [theme.colors, styles]);
+  }, [theme.colors.background, theme.colors.onSurfaceVariant, styles, getDayName]);
 
   if (error) {
     return (
@@ -240,7 +147,7 @@ export default function FamilyEventsScreen() {
   return (
     <Agenda
       items={items}
-      loadItemsForMonth={loadItems}
+      loadItemsForMonth={loadItemsForMonth}
       selected={new Date().toISOString().split('T')[0]} // Set selected to today's date
       renderEmptyDate={renderEmptyDate}
       rowHasChanged={rowHasChanged}
@@ -270,4 +177,3 @@ export default function FamilyEventsScreen() {
     />
   );
 }
-

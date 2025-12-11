@@ -1,42 +1,41 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, Animated, ViewToken } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, StyleSheet, FlatList, Dimensions, Animated } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { OnboardingSlide } from '@/components/onboarding';
 import { SPACING_MEDIUM, SPACING_LARGE } from '@/constants/dimensions';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useOnboardingFlow } from '@/hooks/onboarding/useOnboardingFlow'; // Import the new hook
 
 const { width } = Dimensions.get('window');
 
-const slides = [
+const slidesData = [
   {
     id: '1',
-    image: require('@/assets/images/onboarding-1.png'), // Placeholder image
+    image: require('@/assets/images/onboarding-1.png'),
     title: 'onboarding.slide1.title',
     description: 'onboarding.slide1.description',
   },
   {
     id: '2',
-    image: require('@/assets/images/onboarding-2.png'), // Placeholder image
+    image: require('@/assets/images/onboarding-2.png'),
     title: 'onboarding.slide2.title',
     description: 'onboarding.slide2.description',
   },
   {
     id: '3',
-    image: require('@/assets/images/onboarding-3.png'), // Placeholder image
+    image: require('@/assets/images/onboarding-3.png'),
     title: 'onboarding.slide3.title',
     description: 'onboarding.slide3.description',
   },
   {
     id: '4',
-    image: require('@/assets/images/onboarding-4.png'), // Placeholder image
+    image: require('@/assets/images/onboarding-4.png'),
     title: 'onboarding.slide4.title',
     description: 'onboarding.slide4.description',
   },
   {
     id: '5',
-    image: require('@/assets/images/onboarding-5.png'), // Placeholder image
+    image: require('@/assets/images/onboarding-5.png'),
     title: 'onboarding.slide5.title',
     description: 'onboarding.slide5.description',
   },
@@ -45,40 +44,19 @@ const slides = [
 export default function OnboardingScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const slidesRef = useRef<FlatList | null>(null);
 
-  const viewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0 && typeof viewableItems[0].index === 'number') {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  }).current;
+  const {
+    currentIndex,
+    scrollX,
+    slidesRef,
+    viewableItemsChanged,
+    viewConfig,
+    scrollToPrevious,
+    scrollToNext,
+    skipOnboarding,
+  } = useOnboardingFlow(slidesData);
 
-  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
-
-  const scrollToPrevious = () => {
-    if (slidesRef.current && currentIndex > 0) {
-      slidesRef.current.scrollToIndex({ index: currentIndex - 1 });
-    }
-  };
-
-  const scrollToNext = () => {
-    if (slidesRef.current && currentIndex < slides.length - 1) {
-      slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
-    } else {
-      skipOnboarding();
-    }
-  };
-
-  const skipOnboarding = async () => {
-
-    await AsyncStorage.setItem('hasOnboarded', 'true');
-    router.push('/');
-  };
-
-  const styles = StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
       justifyContent: 'center',
@@ -114,12 +92,12 @@ export default function OnboardingScreen() {
     buttonLabel: {
       color: theme.colors.onPrimary,
     },
-  });
+  }), [theme]);
 
   const renderPagination = () => {
     return (
       <View style={styles.pagination}>
-        {slides.map((_, i) => {
+        {slidesData.map((_, i) => {
           const inputRange = [(i - 1) * width, i * width, (i + 1) * width];
           const dotWidth = scrollX.interpolate({
             inputRange,
@@ -144,9 +122,8 @@ export default function OnboardingScreen() {
 
   return (
     <View style={styles.container}>
-
       <FlatList
-        data={slides}
+        data={slidesData}
         renderItem={({ item }) => <OnboardingSlide item={item} />}
         horizontal
         pagingEnabled
@@ -164,23 +141,21 @@ export default function OnboardingScreen() {
       />
       {renderPagination()}
       <View style={styles.buttonContainer}>
-        {/* Left Button: Back or empty space */}
         {currentIndex > 0 ? (
           <Button mode="text" onPress={scrollToPrevious}>
             {t('onboarding.back')}
           </Button>
         ) : (
-          <View /> // Empty view to take up space if no back button
+          <View />
         )}
 
-        {/* Right Buttons: Skip/Next or Get Started */}
         <View style={{ flexDirection: 'row' }}>
-          {currentIndex < slides.length - 1 ? (
+          {currentIndex < slidesData.length - 1 ? (
             <>
               <Button mode="text" onPress={skipOnboarding} style={{ marginRight: SPACING_MEDIUM, borderRadius: theme.roundness }}>
                 {t('onboarding.skip')}
               </Button>
-              <Button style={{ borderRadius: theme.roundness }} mode="contained" onPress={scrollToNext}>
+              <Button style={{ borderRadius: theme.roundness }} mode="contained" onPress={() => scrollToNext(slidesData.length)}>
                 {t('onboarding.next')}
               </Button>
             </>

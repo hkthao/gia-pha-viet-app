@@ -2,22 +2,22 @@ import { Tabs, useSegments } from 'expo-router';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { View, Share } from 'react-native'; // Import Share, useCallback, and useMemo
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useFamilySharing } from '@/hooks/family/useFamilySharing'; // Import the new hook
 import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
-import { useCallback, useMemo } from 'react';
 
 export default function FamilyDetailLayout() {
   const theme = useTheme();
   const { t } = useTranslation();
   const segments = useSegments();
-  const navigation = useNavigation(); // Get navigation object
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId from store
+  const navigation = useNavigation();
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  // Get the current tab name from segments
+  const { onShare } = useFamilySharing(); // Use the new hook
+
   const currentTab = segments[segments.length - 1];
 
-  // Map tab names to their translated titles
   const getTabTitle = (tabName: string) => {
     switch (tabName) {
       case 'dashboard':
@@ -43,43 +43,9 @@ export default function FamilyDetailLayout() {
       case 'detect-relationship':
         return t('detectRelationship.title');
       default:
-        return t('familyDetail.title'); // Fallback title
+        return t('familyDetail.title');
     }
   };
-
-
-  const familyDetailUrl = useMemo(() => {
-    const baseUrl = process.env.EXPO_PUBLIC_APP_BASE_URL;
-    if (!baseUrl) {
-      console.warn('EXPO_PUBLIC_APP_BASE_URL is not defined. Sharing functionality might not work.');
-      return '';
-    }
-    return currentFamilyId ? `${baseUrl}/public/family-tree/${currentFamilyId}` : '';
-  }, [currentFamilyId]);
-
-  const onShare = useCallback(async () => {
-    if (!familyDetailUrl) {
-      console.warn('Cannot share: familyDetailUrl is empty.');
-      return;
-    }
-    try {
-      const result = await Share.share({
-        message: t('familyTree.shareMessage', { url: familyDetailUrl }),
-        url: familyDetailUrl,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log('Shared with activity type:', result.activityType);
-        } else {
-          console.log('Shared successfully');
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
-      }
-    } catch (error: any) {
-      console.error('Error sharing:', error.message);
-    }
-  }, [familyDetailUrl, t]);
 
   const moreTabs = ['more', 'calendar', 'face-data', 'memories', 'timeline', 'privacy' ,'detect-relationship'];
   const isMoreTab = moreTabs.includes(currentTab)
@@ -103,7 +69,7 @@ export default function FamilyDetailLayout() {
             backgroundColor: theme.colors.surface,
             borderTopColor: theme.colors.outlineVariant,
           },
-          headerShown: false, // Hide header for tabs, as we have a custom Appbar
+          headerShown: false,
         }}
       >
         <Tabs.Screen

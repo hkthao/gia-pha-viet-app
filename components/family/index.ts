@@ -3,3 +3,4 @@
 export { default as DetailedInfoCard } from './DetailedInfoCard';
 export { default as ProfileCard } from './ProfileCard';
 export { default as FamilyItem } from './FamilyItem';
+export { FamilyForm } from './FamilyForm';

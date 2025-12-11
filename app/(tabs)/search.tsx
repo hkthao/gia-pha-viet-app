@@ -6,9 +6,11 @@ import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { FamilyListDto, SearchFamiliesQuery } from '@/types';
 import { useFamilySearchList } from '@/hooks/lists/useFamilySearchList';
 import { useInfiniteUpdateDetector } from '@/hooks/common/useInfiniteUpdateDetector';
+import { useRouter } from 'expo-router'; // Import useRouter
 
 export default function SearchScreen() {
   const { useStore, renderFamilyItem, styles, t } = useFamilySearchList();
+  const router = useRouter(); // Initialize useRouter
 
   // Call the store hook to get the state and actions
   const { items, loading, error, hasMore, page } = useStore();
@@ -58,7 +60,7 @@ export default function SearchScreen() {
       <FAB
         style={fabStyles.fab}
         icon="plus"
-        onPress={() => console.log('Add Family')} // Placeholder action
+        onPress={() => router.push('/family/create')} // Placeholder action
       />
     </View>
   );

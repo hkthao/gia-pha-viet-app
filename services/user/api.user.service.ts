@@ -1,5 +1,6 @@
 import { ApiClientMethods } from '@/types/apiClient';
-import { IUserService, UserCheckResultDto } from './user.service.interface';
+import { IUserService } from './user.service.interface';
+import { UserCheckResultDto } from '@/types';
 
 export class ApiUserService implements IUserService {
   constructor(private apiClient: ApiClientMethods) {}

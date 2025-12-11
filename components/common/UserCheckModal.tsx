@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet } from 'react-native';
 import { TextInput, Button, Text, ActivityIndicator, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { userService } from '@/services';
-import { UserCheckResultDto } from '@/services/user/user.service.interface';
+import { UserCheckResultDto } from '@/types';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 
 interface UserCheckModalProps {

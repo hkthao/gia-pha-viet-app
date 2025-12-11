@@ -341,5 +341,9 @@
   "familyForm.viewers": "Viewers",
   "familyForm.addManager": "Add Manager",
   "familyForm.addViewer": "Add Viewer",
+  "familyForm.addUser": "Add {{role}}",
+  "familyForm.roles.0": "Manager",
+  "familyForm.roles.1": "Viewer",
+  "familyForm.roles.2": "Admin",
   "welcome": "Welcome to Family Tree!"
 }

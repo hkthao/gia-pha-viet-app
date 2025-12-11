@@ -10,4 +10,5 @@ export * from './relationship.d';
 export * from './event.d';
 export * from './familyDict.d';
 export * from './privacy.d';
+export * from './user.d';
 

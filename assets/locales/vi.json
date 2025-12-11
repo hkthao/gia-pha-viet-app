@@ -347,5 +347,9 @@
   "familyForm.viewers": "Người được xem",
   "familyForm.addManager": "Thêm người quản lý",
   "familyForm.addViewer": "Thêm người xem",
+  "familyForm.addUser": "Thêm {{role}}",
+  "familyForm.roles.0": "Người quản lý",
+  "familyForm.roles.1": "Người xem",
+  "familyForm.roles.2": "Quản trị viên",
   "welcome": "Chào mừng đến với Cây Gia Phả!"
 }

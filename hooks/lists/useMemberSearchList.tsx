@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { MemberListDto } from '@/types';
-import { MemberItem } from '@/components';
+import MemberItem from '@/components/member/MemberItem';
 import { useMemberSearchPaginatedStore } from '@/hooks/adapters/useMemberSearchPaginatedStore';
 
 interface UseMemberSearchListHook {

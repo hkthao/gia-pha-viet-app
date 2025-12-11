@@ -45,7 +45,7 @@ export default function MoreOptionsScreen() {
           title={t('more.calendar')}
           left={() => <MaterialCommunityIcons name="calendar-month-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/calendar')}
+          onPress={() => navigateTo('/family/(tabs)/more/calendar')}
           style={styles.listItem}
         />
         <Divider />
@@ -53,7 +53,7 @@ export default function MoreOptionsScreen() {
           title={t('more.faceData')}
           left={() => <MaterialCommunityIcons name="face-recognition" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/face-data')}
+          onPress={() => navigateTo('/family/(tabs)/more/face-data')}
           style={styles.listItem}
         />
         <Divider />
@@ -61,7 +61,7 @@ export default function MoreOptionsScreen() {
           title={t('more.memories')}
           left={() => <MaterialCommunityIcons name="image-multiple-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/memories')}
+          onPress={() => navigateTo('/family/(tabs)/more/memories')}
           style={styles.listItem}
         />
         <Divider />
@@ -69,7 +69,7 @@ export default function MoreOptionsScreen() {
           title={t('more.timeline')}
           left={() => <MaterialCommunityIcons name="timeline-text-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/timeline')}
+          onPress={() => navigateTo('/family/(tabs)/more/timeline')}
           style={styles.listItem}
         />
       </Card>
@@ -80,7 +80,7 @@ export default function MoreOptionsScreen() {
           title={t('more.privacyPolicy')}
           left={() => <MaterialCommunityIcons name="shield-lock-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/privacy')}
+          onPress={() => navigateTo('/family/(tabs)/more/privacy')}
           style={styles.listItem}
         />
       </Card>
@@ -91,7 +91,7 @@ export default function MoreOptionsScreen() {
           title={t('more.relationships')}
           left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
           right={() => <List.Icon icon="chevron-right" />}
-          onPress={() => navigateTo('/family/more/detect-relationship')}
+          onPress={() => navigateTo('/family/(tabs)/more/detect-relationship')}
           style={styles.listItem}
         />
       </Card>

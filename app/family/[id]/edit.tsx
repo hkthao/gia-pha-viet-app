@@ -71,7 +71,7 @@ export default function EditFamilyScreen() {
       if (result.isSuccess) {
         showSnackbar(t('familyForm.updateSuccess'), 'success');
         searchFamilyList({ page: 1, itemsPerPage: 10, searchQuery: '' }, true); // Refresh family list
-        router.replace({ pathname: '/family/[id]/dashboard' as any, params: { id: familyId } });
+        router.replace({ pathname: '/family/(tabs)/dashboard' as any, params: { id: familyId } });
       } else {
         showSnackbar(result.error?.message || t('familyForm.updateError'), 'error');
       }

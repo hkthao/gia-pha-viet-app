@@ -14,6 +14,7 @@ import { SnackbarProvider } from '@/hooks/ui/useGlobalSnackbar'; // Import Snack
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar'; // Import StatusBar
 import { usePermissionStore } from '@/stores/usePermissionStore'; // Import usePermissionStore
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Import React Query
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -21,6 +22,9 @@ SplashScreen.preventAutoHideAsync();
 export const unstable_settings = {
   anchor: '(tabs)',
 };
+
+// Create a client
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
@@ -58,9 +62,15 @@ export default function RootLayout() {
     return null
   }
 
-  return hasOnboarded ? <ThemeProvider>
-    <AppContent />
-  </ThemeProvider> : <OnboardingScreen />;
+  return hasOnboarded ? (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </QueryClientProvider>
+  ) : (
+    <OnboardingScreen />
+  );
 }
 
 

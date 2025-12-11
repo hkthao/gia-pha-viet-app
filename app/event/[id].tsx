@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { useEventStore } from '@/stores/useEventStore';
+import { eventService } from '@/services'; // Import eventService
 import { EventType, MemberListDto } from '@/types'; // Import EventType from admin types
+import { useQuery } from '@tanstack/react-query'; // Import useQuery
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -13,7 +14,28 @@ export default function EventDetailsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { item, loading, error, getById } = useEventStore();
+  const eventId = Array.isArray(id) ? id[0] : id;
+
+  const {
+    data: item,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['event', eventId],
+    queryFn: async () => {
+      if (!eventId) {
+        throw new Error(t('eventDetail.errors.noEventId'));
+      }
+      const result = await eventService.getById(eventId);
+      if (result.isSuccess) {
+        return result.value;
+      } else {
+        throw new Error(result.error?.message || t('eventDetail.errors.fetchError'));
+      }
+    },
+    enabled: !!eventId, // Only run query if eventId is available
+  });
 
   const eventTypeStringMap: Record<EventType, string> = useMemo(() => ({
     [EventType.Birth]: t('eventType.birth'),
@@ -30,16 +52,6 @@ export default function EventDetailsScreen() {
     [EventType.Anniversary]: 'calendar-heart',
     [EventType.Other]: 'information',
   };
-
-  useEffect(() => {
-    if (id) {
-      const loadEventDetails = async () => {
-        const eventId = Array.isArray(id) ? id[0] : id;
-        await getById(eventId);
-      };
-      loadEventDetails();
-    }
-  }, [id, getById]);
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -112,7 +124,7 @@ export default function EventDetailsScreen() {
     },
   }), [theme]);
 
-  if (loading) {
+  if (isLoading) { // Changed 'loading' to 'isLoading'
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator animating size="large" color={theme.colors.primary} />
@@ -120,7 +132,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  if (error) {
+  if (isError) { // Changed 'error' to 'isError'
     return (
       <View style={{ flex: 1 }}>
         <Appbar.Header>
@@ -129,7 +141,7 @@ export default function EventDetailsScreen() {
         </Appbar.Header>
         <View style={styles.errorContainer}>
           <Text variant="bodyMedium" style={styles.errorText}>
-            {t('common.error_occurred')}: {error}
+            {t('common.error_occurred')}: {error?.message} {/* Display error.message */}
           </Text>
         </View>
       </View>

@@ -49,7 +49,7 @@ const MemberSelectModalComponent = <TFieldName extends string>({
 
   // Define the query function for fetching member data
   const memberSearchQueryFn = useCallback(
-    async ({ pageParam = 1, filters, queryKey: reactQueryKey }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {
+    async ({ pageParam = 1, filters }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {
       if (!currentFamilyId) {
         // This case should ideally be handled by disabling the query if currentFamilyId is null
         // or by ensuring the modal isn't visible without a family context.

@@ -39,14 +39,13 @@ export const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({
     },
     sectionTitle: {
       fontWeight: 'bold',
-      paddingVertical: SPACING_MEDIUM,
       paddingBottom: SPACING_SMALL,
     },
     chipsContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: SPACING_SMALL,
-      paddingVertical: SPACING_MEDIUM,
+      paddingVertical: SPACING_SMALL,
     },
     chip: {
       marginVertical: SPACING_SMALL / 2,

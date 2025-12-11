@@ -176,45 +176,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
           </View>
         </View>
 
-        <View style={styles.formSection}>
-
-          <TextInput
-            label={t('familyForm.name')}
-            mode="outlined"
-            value={control._formValues.name}
-            onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.name}
-            left={<TextInput.Icon icon="account" />}
-          />
-          {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
-
-          <TextInput
-            label={t('familyForm.description')}
-            mode="outlined"
-            multiline
-            numberOfLines={4}
-            value={control._formValues.description}
-            onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.description}
-            left={<TextInput.Icon icon="note-text-outline" />}
-          />
-          {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
-
-          <TextInput
-            label={t('familyForm.address')}
-            mode="outlined"
-            multiline
-            numberOfLines={2}
-            value={control._formValues.address}
-            onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.address}
-            left={<TextInput.Icon icon="map-marker-outline" />}
-          />
-          {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
-        </View>
 
         <View style={styles.formSection}>
           <SegmentedButtons
@@ -239,6 +200,48 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
             ]}
           />
           {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
+        </View>
+
+        <View style={styles.formSection}>
+
+          <TextInput
+            label={t('familyForm.name')}
+            mode="outlined"
+            value={control._formValues.name}
+            onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.name}
+            left={<TextInput.Icon icon="account" />}
+          />
+          {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+
+            <TextInput
+            label={t('familyForm.address')}
+            mode="outlined"
+            multiline
+            numberOfLines={2}
+            value={control._formValues.address}
+            onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.address}
+            left={<TextInput.Icon icon="map-marker-outline" />}
+          />
+          {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
+
+          <TextInput
+            label={t('familyForm.description')}
+            mode="outlined"
+            multiline
+            numberOfLines={4}
+            value={control._formValues.description}
+            onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.description}
+            left={<TextInput.Icon icon="note-text-outline" />}
+          />
+          {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
+
+        
         </View>
 
         <UserRoleSelector

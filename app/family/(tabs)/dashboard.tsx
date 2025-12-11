@@ -103,6 +103,7 @@ export default function FamilyDashboardScreen() {
     },
     fabStyle: {
       right: 0,
+      bottom: -25,
       zIndex: 10,
     },
   }), [theme]);

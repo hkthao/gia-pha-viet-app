@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, useTheme, ActivityIndicator, FAB } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,8 @@ export default function FamilyDetailsScreen() {
     handleEditFamily,
     handleDeleteFamily,
   } = useFamilyDetails();
+
+  const [fabOpen, setFabOpen] = useState(false); // State to manage FAB.Group open/closed status
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -84,8 +86,8 @@ export default function FamilyDetailsScreen() {
       {canEditOrDelete && (
         <FAB.Group
           visible={true} // Always visible when conditions met
-          open={false} // Initially closed
-          icon="pencil" // Default icon
+          open={fabOpen} // Use state to control open/closed status
+          icon={fabOpen ? 'close' : 'pencil'} // Change icon based on open state
           actions={[
             {
               icon: 'pencil',
@@ -98,7 +100,7 @@ export default function FamilyDetailsScreen() {
               onPress: handleDeleteFamily,
             },
           ]}
-          onStateChange={() => {}} // Required prop, but we're keeping it closed
+          onStateChange={({ open }) => setFabOpen(open)} // Update state on state change
           fabStyle={styles.fabStyle}
           color={theme.colors.onPrimary}
         />

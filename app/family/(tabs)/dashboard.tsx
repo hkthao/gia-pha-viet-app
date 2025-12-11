@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Text, useTheme, ActivityIndicator, Card } from 'react-native-paper';
+import { Text, useTheme, ActivityIndicator, Card, FAB } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
@@ -10,6 +10,7 @@ import { ProfileCard, DetailedInfoCard } from '@/components/family';
 import { MetricCard } from '@/components/common';
 import { useDashboardStore } from '@/stores/useDashboardStore';
 import { useFamilyDashboardChartsData } from '@/hooks/dashboard/useFamilyDashboardChartsData'; // Import the new hook
+import { useFamilyDetails } from '@/hooks/family/useFamilyDetails';
 
 export default function FamilyDashboardScreen() {
   const { t } = useTranslation();
@@ -21,12 +22,21 @@ export default function FamilyDashboardScreen() {
 
   const { generationsData, translatedGenderDistribution } = useFamilyDashboardChartsData(dashboardData);
 
+  const {
+    canEditOrDelete,
+    handleEditFamily,
+    handleDeleteFamily,
+  } = useFamilyDetails(); // Use the hook to get edit/delete logic
+
+  const [fabOpen, setFabOpen] = useState(false); // State to manage FAB.Group open/closed status
+
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
     },
     content: {
       padding: SPACING_MEDIUM,
+      paddingBottom: SPACING_MEDIUM * 4, // Add padding for FAB to not overlap content
     },
     loadingContainer: {
       flex: 1,
@@ -90,6 +100,10 @@ export default function FamilyDashboardScreen() {
     },
     barChartLabel: {
       color: theme.colors.onSurface,
+    },
+    fabStyle: {
+      right: 0,
+      zIndex: 10,
     },
   }), [theme]);
 
@@ -230,6 +244,28 @@ export default function FamilyDashboardScreen() {
           </Card.Content>
         </Card>
       </ScrollView>
+
+      {canEditOrDelete && (
+        <FAB.Group
+          visible={true} // Always visible when conditions met
+          open={fabOpen} // Use state to control open/closed status
+          icon={fabOpen ? 'close' : 'pencil'} // Change icon based on open state
+          actions={[
+            {
+              icon: 'pencil',
+              label: t('common.edit'),
+              onPress: handleEditFamily,
+            },
+            {
+              icon: 'delete',
+              label: t('common.delete'),
+              onPress: handleDeleteFamily,
+            },
+          ]}
+          onStateChange={({ open }) => setFabOpen(open)} // Update state on state change
+          fabStyle={styles.fabStyle}
+        />
+      )}
     </View>
   );
 }

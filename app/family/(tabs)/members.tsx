@@ -1,17 +1,18 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme } from 'react-native-paper';
+import { Chip, useTheme, FAB } from 'react-native-paper'; // Import FAB
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router'; // Import useRouter
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { Gender, MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-// import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList'; // Removed
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { memberService } from '@/services'; // Import memberService
 import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
 import MemberItem from '@/components/member/MemberItem'; // Import MemberItem
 import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Import usePermissionCheck
 
 
 interface MemberFilterProps {
@@ -89,13 +90,21 @@ const getStyles = (theme: any) => StyleSheet.create({
     flex: 1,
     padding: SPACING_SMALL,
   },
+  fab: {
+    position: 'absolute',
+    margin: SPACING_MEDIUM,
+    right: 0,
+    bottom: 0,
+  },
 });
 
 export default function FamilyMembersScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
+  const router = useRouter(); // Initialize useRouter
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const { canManageFamily } = usePermissionCheck(currentFamilyId ?? undefined); // Check permission
 
   // Define the query function for fetching member data
   const memberSearchQueryFn = useCallback(
@@ -143,6 +152,13 @@ export default function FamilyMembersScreen() {
         ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
         externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
       />
+      {canManageFamily && currentFamilyId && (
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => router.push(`/member/create?familyId=${currentFamilyId}`)}
+        />
+      )}
     </View>
   );
 }

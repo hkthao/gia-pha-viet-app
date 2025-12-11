@@ -26,7 +26,7 @@ const OptionSelectBottomSheet = forwardRef<BottomSheet, OptionSelectBottomSheetP
     // The snap points are crucial for how the bottom sheet opens.
     // For <= 5 options, a single dynamic snap point based on content height or a fixed small height is good.
     // Let's use a fixed small height for now, and can be made dynamic later if needed.
-    const snapPoints = useMemo(() => ['25%', '50%'], []); // Example snap points
+    const snapPoints = useMemo(() => ['40%'], []); // Adjusted snap point
 
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -80,12 +80,12 @@ const OptionSelectBottomSheet = forwardRef<BottomSheet, OptionSelectBottomSheetP
     return (
       <BottomSheet
         ref={ref}
-        index={-1} // Start closed
+        index={-1} // Start closed again
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={true}
         onClose={onClose}
-        backgroundStyle={styles.container}
+        backgroundStyle={styles.container} // Revert background color
         handleIndicatorStyle={{ backgroundColor: theme.colors.onSurfaceVariant }}
       >
         <View style={styles.titleContainer}>
@@ -93,7 +93,7 @@ const OptionSelectBottomSheet = forwardRef<BottomSheet, OptionSelectBottomSheetP
             {title || t('common.selectAnOption')}
           </Text>
         </View>
-        <BottomSheetScrollView style={styles.container} bounces={false}>
+        <BottomSheetScrollView style={styles.container} bounces={false}> {/* Revert background color */}
           {options.map((option, index) => (
             <List.Item
               key={index.toString()}

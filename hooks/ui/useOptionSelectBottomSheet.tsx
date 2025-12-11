@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import OptionSelectBottomSheet, { Option } from '@/components/common/OptionSelectBottomSheet';
 
@@ -39,10 +39,9 @@ export function useOptionSelectBottomSheet(): UseOptionSelectBottomSheetResult {
     selectedValue?: any;
   } | null>(null);
 
-  const openBottomSheet = useCallback(
+      const openBottomSheet = useCallback(
     (options: Option[], onSelect: (value: any) => void, title?: string, selectedValue?: any) => {
       setSheetState({ options, onSelect, title, selectedValue });
-      bottomSheetRef.current?.expand(); // or .snapToIndex(0) based on your snapPoints
     },
     []
   );
@@ -50,7 +49,7 @@ export function useOptionSelectBottomSheet(): UseOptionSelectBottomSheetResult {
   const closeBottomSheet = useCallback(() => {
     bottomSheetRef.current?.close();
     // Clear state after closing, can be debounced if animations are long
-    setTimeout(() => setSheetState(null), 300); 
+    setTimeout(() => setSheetState(null), 300);
   }, []);
 
   const handleSelect = useCallback(
@@ -63,8 +62,20 @@ export function useOptionSelectBottomSheet(): UseOptionSelectBottomSheetResult {
 
   // Define the component internally
   const OptionSelectBottomSheetComponent = () => {
-    if (!sheetState) return null; // Only render when open
+    // This useEffect will ensure expand() is called after the BottomSheet component mounts
+    useEffect(() => {
+      if (sheetState && bottomSheetRef.current) {
+        bottomSheetRef.current.expand(); // Now called after the component is rendered and ref is attached
+      }
+      // Clean up when the sheet state is cleared or component unmounts
+      return () => {
+        if (!sheetState && bottomSheetRef.current) {
+          bottomSheetRef.current.close();
+        }
+      };
+    }, [sheetState]); // Depend on sheetState to trigger when it becomes non-null
 
+    if (!sheetState) return null; // Only render when open
     return (
       <OptionSelectBottomSheet
         ref={bottomSheetRef}

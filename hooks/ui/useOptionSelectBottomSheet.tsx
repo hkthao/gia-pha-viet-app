@@ -65,7 +65,9 @@ export function useOptionSelectBottomSheet(): UseOptionSelectBottomSheetResult {
     // This useEffect will ensure expand() is called after the BottomSheet component mounts
     useEffect(() => {
       if (sheetState && bottomSheetRef.current) {
-        bottomSheetRef.current.expand(); // Now called after the component is rendered and ref is attached
+        setTimeout(() => {
+          bottomSheetRef.current?.snapToIndex(0); // Changed from expand() to snapToIndex(0)
+        }, 50); // 50ms delay
       }
       // Clean up when the sheet state is cleared or component unmounts
       return () => {

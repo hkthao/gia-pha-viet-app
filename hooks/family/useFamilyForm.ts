@@ -51,7 +51,7 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
     return undefined;
   }, [initialValues]);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue } = useForm<FamilyFormData>({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<FamilyFormData>({
     resolver: yupResolver(familyValidationSchema),
     defaultValues: mappedInitialValues || defaultFormValues,
   });
@@ -69,5 +69,6 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
     isSubmitting: isSubmittingProp || isSubmitting,
     reset,
     setValue,
+    watch,
   };
 }

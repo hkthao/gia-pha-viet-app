@@ -15,6 +15,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar'; // Import StatusBa
 import { usePermissionStore } from '@/stores/usePermissionStore'; // Import usePermissionStore
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Import React Query
+import { GestureHandlerRootView } from 'react-native-gesture-handler'; // Import GestureHandlerRootView
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -79,7 +80,8 @@ function AppContent() {
   const { colorScheme } = useThemeContext();
   const paperTheme = getPaperTheme(colorScheme);
   return (
-    <PaperProvider theme={paperTheme}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider theme={paperTheme}>
       <Portal.Host>
         <LoadingOverlayProvider> {/* Wrap with LoadingOverlayProvider */}
           <SnackbarProvider> {/* Wrap with SnackbarProvider */}
@@ -101,5 +103,6 @@ function AppContent() {
         </LoadingOverlayProvider>
       </Portal.Host>
     </PaperProvider>
+    </GestureHandlerRootView>
   );
 }

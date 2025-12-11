@@ -1,29 +1,16 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // For currentFamilyId
-import { useFamilyListStore } from '@/stores/useFamilyListStore'; // For family list operations
 import { ProfileCard, DetailedInfoCard } from '@/components/family';
+import { useFamilyDetails } from '@/hooks/family/useFamilyDetails';
 
 export default function FamilyDetailsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore(); // Correct store usage
-
-  useEffect(() => {
-    const loadFamilyDetails = async () => {
-      if (!currentFamilyId) {
-        return;
-      }
-      await getFamilyById(currentFamilyId);
-    };
-
-    loadFamilyDetails();
-  }, [currentFamilyId, getFamilyById]);
+  const { family, isLoading, isError, error } = useFamilyDetails();
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -45,9 +32,9 @@ export default function FamilyDetailsScreen() {
       alignItems: 'center',
       padding: SPACING_MEDIUM,
     },
-  }), []);
+  }), [theme]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator animating size="large" color={theme.colors.primary} />
@@ -55,10 +42,10 @@ export default function FamilyDetailsScreen() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <View style={styles.errorContainer}>
-        <Text variant="titleMedium" style={{ color: theme.colors.error }}>{error}</Text>
+        <Text variant="titleMedium" style={{ color: theme.colors.error }}>{error?.message || t('common.error_occurred')}</Text>
       </View>
     );
   }

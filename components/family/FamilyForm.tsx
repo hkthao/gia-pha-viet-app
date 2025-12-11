@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons, Chip } from 'react-native-paper'; // Added Chip
 import { useTranslation } from 'react-i18next';
 import { useFamilyForm } from '@/hooks/family/useFamilyForm';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import * as ImagePicker from 'expo-image-picker';
-import { useMediaLibraryPermissions } from 'expo-image-picker'; // Corrected import
+import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
-import type { FamilyDetailDto } from '@/types/family';
+import type { FamilyDetailDto, FamilyUserDto } from '@/types';
+import { FamilyRole } from '@/types';
+import { UserCheckModal } from '@/components/common'; // Added UserCheckModal
+import { UserCheckResultDto } from '@/services/user/user.service.interface'; // Added UserCheckResultDto
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
-  onSubmit: (data: FamilyFormData) => Promise<void>; // Corrected type
+  onSubmit: (data: FamilyFormData) => Promise<void>;
   onCancel: () => void;
   isSubmitting?: boolean;
 }
@@ -21,10 +24,64 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { control, handleSubmit, errors, setValue } = useFamilyForm({ initialValues, onSubmit, isSubmitting });
+  const { control, handleSubmit, errors, setValue, watch } = useFamilyForm({ initialValues, onSubmit, isSubmitting });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
+
+  // State for UserCheckModal
+  const [isUserCheckModalVisible, setIsUserCheckModalVisible] = useState(false);
+  const [currentUserRoleToAdd, setCurrentUserRoleToAdd] = useState<FamilyRole | null>(null);
+
+  // Watch familyUsers from form state
+  const familyUsers = watch('familyUsers') || [];
+
+  // Initialize familyUsers from initialValues if present
+  useEffect(() => {
+    if (initialValues?.familyUsers) {
+      setValue('familyUsers', initialValues.familyUsers, { shouldValidate: false });
+    }
+  }, [initialValues?.familyUsers, setValue]);
+
+  const handleAddUser = (userResult: UserCheckResultDto) => {
+    if (initialValues?.id === undefined) {
+      // If family is being created (no ID yet), we cannot add FamilyUserDto with a familyId.
+      // This case should ideally be handled at the backend upon family creation.
+      // For now, prevent adding users if family ID is missing (implies creation flow)
+      Alert.alert(t('common.error'), t('familyForm.validation.cannotAddUsersDuringCreation'));
+      return;
+    }
+
+    if (!currentUserRoleToAdd) return;
+
+    const newFamilyUser: FamilyUserDto = {
+      familyId: initialValues?.id, // Will be set by backend on creation, or taken from initialValues on edit
+      userId: userResult.userId,
+      userName: userResult.userName,
+      role: currentUserRoleToAdd,
+    };
+
+    // Prevent adding duplicates
+    const isDuplicate = familyUsers.some(
+      (fu) => fu.userId === newFamilyUser.userId && fu.role === newFamilyUser.role
+    );
+    if (isDuplicate) {
+      Alert.alert(t('common.error'), t('familyForm.validation.userAlreadyAdded'));
+      return;
+    }
+
+    const updatedFamilyUsers = [...familyUsers, newFamilyUser];
+    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
+  };
+
+  const handleRemoveUser = (userIdToRemove: string, roleToRemove: FamilyRole) => {
+    const updatedFamilyUsers = familyUsers.filter(
+      (fu) => !(fu.userId === userIdToRemove && fu.role === roleToRemove)
+    );
+    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
+  };
+
+
 
 
 
@@ -113,6 +170,24 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
       paddingHorizontal: SPACING_MEDIUM,
       paddingVertical: SPACING_SMALL,
     },
+    chipsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: SPACING_SMALL,
+      marginBottom: SPACING_MEDIUM,
+    },
+    chip: {
+      marginRight: SPACING_SMALL,
+      marginBottom: SPACING_SMALL,
+      backgroundColor: theme.colors.primaryContainer,
+    },
+    chipText: {
+      color: theme.colors.onPrimaryContainer,
+    },
+    addButton: {
+      marginTop: SPACING_SMALL,
+      marginBottom: SPACING_MEDIUM,
+    },
   });
 
   return (
@@ -197,6 +272,64 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
           />
           {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
         </View>
+
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>{t('familyForm.managers')}</Text>
+          <View style={styles.chipsContainer}>
+            {familyUsers
+              .filter((fu) => fu.role === FamilyRole.Manager)
+              .map((fu) => (
+                <Chip
+                  key={fu.userId}
+                  onClose={() => handleRemoveUser(fu.userId, FamilyRole.Manager)}
+                  style={styles.chip}
+                  textStyle={styles.chipText}
+                >
+                  {fu.userName || fu.userId}
+                </Chip>
+              ))}
+          </View>
+          <Button
+            mode="outlined"
+            onPress={() => {
+              setCurrentUserRoleToAdd(FamilyRole.Manager);
+              setIsUserCheckModalVisible(true);
+            }}
+            style={styles.addButton}
+            icon="account-plus-outline"
+          >
+            {t('familyForm.addManager')}
+          </Button>
+        </View>
+
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>{t('familyForm.viewers')}</Text>
+          <View style={styles.chipsContainer}>
+            {familyUsers
+              .filter((fu) => fu.role === FamilyRole.Viewer)
+              .map((fu) => (
+                <Chip
+                  key={fu.userId}
+                  onClose={() => handleRemoveUser(fu.userId, FamilyRole.Viewer)}
+                  style={styles.chip}
+                  textStyle={styles.chipText}
+                >
+                  {fu.userName || fu.userId}
+                </Chip>
+              ))}
+          </View>
+          <Button
+            mode="outlined"
+            onPress={() => {
+              setCurrentUserRoleToAdd(FamilyRole.Viewer);
+              setIsUserCheckModalVisible(true);
+            }}
+            style={styles.addButton}
+            icon="account-plus-outline"
+          >
+            {t('familyForm.addViewer')}
+          </Button>
+        </View>
       </ScrollView>
       <View style={styles.fixedButtonContainer}>
         <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
@@ -206,6 +339,11 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
           {t('common.save')}
         </Button>
       </View>
+      <UserCheckModal
+        isVisible={isUserCheckModalVisible}
+        onClose={() => setIsUserCheckModalVisible(false)}
+        onAddUser={handleAddUser}
+      />
     </View>
   );
 };

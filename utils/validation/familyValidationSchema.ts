@@ -33,6 +33,9 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
     .url(() => globalI18n.t('familyForm.validation.avatarUrlInvalid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
+  avatarBase64: yup
+    .string()
+    .optional(),
   visibility: yup
     .string()
     .oneOf(['Public', 'Private'], () => globalI18n.t('familyForm.validation.visibilityInvalid'))
@@ -44,5 +47,6 @@ export type FamilyFormData = {
   description?: string; // Optional means string | undefined
   address?: string;     // Optional means string | undefined
   avatarUrl?: string;   // Optional means string | undefined
+  avatarBase64?: string; // Add this line
   visibility: 'Public' | 'Private';
 };

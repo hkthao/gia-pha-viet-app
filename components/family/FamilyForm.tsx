@@ -41,12 +41,18 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
       allowsEditing: true,
       aspect: [1, 1], // Square aspect ratio
       quality: 1,
+      base64: true, // Request base64 data
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedUri = result.assets[0].uri;
+      const base64Data = result.assets[0].base64; // Get base64 data
+
       setAvatarPreview(selectedUri);
       setValue('avatarUrl', selectedUri, { shouldValidate: true });
+      if (base64Data) {
+        setValue('avatarBase64', `data:image/jpeg;base64,${base64Data}`, { shouldValidate: true }); // Prepend data URI scheme
+      }
     }
   };
 

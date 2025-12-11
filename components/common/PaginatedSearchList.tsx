@@ -1,8 +1,8 @@
 import React from 'react';
 import { FlatList, View, RefreshControl, StyleProp, ViewStyle } from 'react-native';
 import { Searchbar, Text, IconButton as PaperIconButton } from 'react-native-paper';
-import { usePaginatedSearch } from '@/hooks/usePaginatedSearch';
-import { usePaginatedSearchListUI } from '@/hooks/usePaginatedSearchListUI';
+import { usePaginatedSearch } from '@/hooks/search/usePaginatedSearch';
+import { usePaginatedSearchListUI } from '@/hooks/search/usePaginatedSearchListUI';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 
 interface PaginatedSearchListProps<T, Q extends { searchQuery?: string }> {

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Appbar } from 'react-native-paper';
 import { PaginatedSearchList } from '@/components/common';
 import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
-import { useFamilyDictList } from '@/hooks/useFamilyDictList';
+import { useFamilyDictList } from '@/hooks/lists/useFamilyDictList';
 
 export default function FamilyDictScreen() {
   const { useStore, renderFamilyDictItem, styles, t } = useFamilyDictList();

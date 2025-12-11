@@ -3,12 +3,12 @@ import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { useTheme, Text, List, Switch, Button, Icon } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useIsFocused } from '@react-navigation/native';
-import { useGlobalSnackbar } from '@/hooks/useGlobalSnackbar';
-import { useLoadingOverlay } from '@/hooks/useLoadingOverlay'; // Import useLoadingOverlay
+import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
+import { useLoadingOverlay } from '@/hooks/ui/useLoadingOverlay';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { usePrivacyStore } from '@/stores/usePrivacyStore';
-import { usePermissionCheck } from '@/hooks/usePermissionCheck';
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { PrivacyConfigurationDto, UpdatePrivacyConfigurationCommand } from '@/types/privacy';
 import { Result } from '@/types/api';
 

@@ -5,7 +5,7 @@ import { useFamilyStore } from '@/stores/useFamilyStore';
 import type { EventDto, SearchEventsQuery } from '@/types';
 import { TimelineFilterComponent } from '@/components/event';
 import { PaginatedSearchList } from '@/components/common';
-import { useEventSearchList } from '@/hooks/useEventSearchList';
+import { useEventSearchList } from '@/hooks/lists/useEventSearchList';
 
 const TimelineScreen = () => {
   const isFocused = useIsFocused();

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginatedSearchList } from '@/components/common/PaginatedSearchList';
-import { useMemberSearchList } from '@/hooks/useMemberSearchList';
+import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList';
 import { MemberItem } from '@/components';
 import { MemberListDto, SearchMembersQuery } from '@/types';
 import { useFamilyStore } from '@/stores/useFamilyStore';

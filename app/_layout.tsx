@@ -8,10 +8,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OnboardingScreen from '@/app/onboarding';
-import { useAuth } from '@/hooks/useAuth'; // Import useAuth
-import { StatusBar } from 'expo-status-bar'; // Import StatusBar
-import { LoadingOverlayProvider } from '@/hooks/useLoadingOverlay'; // Import LoadingOverlayProvider
-import { SnackbarProvider } from '@/hooks/useGlobalSnackbar'; // Import SnackbarProvider
+import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth
+import { LoadingOverlayProvider } from '@/hooks/ui/useLoadingOverlay'; // Import LoadingOverlayProvider
+import { SnackbarProvider } from '@/hooks/ui/useGlobalSnackbar'; // Import SnackbarProvider
+import { StatusBar as ExpoStatusBar } from 'expo-status-bar'; // Import StatusBar
 import { usePermissionStore } from '@/stores/usePermissionStore'; // Import usePermissionStore
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
 
@@ -74,7 +74,7 @@ function AppContent() {
         <LoadingOverlayProvider> {/* Wrap with LoadingOverlayProvider */}
           <SnackbarProvider> {/* Wrap with SnackbarProvider */}
             <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <StatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <ExpoStatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="family" options={{ headerShown: false }} />

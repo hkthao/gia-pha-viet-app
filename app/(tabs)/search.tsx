@@ -4,8 +4,8 @@ import { Appbar, FAB } from 'react-native-paper';
 import { PaginatedSearchList } from '@/components/common';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { FamilyListDto, SearchFamiliesQuery } from '@/types';
-import { useFamilySearchList } from '@/hooks/useFamilySearchList';
-import { useInfiniteUpdateDetector } from '@/hooks/useInfiniteUpdateDetector'; // Import the hook
+import { useFamilySearchList } from '@/hooks/lists/useFamilySearchList';
+import { useInfiniteUpdateDetector } from '@/hooks/common/useInfiniteUpdateDetector';
 
 export default function SearchScreen() {
   const { useStore, renderFamilyItem, styles, t } = useFamilySearchList();

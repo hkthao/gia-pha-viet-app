@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { Gender, MemberListDto, SearchMembersQuery } from '@/types';
 import { PaginatedSearchList } from '@/components/common';
-import { useMemberSearchList } from '@/hooks/useMemberSearchList';
+import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList';
 import { useFamilyStore } from '@/stores/useFamilyStore'; // NEW IMPORT
 
 

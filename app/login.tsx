@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, useTheme } from 'react-native-paper';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
 import { SPACING_LARGE, SPACING_MEDIUM } from '@/constants/dimensions';
 

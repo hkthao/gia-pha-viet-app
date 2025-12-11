@@ -1,6 +1,6 @@
 import { usePermissionStore } from '@/stores/usePermissionStore';
 import { FamilyRole } from '@/types';
-import { useAuth } from './useAuth'; // Assuming useAuth provides current user details, including system roles
+import { useAuth } from '../auth/useAuth';
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
 
 /**

@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import type { PaginatedList } from "@/types";
-import { useDebouncedValue } from "./useDebouncedValue";
+import { useDebouncedValue } from "../common/useDebouncedValue";
 import { QueryParams, buildQuery } from "@/utils/core/queryUtils";
 
 export function usePaginatedSearch<T, Q extends QueryParams>(options: {

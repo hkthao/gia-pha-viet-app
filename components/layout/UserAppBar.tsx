@@ -5,7 +5,7 @@ import FamilyAvatar from '@/assets/images/familyAvatar.png'; // Import the defau
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useFonts } from 'expo-font';
-import { useAuth } from '@/hooks/useAuth'; // Import the real useAuth hook
+import { useAuth } from '@/hooks/auth/useAuth';
 import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import user profile store
 
 export default function UserAppBar() {

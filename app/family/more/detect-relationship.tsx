@@ -7,7 +7,7 @@ import { relationshipService } from '@/services';
 import { DetectRelationshipResult, MemberListDto } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
-import { useMemberSelectModal } from '@/hooks/useMemberSelectModal'; // Import the new hook
+import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal'; // Import the new hook
 
 const DEFAULT_MEMBER_A: MemberListDto = {
   id: 'placeholder-A',

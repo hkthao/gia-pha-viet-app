@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { Appbar, Button, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/hooks/useAuth'; // Assuming useAuth for logout/login status
+import { useAuth } from '@/hooks/auth/useAuth';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 
 const PermissionDeniedScreen: React.FC = () => {

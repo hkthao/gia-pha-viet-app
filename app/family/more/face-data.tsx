@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { DetectedFaceDto, SearchFacesQuery } from '@/types';
 import { PaginatedSearchList } from '@/components/common';
-import { useFaceSearchList } from '@/hooks/useFaceSearchList';
+import { useFaceSearchList } from '@/hooks/lists/useFaceSearchList';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 
 // Optional: FaceFilterComponent if needed

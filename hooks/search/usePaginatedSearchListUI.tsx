@@ -14,6 +14,7 @@ export interface UsePaginatedSearchListUIProps {
   itemsLength: number;
   hasMore: boolean;
   searchPlaceholder?: string;
+  error?: string | null; // Added error prop
 }
 
 export function usePaginatedSearchListUI({
@@ -23,6 +24,7 @@ export function usePaginatedSearchListUI({
   itemsLength,
   hasMore,
   searchPlaceholder,
+  error, // Destructure the new error prop
 }: UsePaginatedSearchListUIProps) { // Dummy comment to trigger re-evaluation
   const { t } = useTranslation();
   const theme = useTheme();

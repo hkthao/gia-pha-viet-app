@@ -1,13 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaginatedSearchList } from '@/components/common/PaginatedSearchList';
-import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList';
+import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
+// import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList'; // Removed
 import { MemberItem } from '@/components';
-import { MemberListDto, SearchMembersQuery } from '@/types';
+import { MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { Modal, Portal, useTheme, Text, IconButton } from 'react-native-paper';
 import { Dimensions, View, StyleSheet } from 'react-native';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { memberService } from '@/services'; // Import memberService
+import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
+import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -44,7 +47,34 @@ const MemberSelectModalComponent = <TFieldName extends string>({
   const theme = useTheme();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
-  const { useStore } = useMemberSearchList();
+  // Define the query function for fetching member data
+  const memberSearchQueryFn = useCallback(
+    async ({ pageParam = 1, filters, queryKey: reactQueryKey }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {
+      if (!currentFamilyId) {
+        // This case should ideally be handled by disabling the query if currentFamilyId is null
+        // or by ensuring the modal isn't visible without a family context.
+        return { items: [], page: 1, totalPages: 0, totalItems: 0 };
+      }
+      const result = await memberService.search({ ...filters, familyId: currentFamilyId, page: pageParam });
+      if (result.isSuccess && result.value) {
+        return result.value;
+      }
+      throw new Error(result.error?.message || t('memberSearch.errors.unknown'));
+    },
+    [currentFamilyId, t]
+  );
+
+  // Define the query key generation function
+  const getMemberSearchQueryKey = useCallback((filters: SearchMembersQuery): QueryKey => {
+    return ['members', 'modalSearch', currentFamilyId, filters];
+  }, [currentFamilyId]);
+
+  const initialQuery: SearchMembersQuery = useMemo(() => ({
+    searchQuery: '',
+    gender: undefined,
+    isRoot: undefined,
+    familyId: currentFamilyId || '',
+  }), [currentFamilyId]);
 
   const handleMemberPress = useCallback((member: MemberListDto) => {
     onSelectMember(member, fieldName);
@@ -73,13 +103,10 @@ const MemberSelectModalComponent = <TFieldName extends string>({
             <Text style={styles.titleStyle} variant="headlineSmall">{t('memberSelectModal.title')}</Text>
             <IconButton icon="close" onPress={onClose} ></IconButton>
           </View>
-          <PaginatedSearchList<MemberListDto, SearchMembersQuery>
-            useStore={() => useStore}
-            searchOptions={{
-              initialQuery: { familyId: currentFamilyId || '', searchQuery: '' },
-              externalDependencies: [currentFamilyId],
-              debounceTime: 400,
-            }}
+          <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
+            queryKey={getMemberSearchQueryKey}
+            queryFn={memberSearchQueryFn}
+            initialFilters={initialQuery}
             renderItem={customRenderItem}
             keyExtractor={(item) => item.id}
             searchPlaceholder={t('memberSearch.placeholder')}
@@ -88,6 +115,8 @@ const MemberSelectModalComponent = <TFieldName extends string>({
               backgroundColor: theme.colors.background
             }}
             showFilterButton={false}
+            externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
+            ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
           />
       </Modal>
     </Portal>

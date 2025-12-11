@@ -1,36 +1,60 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, FAB } from 'react-native-paper';
-import { PaginatedSearchList } from '@/components/common';
-import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { FamilyListDto, SearchFamiliesQuery } from '@/types';
-import { useFamilySearchList } from '@/hooks/lists/useFamilySearchList';
-import { useInfiniteUpdateDetector } from '@/hooks/common/useInfiniteUpdateDetector';
+import { Appbar, FAB, useTheme } from 'react-native-paper';
+import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
+import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { FamilyListDto, SearchFamiliesQuery, PaginatedList } from '@/types';
+import { familyService } from '@/services'; // Import familyService
 import { useRouter } from 'expo-router'; // Import useRouter
+import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
+import { FamilyItem } from '@/components'; // Import FamilyItem
+import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList for PaginatedSearchListV2
+import { useTranslation } from 'react-i18next'; // Import useTranslation
+
+// Extracted styles and render item logic, previously from useFamilySearchList
+const getStyles = () => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: SPACING_SMALL,
+  },
+});
 
 export default function SearchScreen() {
-  const { useStore, renderFamilyItem, styles, t } = useFamilySearchList();
   const router = useRouter(); // Initialize useRouter
+  const theme = useTheme();
+  const styles = useMemo(() => getStyles(), [theme]);
+  const { t } = useTranslation(); // Initialize useTranslation
 
-  // Call the store hook to get the state and actions
-  const { items, loading, error, hasMore, page } = useStore();
 
-  // Call the detector hook with specific state values as dependencies
-  useInfiniteUpdateDetector({
-    name: 'SearchScreen',
-    dependencies: [
-      { name: 'items', value: items },
-      { name: 'loading', value: loading },
-      { name: 'error', value: error },
-      { name: 'hasMore', value: hasMore },
-      { name: 'page', value: page },
-      { name: 'renderFamilyItem', value: renderFamilyItem },
-      { name: 'styles', value: styles },
-      { name: 't', value: t }
-    ],
-  });
+  // Define the query function for fetching family data
+  const familySearchQueryFn = useCallback(
+    async ({ pageParam = 1, filters }: { pageParam?: number; queryKey: QueryKey; filters: SearchFamiliesQuery }): Promise<PaginatedList<FamilyListDto>> => {
+      const result = await familyService.search({ ...filters, page: pageParam });
+      if (result.isSuccess && result.value) {
+        return result.value;
+      }
+      throw new Error(result.error?.message || 'Failed to fetch families');
+    },
+    []
+  );
 
-  const initialQuery = useMemo(() => ({ page: 1, itemsPerPage: 10, searchQuery: '' }), []);
+  // Define the query key generation function
+  const getFamilySearchQueryKey = useCallback((filters: SearchFamiliesQuery): QueryKey => {
+    // Ensure the query key changes when filters change to trigger new fetches
+    return ['families', 'search', filters];
+  }, []);
+
+  const initialQuery: SearchFamiliesQuery = useMemo(() => ({ page: 1, itemsPerPage: 10, searchQuery: '' }), []);
+
+  const renderFamilyItem = useCallback(
+    ({ item }: { item: FamilyListDto }) => {
+      return <FamilyItem item={item} />;
+    },
+    []
+  );
 
   const fabStyles = useMemo(() => StyleSheet.create({
     fab: {
@@ -46,21 +70,21 @@ export default function SearchScreen() {
       <Appbar.Header>
         <Appbar.Content title={t('search.title')} />
       </Appbar.Header>
-      <PaginatedSearchList<FamilyListDto, SearchFamiliesQuery>
-        useStore={useStore} // Pass the useStore hook directly
-        searchOptions={{
-          initialQuery: initialQuery,
-        }}
+      <PaginatedSearchListV2<FamilyListDto, SearchFamiliesQuery>
+        queryKey={getFamilySearchQueryKey}
+        queryFn={familySearchQueryFn}
+        initialFilters={initialQuery}
         renderItem={renderFamilyItem}
         keyExtractor={(item) => item.id}
         searchPlaceholder={t('search.placeholder')}
         containerStyle={styles.container}
-        error={error} // Pass the error state
+        // No explicit error prop for V2, it's handled internally
+        ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />} // Pass DefaultEmptyList for V2
       />
       <FAB
         style={fabStyles.fab}
         icon="plus"
-        onPress={() => router.push('/family/create')} // Placeholder action
+        onPress={() => router.push('/family/create')}
       />
     </View>
   );

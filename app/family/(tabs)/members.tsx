@@ -1,13 +1,17 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip } from 'react-native-paper';
+import { Chip, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { Gender, MemberListDto, SearchMembersQuery } from '@/types';
-import { PaginatedSearchList } from '@/components/common';
-import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // NEW IMPORT
+import { Gender, MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
+import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
+// import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList'; // Removed
+import { useFamilyStore } from '@/stores/useFamilyStore';
+import { memberService } from '@/services'; // Import memberService
+import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
+import MemberItem from '@/components/member/MemberItem'; // Import MemberItem
+import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
 
 
 interface MemberFilterProps {
@@ -77,25 +81,67 @@ const MemberFilterComponent: React.FC<MemberFilterProps> = ({ filters, setFilter
   );
 };
 
+const getStyles = (theme: any) => StyleSheet.create({
+  safeArea: {
+    flex: 1
+  },
+  container: {
+    flex: 1,
+    padding: SPACING_SMALL,
+  },
+});
 
 export default function FamilyMembersScreen() {
-  const { useStore, renderMemberItem, styles, t } = useMemberSearchList();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId directly
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const styles = useMemo(() => getStyles(theme), [theme]);
+  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+
+  // Define the query function for fetching member data
+  const memberSearchQueryFn = useCallback(
+    async ({ pageParam = 1, filters, queryKey: reactQueryKey }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {
+      if (!currentFamilyId) {
+        throw new Error(t('memberSearch.errors.noFamilyId'));
+      }
+      const result = await memberService.search({ ...filters, familyId: currentFamilyId, page: pageParam });
+      if (result.isSuccess && result.value) {
+        return result.value;
+      }
+      throw new Error(result.error?.message || t('memberSearch.errors.unknown'));
+    },
+    [currentFamilyId, t]
+  );
+
+  // Define the query key generation function
+  const getMemberSearchQueryKey = useCallback((filters: SearchMembersQuery): QueryKey => {
+    return ['members', 'search', currentFamilyId, filters];
+  }, [currentFamilyId]);
+
+  const initialQuery: SearchMembersQuery = useMemo(() => ({
+    searchQuery: '',
+    gender: undefined,
+    isRoot: undefined,
+    familyId: currentFamilyId || '', // Add familyId to initialQuery
+  }), [currentFamilyId]);
+
+  const renderMemberItem = useCallback(({ item }: { item: MemberListDto }) => (
+    <MemberItem item={item} />
+  ), []);
 
   return (
     <View style={styles.safeArea}>
-      <PaginatedSearchList<MemberListDto, SearchMembersQuery>
-        useStore={() => useStore}
-        searchOptions={{
-          initialQuery: { familyId: '', page: 1, itemsPerPage: 10, searchQuery: '', gender: undefined, isRoot: undefined },
-          externalDependencies: [currentFamilyId],
-        }}
+      <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
+        queryKey={getMemberSearchQueryKey}
+        queryFn={memberSearchQueryFn}
+        initialFilters={initialQuery}
         renderItem={renderMemberItem}
         keyExtractor={(item) => item.id}
         searchPlaceholder={t('memberSearch.placeholder')}
         containerStyle={styles.container}
         showFilterButton={true}
         FilterComponent={MemberFilterComponent}
+        ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
+        externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
       />
     </View>
   );

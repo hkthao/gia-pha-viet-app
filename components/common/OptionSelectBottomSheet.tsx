@@ -120,4 +120,6 @@ const OptionSelectBottomSheet = forwardRef<BottomSheet, OptionSelectBottomSheetP
   }
 );
 
+OptionSelectBottomSheet.displayName = 'OptionSelectBottomSheet';
+
 export default OptionSelectBottomSheet;

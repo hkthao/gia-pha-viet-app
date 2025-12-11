@@ -1,13 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native'; // Added
-import { useRouter } from 'expo-router'; // Added
-import { useTheme } from 'react-native-paper'; // Added
+import { Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTheme } from 'react-native-paper';
 import { familyService } from '@/services';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { FamilyDetailDto } from '@/types';
-import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Added
-import { useMemo } from 'react'; // Added
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
+import { useMemo } from 'react';
+import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar'; // Added
+
 
 /**
  * @hook useFamilyDetails
@@ -24,8 +26,10 @@ import { useMemo } from 'react'; // Added
  */
 export function useFamilyDetails() {
   const { t } = useTranslation();
-  const theme = useTheme(); // Added
-  const router = useRouter(); // Added
+  const theme = useTheme();
+  const router = useRouter();
+  const queryClient = useQueryClient(); // Added
+  const { showSnackbar } = useGlobalSnackbar(); // Added
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
   const {
@@ -49,7 +53,7 @@ export function useFamilyDetails() {
     enabled: !!currentFamilyId,
   });
 
-  const { canManageFamily, isAdmin } = usePermissionCheck(family?.id); // Use the existing permission hook
+  const { canManageFamily, isAdmin } = usePermissionCheck(family?.id);
 
   const canEditOrDelete = useMemo(() => {
     return canManageFamily || isAdmin;
@@ -61,6 +65,26 @@ export function useFamilyDetails() {
     }
   };
 
+  // Mutation for deleting a family
+  const deleteFamilyMutation = useMutation({
+    mutationFn: async (familyId: string) => {
+      const result = await familyService.delete(familyId);
+      if (!result.isSuccess) {
+        throw new Error(result.error?.message || t('familyDetail.delete.errorMessage'));
+      }
+      return result.value;
+    },
+    onSuccess: () => {
+      showSnackbar(t('familyDetail.delete.successMessage'), 'success');
+      queryClient.invalidateQueries({ queryKey: ['family', currentFamilyId] });
+      queryClient.invalidateQueries({ queryKey: ['familyList'] }); // Invalidate family list as well
+      router.back();
+    },
+    onError: (err: Error) => {
+      showSnackbar(err.message || t('familyDetail.delete.errorMessage'), 'error');
+    },
+  });
+
   const handleDeleteFamily = () => {
     if (family?.id) {
       Alert.alert(
@@ -70,16 +94,12 @@ export function useFamilyDetails() {
           {
             text: t('common.cancel'),
             style: 'cancel',
+            onPress: () => {}, // Do nothing on cancel
           },
           {
             text: t('common.delete'),
             style: 'destructive',
-            onPress: () => {
-              // TODO: Implement actual delete API call
-              console.log(`Deleting family with ID: ${family.id}`);
-              Alert.alert(t('familyDetail.delete.successTitle'), t('familyDetail.delete.successMessage'));
-              router.back();
-            },
+            onPress: () => deleteFamilyMutation.mutate(family.id), // Trigger mutation
           },
         ],
         { cancelable: true }

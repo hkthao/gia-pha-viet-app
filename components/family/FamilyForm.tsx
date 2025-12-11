@@ -51,10 +51,14 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
   };
 
   const styles = StyleSheet.create({
-    container: {
+    mainContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scrollContent: {
       flexGrow: 1,
       padding: SPACING_MEDIUM,
-      backgroundColor: theme.colors.background,
+      paddingBottom: SPACING_MEDIUM * 3, // Adjust this based on your fixed button container height
     },
     input: {
       marginBottom: SPACING_MEDIUM,
@@ -64,10 +68,13 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
       color: theme.colors.error,
       marginBottom: SPACING_MEDIUM,
     },
-    buttonContainer: {
+    fixedButtonContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginTop: SPACING_MEDIUM,
+      padding: SPACING_MEDIUM,
+      borderTopWidth: 1,
+      borderColor: theme.colors.outlineVariant,
+      backgroundColor: theme.colors.background,
     },
     button: {
       flex: 1,
@@ -103,8 +110,8 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
   });
 
   return (
-    <React.Fragment>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+    <View style={styles.mainContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.formSection}>
 
           <View style={styles.avatarSection}>
@@ -129,6 +136,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
             onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
             style={styles.input}
             error={!!errors.name}
+            left={<TextInput.Icon icon="account" />}
           />
           {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
@@ -141,16 +149,20 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
             onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
             style={styles.input}
             error={!!errors.description}
+            left={<TextInput.Icon icon="note-text-outline" />}
           />
           {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
 
           <TextInput
             label={t('familyForm.address')}
             mode="outlined"
+            multiline
+            numberOfLines={2}
             value={control._formValues.address}
             onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
             style={styles.input}
             error={!!errors.address}
+            left={<TextInput.Icon icon="map-marker-outline" />}
           />
           {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
         </View>
@@ -179,16 +191,15 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
           />
           {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
         </View>
-
-        <View style={styles.buttonContainer}>
-          <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
-            {t('common.cancel')}
-          </Button>
-          <Button mode="contained" onPress={handleSubmit} style={styles.button} loading={isSubmitting}>
-            {t('common.save')}
-          </Button>
-        </View>
       </ScrollView>
-    </React.Fragment>
+      <View style={styles.fixedButtonContainer}>
+        <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
+          {t('common.cancel')}
+        </Button>
+        <Button mode="contained" onPress={handleSubmit} style={styles.button} loading={isSubmitting}>
+          {t('common.save')}
+        </Button>
+      </View>
+    </View>
   );
 };

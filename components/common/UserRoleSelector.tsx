@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Text, Chip, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { UserCheckModal } from '@/components/common';
+import { UserCheckModal } from '@/components/common/UserCheckModal';
 import { FamilyUserDto, FamilyRole, UserCheckResultDto } from '@/types';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 

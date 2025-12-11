@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-// import { useMemberSearchList } from '@/hooks/lists/useMemberSearchList'; // Removed
-import { MemberItem } from '@/components';
+import { MemberItem } from '@/components/member';
 import { MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { Modal, Portal, useTheme, Text, IconButton } from 'react-native-paper';

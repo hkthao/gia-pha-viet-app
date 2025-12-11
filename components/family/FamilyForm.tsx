@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, Text, TextInput, useTheme, Switch, List, Avatar, Portal } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, Switch, List, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useFamilyForm } from '@/hooks/family/useFamilyForm';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker'; // Corrected import
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import type { FamilyDetailDto } from '@/types/family';
-import { useOptionSelectBottomSheet } from '@/hooks/ui/useOptionSelectBottomSheet'; // Import the new hook
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -22,24 +21,10 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { control, handleSubmit, errors, setValue, watch } = useFamilyForm({ initialValues, onSubmit, isSubmitting }); // Add watch to get current visibility
-  const currentVisibility = watch('visibility'); // Watch the visibility field
-
-  const { openBottomSheet, OptionSelectBottomSheetComponent } = useOptionSelectBottomSheet(); // Initialize the hook
+  const { control, handleSubmit, errors, setValue } = useFamilyForm({ initialValues, onSubmit, isSubmitting });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
-
-  // Define visibility options for the bottom sheet
-  const visibilityOptions = useMemo(() => [
-    { label: t('familyForm.public'), value: 'Public' },
-    { label: t('familyForm.private'), value: 'Private' },
-  ], [t]);
-
-  // Handler for when a visibility option is selected from the bottom sheet
-  const handleSelectVisibility = useCallback((value: any) => {
-    setValue('visibility', value, { shouldValidate: true });
-  }, [setValue]);
 
 
 
@@ -120,86 +105,90 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
   return (
     <React.Fragment>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.formSection}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>{t('familyForm.avatar')}</Text>
-        <View style={styles.avatarSection}>
-          <Avatar.Image
-            size={96}
-            source={avatarPreview ? { uri: avatarPreview } : DefaultFamilyAvatar}
-            style={styles.avatar}
-          />
-          <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
-            {t('familyForm.chooseAvatar')}
-          </Button>
-          {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
+        <View style={styles.formSection}>
+
+          <View style={styles.avatarSection}>
+            <Avatar.Image
+              size={96}
+              source={avatarPreview ? { uri: avatarPreview } : DefaultFamilyAvatar}
+              style={styles.avatar}
+            />
+            <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
+              {t('familyForm.chooseAvatar')}
+            </Button>
+            {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.formSection}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>{t('familyForm.generalInfo')}</Text>
-        <TextInput
-          label={t('familyForm.name')}
-          mode="outlined"
-          value={control._formValues.name}
-          onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
-          style={styles.input}
-          error={!!errors.name}
-        />
-        {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+        <View style={styles.formSection}>
 
-        <TextInput
-          label={t('familyForm.description')}
-          mode="outlined"
-          multiline
-          numberOfLines={4}
-          value={control._formValues.description}
-          onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
-          style={styles.input}
-          error={!!errors.description}
-        />
-        {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
+          <TextInput
+            label={t('familyForm.name')}
+            mode="outlined"
+            value={control._formValues.name}
+            onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.name}
+          />
+          {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
-        <TextInput
-          label={t('familyForm.address')}
-          mode="outlined"
-          value={control._formValues.address}
-          onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
-          style={styles.input}
-          error={!!errors.address}
-        />
-        {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
-      </View>
+          <TextInput
+            label={t('familyForm.description')}
+            mode="outlined"
+            multiline
+            numberOfLines={4}
+            value={control._formValues.description}
+            onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.description}
+          />
+          {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
 
-      <View style={styles.formSection}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>{t('familyForm.visibility')}</Text>
-        <List.Item
-          title={t('familyForm.visibilityLabel')}
-          description={currentVisibility === 'Public' ? t('familyForm.publicDescription') : t('familyForm.privateDescription')}
-          onPress={() => openBottomSheet(
-            visibilityOptions,
-            handleSelectVisibility,
-            t('familyForm.selectVisibility'),
-            currentVisibility
-          )}
-          left={() => <List.Icon icon={currentVisibility === 'Public' ? 'earth' : 'lock'} />}
-          right={() => <List.Icon icon="chevron-right" />}
-          style={{ paddingHorizontal: SPACING_MEDIUM }}
-        />
-        {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
-      </View>
+          <TextInput
+            label={t('familyForm.address')}
+            mode="outlined"
+            value={control._formValues.address}
+            onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
+            style={styles.input}
+            error={!!errors.address}
+          />
+          {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
-          {t('common.cancel')}
-        </Button>
-        <Button mode="contained" onPress={handleSubmit} style={styles.button} loading={isSubmitting}>
-          {t('common.save')}
-        </Button>
-      </View>
-    </ScrollView>
-    <Portal>
-      <OptionSelectBottomSheetComponent />
-    </Portal>
+        <View style={styles.formSection}>
+          <SegmentedButtons
+            theme={{ roundness: theme.roundness }}
+            value={control._formValues.visibility as 'Public' | 'Private'}
+            onValueChange={newValue => setValue('visibility', newValue as 'Public' | 'Private', { shouldValidate: true })}
+            buttons={[
+              {
+                value: 'Public',
+                label: t('familyForm.public'),
+                style: {
+                  borderRadius: theme.roundness,
+                }
+              },
+              {
+                value: 'Private',
+                label: t('familyForm.private'),
+                style: {
+                  borderRadius: theme.roundness,
+                }
+              },
+            ]}
+          />
+          {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
+            {t('common.cancel')}
+          </Button>
+          <Button mode="contained" onPress={handleSubmit} style={styles.button} loading={isSubmitting}>
+            {t('common.save')}
+          </Button>
+        </View>
+      </ScrollView>
     </React.Fragment>
   );
 };

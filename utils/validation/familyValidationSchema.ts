@@ -30,7 +30,6 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
     .optional(),
   avatarUrl: yup
     .string()
-    .url(() => globalI18n.t('familyForm.validation.avatarUrlInvalid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
   avatarBase64: yup

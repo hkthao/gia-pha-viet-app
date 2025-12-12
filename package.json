@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "tsc": "npx tsc --noEmit",
-    "test:unit": "jest --coverage",
+    "test:unit": "jest --forceExit",
     "test": "jest"
   },
   "dependencies": {

@@ -15,8 +15,8 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+    '^@/(.*)$': '<rootDir>/$1',
     '^@react-native-async-storage/async-storage$': '<rootDir>/__mocks__/@react-native-async-storage/async-storage.ts',
-    '^react-native-paper$': '<rootDir>/__mocks__/react-native-paper.tsx',
     '^react-native-paper$': '<rootDir>/__mocks__/react-native-paper.tsx',
 
   },

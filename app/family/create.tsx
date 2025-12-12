@@ -1,49 +1,22 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { FamilyForm } from '@/components/family';
-import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
-import { familyService } from '@/services';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
-import { useFamilyListStore } from '@/stores/useFamilyListStore'; // To invalidate cache
-import { convertNullToUndefined } from '@/utils/typeUtils'; // Import helper function
+import { useCreateFamily } from '@/hooks/family/useCreateFamily'; // Import the new hook
+import { FamilyFormData } from '@/utils/validation/familyValidationSchema'; // Import FamilyFormData
 
 export default function CreateFamilyScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { showSnackbar } = useGlobalSnackbar();
-  const searchFamilyList = useFamilyListStore(state => state.search); // Get search action to refresh list
+  const { createFamily, isCreatingFamily } = useCreateFamily(); // Use the new hook
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleCreateFamily = useCallback(async (data: FamilyFormData) => {
-    setIsSubmitting(true);
-    try {
-      const result = await familyService.create({ // Use familyService.create
-        name: data.name,
-        description: convertNullToUndefined(data.description),
-        address: convertNullToUndefined(data.address),
-        avatarUrl: convertNullToUndefined(data.avatarUrl),
-        visibility: data.visibility,
-      });
-
-      if (result.isSuccess) {
-        showSnackbar(t('familyForm.createSuccess'), 'success');
-        searchFamilyList({ page: 1, itemsPerPage: 10, searchQuery: '' }, true); // Refresh family list
-        router.replace('/(tabs)/search');
-      } else {
-        showSnackbar(result.error?.message || t('familyForm.createError'), 'error');
-      }
-    } catch (error: any) {
-      console.error('Error creating family:', error);
-      showSnackbar(error.message || t('familyForm.createError'), 'error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [router, showSnackbar, t, searchFamilyList]);
+  const handleSubmit = useCallback(async (data: FamilyFormData) => {
+    // createFamily already handles navigation and snackbar through react-query's onSuccess/onError
+    await createFamily(data);
+  }, [createFamily]);
 
   const handleCancel = useCallback(() => {
     router.back();
@@ -63,9 +36,9 @@ export default function CreateFamilyScreen() {
         <Appbar.Content title={t('familyForm.createTitle')} />
       </Appbar.Header>
       <FamilyForm
-        onSubmit={handleCreateFamily}
+        onSubmit={handleSubmit} // Pass the wrapped function
         onCancel={handleCancel}
-        isSubmitting={isSubmitting}
+        isSubmitting={isCreatingFamily} // Use the loading state from the hook
       />
     </View>
   );

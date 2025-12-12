@@ -137,7 +137,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   return (
     <View style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.formSection}>
           <View style={styles.avatarSection}>
@@ -292,8 +292,8 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
               error={!!errors.fatherId}
               helperText={errors.fatherId?.message}
               fieldName="fatherId"
-            />
-          </View>
+              leftIcon="human-male"
+            />          </View>
 
           <View style={styles.input}>
             <MemberSelectInput
@@ -303,6 +303,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
               error={!!errors.motherId}
               helperText={errors.motherId?.message}
               fieldName="motherId"
+              leftIcon="human-female"
             />
           </View>
           <View style={styles.input}>
@@ -314,6 +315,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
               error={!!errors.husbandId}
               helperText={errors.husbandId?.message}
               fieldName="husbandId"
+              leftIcon="human-male"
             />
           </View>
 
@@ -325,6 +327,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
               error={!!errors.wifeId}
               helperText={errors.wifeId?.message}
               fieldName="wifeId"
+              leftIcon="human-female"
             />
           </View>
 

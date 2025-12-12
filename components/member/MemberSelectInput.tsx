@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, IconButton, Text, useTheme } from 'react-native-paper'; // Added Text
+import { TextInput, Text, useTheme } from 'react-native-paper'; // Added Text
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { memberService } from '@/services';
 import type { MemberDetailDto, MemberListDto } from '@/types/member'; // Added MemberListDto
-import { SPACING_MEDIUM } from '@/constants/dimensions';
 import MemberSelectModalComponent from './MemberSelectModal'; // Updated import alias
 
 interface MemberSelectInputProps {
@@ -14,7 +13,8 @@ interface MemberSelectInputProps {
   onMemberSelected: (memberId: string | null, memberName: string | null) => void;
   error?: boolean;
   helperText?: string;
-  fieldName: string; // Added fieldName prop
+  fieldName: string;
+  leftIcon?: string; // Added leftIcon prop
 }
 
 const MemberSelectInput: React.FC<MemberSelectInputProps> = ({
@@ -23,7 +23,8 @@ const MemberSelectInput: React.FC<MemberSelectInputProps> = ({
   onMemberSelected,
   error,
   helperText,
-  fieldName, // Destructure new prop
+  fieldName,
+  leftIcon, // Destructure new prop
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -100,6 +101,8 @@ const MemberSelectInput: React.FC<MemberSelectInputProps> = ({
         value={_displayedMemberName}
         mode="outlined"
         readOnly
+        onPress={handleOpenModal}
+        left={leftIcon ? <TextInput.Icon icon={leftIcon} /> : undefined} // Conditionally render left icon
         right={
           <TextInput.Icon
             icon="chevron-down"

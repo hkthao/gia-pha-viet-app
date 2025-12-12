@@ -37,8 +37,6 @@ export default function CreateFamilyScreen() {
       </Appbar.Header>
       <FamilyForm
         onSubmit={handleSubmit} // Pass the wrapped function
-        onCancel={handleCancel}
-        isSubmitting={isCreatingFamily} // Use the loading state from the hook
       />
     </View>
   );

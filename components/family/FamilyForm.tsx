@@ -15,15 +15,13 @@ import { UserRoleSelector } from '@/components/common';
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
   onSubmit: (data: FamilyFormData) => Promise<void>;
-  onCancel: () => void;
-  isSubmitting?: boolean;
 }
 
-export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit, onCancel, isSubmitting }) => {
+export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit }) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { control, handleSubmit, errors, setValue, watch } = useFamilyForm({ initialValues, onSubmit, isSubmitting });
+  const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useFamilyForm({ initialValues, onSubmit });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
@@ -106,7 +104,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
     scrollContent: {
       flexGrow: 1,
       padding: SPACING_MEDIUM,
-      paddingBottom: SPACING_MEDIUM * 3, // Adjust this based on your fixed button container height
+      paddingBottom: SPACING_MEDIUM, // Adjust this based on your fixed button container height
     },
     input: {
       marginBottom: SPACING_MEDIUM,
@@ -116,16 +114,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
       color: theme.colors.error,
       marginBottom: SPACING_MEDIUM,
     },
-    fixedButtonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: SPACING_MEDIUM,
-      borderTopWidth: 1,
-      borderColor: theme.colors.outlineVariant,
-      backgroundColor: theme.colors.background,
-    },
     button: {
-      flex: 1,
       marginHorizontal: SPACING_SMALL / 2,
       borderRadius: theme.roundness,
     },
@@ -155,14 +144,12 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
       paddingHorizontal: SPACING_MEDIUM,
       paddingVertical: SPACING_SMALL,
     },
-
   });
 
   return (
     <View style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.formSection}>
-
           <View style={styles.avatarSection}>
             <Avatar.Image
               size={96}
@@ -175,7 +162,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
             {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
           </View>
         </View>
-
 
         <View style={styles.formSection}>
           <SegmentedButtons
@@ -203,7 +189,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
         </View>
 
         <View style={styles.formSection}>
-
           <TextInput
             label={t('familyForm.name')}
             mode="outlined"
@@ -240,8 +225,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
             left={<TextInput.Icon icon="note-text-outline" />}
           />
           {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
-
-        
         </View>
 
         <UserRoleSelector
@@ -259,17 +242,16 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit,
           onAddUser={handleAddUserFromSelector}
           onRemoveUser={handleRemoveUserFromSelector}
         />
-
-      </ScrollView>
-      <View style={styles.fixedButtonContainer}>
-        <Button mode="outlined" onPress={onCancel} style={styles.button} disabled={isSubmitting}>
-          {t('common.cancel')}
-        </Button>
-        <Button mode="contained" onPress={handleSubmit} style={styles.button} loading={isSubmitting}>
+        <Button
+          mode="contained"
+          onPress={handleSubmit}
+          style={[styles.button, { marginHorizontal: 0}]}
+          loading={isSubmitting}
+          disabled={isSubmitting || !isValid}
+        >
           {t('common.save')}
         </Button>
-      </View>
-
+      </ScrollView>
     </View>
   );
 };

@@ -11,6 +11,7 @@ import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use for member if no specific one
 import { Gender } from '@/types';
 import DateTimePicker from '@react-native-community/datetimepicker'; // Use new DatePicker
+import { MemberSelectInput } from './'; // Import MemberSelectInput from the index file
 
 interface MemberFormProps {
   initialValues?: MemberDetailDto;
@@ -88,6 +89,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
     mainContainer: {
       flex: 1,
       backgroundColor: theme.colors.background,
+      padding: SPACING_MEDIUM,
     },
     scrollContent: {
       flexGrow: 1,
@@ -108,9 +110,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
     formSection: {
       backgroundColor: theme.colors.surface,
       borderRadius: theme.roundness,
-      marginBottom: SPACING_MEDIUM,
       elevation: 1,
-      padding: SPACING_MEDIUM,
     },
     sectionTitle: {
       fontWeight: 'bold',
@@ -136,10 +136,10 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formSection}>
-          <Text variant="titleMedium" style={styles.sectionTitle}>{t('memberDetail.personalInfo')}</Text>
-
           <View style={styles.avatarSection}>
             <Avatar.Image
               size={96}
@@ -175,14 +175,21 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
           {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
           <View style={styles.segmentedButtonContainer}>
-            <Text style={{ marginBottom: SPACING_SMALL }}>{t('memberForm.gender')}</Text>
             <SegmentedButtons
               value={gender as string}
               onValueChange={newValue => setValue('gender', newValue as Gender, { shouldValidate: true })}
               buttons={[
-                { value: Gender.Male, label: t('common.male') },
+                {
+                  value: Gender.Male, label: t('common.male'), style: {
+                    borderRadius: theme.roundness
+                  }
+                },
                 { value: Gender.Female, label: t('common.female') },
-                { value: Gender.Other, label: t('common.other') },
+                {
+                  value: Gender.Other, label: t('common.other'), style: {
+                    borderRadius: theme.roundness
+                  }
+                },
               ]}
             />
             {errors.gender && <Text style={styles.errorText}>{errors.gender.message}</Text>}
@@ -227,7 +234,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             />
           )}
           {errors.dateOfDeath && <Text style={styles.errorText}>{errors.dateOfDeath.message}</Text>}
-
 
           <TextInput
             label={t('memberDetail.placeOfBirth')}
@@ -278,51 +284,49 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
         </View>
 
         <View style={styles.formSection}>
-          <Text variant="titleMedium" style={styles.sectionTitle}>{t('memberDetail.familyRelationships')}</Text>
+          <View style={styles.input}>
+            <MemberSelectInput
+              label={t('member.father')}
+              memberId={fatherId}
+              onMemberSelected={(id, name) => setValue('fatherId', id === null ? undefined : id, { shouldValidate: true })}
+              error={!!errors.fatherId}
+              helperText={errors.fatherId?.message}
+              fieldName="fatherId"
+            />
+          </View>
 
-          <TextInput
-            label={t('member.father')}
-            mode="outlined"
-            value={fatherId ?? ''}
-            onChangeText={(text) => setValue('fatherId', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.fatherId}
-            left={<TextInput.Icon icon="account-male-outline" />}
-          />
-          {errors.fatherId && <Text style={styles.errorText}>{errors.fatherId.message}</Text>}
+          <View style={styles.input}>
+            <MemberSelectInput
+              label={t('member.mother')}
+              memberId={motherId}
+              onMemberSelected={(id, name) => setValue('motherId', id === null ? undefined : id, { shouldValidate: true })}
+              error={!!errors.motherId}
+              helperText={errors.motherId?.message}
+              fieldName="motherId"
+            />
+          </View>
+          <View style={styles.input}>
 
-          <TextInput
-            label={t('member.mother')}
-            mode="outlined"
-            value={motherId ?? ''}
-            onChangeText={(text) => setValue('motherId', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.motherId}
-            left={<TextInput.Icon icon="account-female-outline" />}
-          />
-          {errors.motherId && <Text style={styles.errorText}>{errors.motherId.message}</Text>}
+            <MemberSelectInput
+              label={t('member.husband')}
+              memberId={husbandId}
+              onMemberSelected={(id, name) => setValue('husbandId', id === null ? undefined : id, { shouldValidate: true })}
+              error={!!errors.husbandId}
+              helperText={errors.husbandId?.message}
+              fieldName="husbandId"
+            />
+          </View>
 
-          <TextInput
-            label={t('member.husband')}
-            mode="outlined"
-            value={husbandId ?? ''}
-            onChangeText={(text) => setValue('husbandId', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.husbandId}
-            left={<TextInput.Icon icon="human-male-boy" />}
-          />
-          {errors.husbandId && <Text style={styles.errorText}>{errors.husbandId.message}</Text>}
-
-          <TextInput
-            label={t('member.wife')}
-            mode="outlined"
-            value={wifeId ?? ''}
-            onChangeText={(text) => setValue('wifeId', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.wifeId}
-            left={<TextInput.Icon icon="human-female-girl" />}
-          />
-          {errors.wifeId && <Text style={styles.errorText}>{errors.wifeId.message}</Text>}
+          <View style={styles.input}>
+            <MemberSelectInput
+              label={t('member.wife')}
+              memberId={wifeId}
+              onMemberSelected={(id, name) => setValue('wifeId', id === null ? undefined : id, { shouldValidate: true })}
+              error={!!errors.wifeId}
+              helperText={errors.wifeId?.message}
+              fieldName="wifeId"
+            />
+          </View>
 
           <Button
             mode="contained"

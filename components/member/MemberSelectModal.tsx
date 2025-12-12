@@ -97,26 +97,28 @@ const MemberSelectModalComponent = <TFieldName extends string>({
 
   return (
     <Portal>
-      <Modal visible={isVisible} onDismiss={onClose} style={modalStyle} contentContainerStyle={containerStyle}>
-          <View style={styles.headerStyle}>
-            <Text style={styles.titleStyle} variant="headlineSmall">{t('memberSelectModal.title')}</Text>
-            <IconButton icon="close" onPress={onClose} ></IconButton>
-          </View>
-          <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
-            queryKey={getMemberSearchQueryKey}
-            queryFn={memberSearchQueryFn}
-            initialFilters={initialQuery}
-            renderItem={customRenderItem}
-            keyExtractor={(item) => item.id}
-            searchPlaceholder={t('memberSearch.placeholder')}
-            containerStyle={{
-              height: screenHeight * 0.9,
-              backgroundColor: theme.colors.background
-            }}
-            showFilterButton={false}
-            externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
-            ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
-          />
+      <Modal visible={isVisible}
+        onDismiss={onClose} style={modalStyle}
+        contentContainerStyle={containerStyle}>
+        <View style={styles.headerStyle}>
+          <Text style={styles.titleStyle} variant="headlineSmall">{t('memberSelectModal.title')}</Text>
+          <IconButton icon="close" onPress={onClose} ></IconButton>
+        </View>
+        <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
+          queryKey={getMemberSearchQueryKey}
+          queryFn={memberSearchQueryFn}
+          initialFilters={initialQuery}
+          renderItem={customRenderItem}
+          keyExtractor={(item) => item.id}
+          searchPlaceholder={t('memberSearch.placeholder')}
+          containerStyle={{
+            height: screenHeight * 0.9,
+            backgroundColor: theme.colors.background
+          }}
+          showFilterButton={false}
+          externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
+          ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
+        />
       </Modal>
     </Portal>
   );

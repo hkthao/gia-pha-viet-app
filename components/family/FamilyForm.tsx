@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons, Chip } from 'react-native-paper'; // Added Chip
+import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper'; // Added Chip
 import { useTranslation } from 'react-i18next';
 import { useFamilyForm } from '@/hooks/family/useFamilyForm';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
@@ -28,13 +28,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
   // Watch familyUsers from form state
   const familyUsers = watch('familyUsers') || [];
-
-  // Initialize familyUsers from initialValues if present
-  useEffect(() => {
-    if (initialValues?.familyUsers) {
-      setValue('familyUsers', initialValues.familyUsers, { shouldValidate: false });
-    }
-  }, [initialValues?.familyUsers, setValue]);
 
   const handleAddUserFromSelector = (userResult: UserCheckResultDto, role: FamilyRole) => {
     if (initialValues?.id === undefined) {
@@ -104,7 +97,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     scrollContent: {
       flexGrow: 1,
       padding: SPACING_MEDIUM,
-      paddingBottom: SPACING_MEDIUM, // Adjust this based on your fixed button container height
+      paddingBottom: SPACING_EXTRA_LARGE
     },
     input: {
       marginBottom: SPACING_MEDIUM,
@@ -217,7 +210,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
             label={t('familyForm.description')}
             mode="outlined"
             multiline
-            numberOfLines={4}
+            numberOfLines={10}
             value={control._formValues.description}
             onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
             style={styles.input}

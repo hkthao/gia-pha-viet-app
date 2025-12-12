@@ -6,7 +6,7 @@ import { FamilyUserDto, FamilyRole } from '@/types'; // Import FamilyUserDto and
 // We need the i18n instance to get translated messages
 let globalI18n: i18n;
 
-export const setValidationI18n = (i18nInstance: i18n) => {
+export const setFamilyValidationI18n = (i18nInstance: i18n) => {
   globalI18n = i18nInstance;
 };
 

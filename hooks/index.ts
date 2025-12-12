@@ -11,3 +11,4 @@ export * from './relationship';
 export * from './family';
 export * from './dashboard';
 export * from './onboarding';
+export * from './member';

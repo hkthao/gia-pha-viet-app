@@ -1,9 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
-import { familyValidationSchema, FamilyFormData, setValidationI18n } from '@/utils/validation/familyValidationSchema';
+import { familyValidationSchema, FamilyFormData, setFamilyValidationI18n } from '@/utils/validation';
 import { useEffect, useMemo } from 'react';
-import type { FamilyDetailDto } from '@/types/family';
+import type { FamilyDetailDto, FamilyUserDto } from '@/types/family'; // Import FamilyUserDto
 
 // Define a type that aligns with FamilyFormData (from yup.optional())
 type FamilyFormInitialValues = {
@@ -12,6 +12,7 @@ type FamilyFormInitialValues = {
   address?: string;     // undefined, not null
   avatarUrl?: string;   // undefined, not null
   visibility: 'Public' | 'Private';
+  familyUsers?: FamilyUserDto[]; // Add familyUsers
 };
 
 interface UseFamilyFormProps {
@@ -24,7 +25,7 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    setValidationI18n(i18n);
+    setFamilyValidationI18n(i18n);
   }, [i18n]);
 
   const defaultFormValues: FamilyFormInitialValues = {
@@ -33,6 +34,7 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
     address: undefined,     // Use undefined
     avatarUrl: undefined,   // Use undefined
     visibility: 'Private',
+    familyUsers: [], // Default to empty array
   };
 
   // Convert initialValues from FamilyDetailDto to FamilyFormInitialValues
@@ -46,6 +48,7 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
         visibility: (initialValues.visibility === 'Public' || initialValues.visibility === 'Private')
           ? initialValues.visibility
           : 'Private',
+        familyUsers: initialValues.familyUsers || [], // Include familyUsers
       };
     }
     return undefined;

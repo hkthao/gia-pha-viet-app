@@ -59,7 +59,7 @@ export function useFamilyDetails() {
 
   const handleEditFamily = () => {
     if (family?.id) {
-      router.push(`/family/create?id=${family.id}`);
+      router.push(`/family/${family.id}/edit`);
     }
   };
 

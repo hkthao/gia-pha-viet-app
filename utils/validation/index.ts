@@ -1,1 +1,2 @@
-export * from './familyValidationSchema';
+export { familyValidationSchema, FamilyFormData, setFamilyValidationI18n } from './familyValidationSchema';
+export { memberValidationSchema, MemberFormData, setMemberValidationI18n } from './memberValidationSchema';

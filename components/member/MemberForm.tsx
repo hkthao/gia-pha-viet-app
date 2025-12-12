@@ -10,8 +10,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use for member if no specific one
 import { Gender } from '@/types';
-import DateTimePicker from '@react-native-community/datetimepicker'; // Use new DatePicker
 import { MemberSelectInput } from './'; // Import MemberSelectInput from the index file
+import { DateInput } from '@/components/common'; // Import DateInput
 
 interface MemberFormProps {
   initialValues?: MemberDetailDto;
@@ -41,21 +41,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   const fatherId = watch('fatherId');
   const husbandId = watch('husbandId');
   const wifeId = watch('wifeId');
-
-  const [showPickerBirth, setShowPickerBirth] = useState(false);
-  const [showPickerDeath, setShowPickerDeath] = useState(false);
-
-  const handleDateChange = useCallback((event: any, selectedDate: Date | undefined, field: 'dateOfBirth' | 'dateOfDeath') => {
-    if (field === 'dateOfBirth') setShowPickerBirth(false);
-    if (field === 'dateOfDeath') setShowPickerDeath(false);
-
-    if (selectedDate) {
-      setValue(field, selectedDate, { shouldValidate: true });
-    } else {
-      setValue(field, null, { shouldValidate: true });
-    }
-  }, [setValue]);
-
 
   const pickImage = async () => {
     if (!mediaLibraryPermission?.granted) {
@@ -195,45 +180,25 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             {errors.gender && <Text style={styles.errorText}>{errors.gender.message}</Text>}
           </View>
 
-          <Button
-            mode="outlined"
-            onPress={() => setShowPickerBirth(true)}
-            style={styles.datePickerButton}
-            labelStyle={{ justifyContent: 'flex-start' }}
-            uppercase={false}
-          >
-            {t('memberForm.dateOfBirth')}: {dateOfBirth ? new Date(dateOfBirth).toLocaleDateString() : t('common.noDate')}
-          </Button>
-          {showPickerBirth && (
-            <DateTimePicker
-              value={dateOfBirth ? new Date(dateOfBirth) : new Date()}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              maximumDate={new Date()}
-              onChange={(event, selectedDate) => handleDateChange(event, selectedDate, 'dateOfBirth')}
-            />
-          )}
-          {errors.dateOfBirth && <Text style={styles.errorText}>{errors.dateOfBirth.message}</Text>}
+          <DateInput
+            label={t('memberForm.dateOfBirth')}
+            value={dateOfBirth}
+            onChange={(date) => setValue('dateOfBirth', date, { shouldValidate: true })}
+            maximumDate={new Date()}
+            error={!!errors.dateOfBirth}
+            helperText={errors.dateOfBirth?.message}
+            style={styles.input}
+          />
 
-          <Button
-            mode="outlined"
-            onPress={() => setShowPickerDeath(true)}
-            style={styles.datePickerButton}
-            labelStyle={{ justifyContent: 'flex-start' }}
-            uppercase={false}
-          >
-            {t('memberForm.dateOfDeath')}: {dateOfDeath ? new Date(dateOfDeath).toLocaleDateString() : t('common.noDate')}
-          </Button>
-          {showPickerDeath && (
-            <DateTimePicker
-              value={dateOfDeath ? new Date(dateOfDeath) : new Date()}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              maximumDate={new Date()}
-              onChange={(event, selectedDate) => handleDateChange(event, selectedDate, 'dateOfDeath')}
-            />
-          )}
-          {errors.dateOfDeath && <Text style={styles.errorText}>{errors.dateOfDeath.message}</Text>}
+          <DateInput
+            label={t('memberForm.dateOfDeath')}
+            value={dateOfDeath}
+            onChange={(date) => setValue('dateOfDeath', date, { shouldValidate: true })}
+            maximumDate={new Date()}
+            error={!!errors.dateOfDeath}
+            helperText={errors.dateOfDeath?.message}
+            style={styles.input}
+          />
 
           <TextInput
             label={t('memberDetail.placeOfBirth')}

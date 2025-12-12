@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { Share } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from './useCurrentFamilyId';
 
 export interface UseFamilySharingResult {
   familyDetailUrl: string;
@@ -10,7 +10,7 @@ export interface UseFamilySharingResult {
 
 export function useFamilySharing(): UseFamilySharingResult {
   const { t } = useTranslation();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyId();
 
   const familyDetailUrl = useMemo(() => {
     const baseUrl = process.env.EXPO_PUBLIC_APP_BASE_URL;

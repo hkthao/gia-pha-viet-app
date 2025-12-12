@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { AgendaEntry, AgendaSchedule, DateData } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
 import { useEventStore } from '@/stores/useEventStore';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
 import type { EventDto, EventType } from '@/types';
 import { debounce } from '@/utils/debounce';
 import { Alert } from 'react-native'; // Import Alert for error handling
@@ -30,7 +30,7 @@ export function useFamilyAgendaEvents(): UseFamilyAgendaEventsResult {
   const [markedDates, setMarkedDates] = useState<{ [key: string]: { marked: boolean } }>({});
   const { t } = useTranslation();
 
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyId();
   const { error, search } = useEventStore();
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
   const loadedMonthsRef = useRef(loadedMonths);

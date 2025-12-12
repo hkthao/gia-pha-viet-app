@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { relationshipService } from '@/services';
 import { DetectRelationshipResult, MemberListDto } from '@/types';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
 
 interface RelationshipDetectionState {
   selectedMember1: MemberListDto;
@@ -24,7 +24,7 @@ export function useRelationshipDetection(
   defaultMemberB: MemberListDto
 ): UseRelationshipDetectionResult {
   const { t } = useTranslation();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyId();
 
   const [selectedMember1, setSelectedMember1] = useState<MemberListDto>(defaultMemberA);
   const [selectedMember2, setSelectedMember2] = useState<MemberListDto>(defaultMemberB);

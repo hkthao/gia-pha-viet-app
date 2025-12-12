@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
 import type { EventDto, SearchEventsQuery, PaginatedList } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
@@ -23,7 +23,7 @@ const getStyles = (theme: any) => StyleSheet.create({
 
 export function useTimelineSearch() {
   const isFocused = useIsFocused();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyId();
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);

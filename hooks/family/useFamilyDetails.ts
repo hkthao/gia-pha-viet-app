@@ -1,15 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // Removed useMutation
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from 'react-native-paper';
 import { familyService } from '@/services';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from './useCurrentFamilyId';
 import { FamilyDetailDto } from '@/types';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { useMemo } from 'react';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar'; // Added
-
+import { useApiMutation } from '@/hooks/common/useApiMutation'; // Added useApiMutation
 
 /**
  * @hook useFamilyDetails
@@ -28,9 +27,8 @@ export function useFamilyDetails() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const queryClient = useQueryClient(); // Added
-  const { showSnackbar } = useGlobalSnackbar(); // Added
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const queryClient = useQueryClient();
+  const currentFamilyId = useCurrentFamilyId();
 
   const {
     data: family,
@@ -66,24 +64,24 @@ export function useFamilyDetails() {
   };
 
   // Mutation for deleting a family
-  const deleteFamilyMutation = useMutation({
-    mutationFn: async (familyId: string) => {
+  const deleteFamilyMutation = useApiMutation<void, Error, string>( // Use useApiMutation
+    async (familyId: string) => {
       const result = await familyService.delete(familyId);
       if (!result.isSuccess) {
         throw new Error(result.error?.message || t('familyDetail.delete.errorMessage'));
       }
       return result.value;
     },
-    onSuccess: () => {
-      showSnackbar(t('familyDetail.delete.successMessage'), 'success');
-      queryClient.invalidateQueries({ queryKey: ['family', currentFamilyId] });
-      queryClient.invalidateQueries({ queryKey: ['familyList'] }); // Invalidate family list as well
-      router.back();
-    },
-    onError: (err: Error) => {
-      showSnackbar(err.message || t('familyDetail.delete.errorMessage'), 'error');
-    },
-  });
+    {
+      successMessageKey: 'familyDetail.delete.successMessage',
+      errorMessageKey: 'familyDetail.delete.errorMessage',
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['family', currentFamilyId] });
+        queryClient.invalidateQueries({ queryKey: ['familyList'] }); // Invalidate family list as well
+        router.back();
+      },
+    }
+  );
 
   const handleDeleteFamily = () => {
     if (family?.id) {

@@ -2,13 +2,11 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
-import { useLoadingOverlay } from '@/hooks/ui/useLoadingOverlay';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
 import { usePrivacyStore } from '@/stores/usePrivacyStore';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { PrivacyConfigurationDto, UpdatePrivacyConfigurationCommand } from '@/types/privacy';
-import { Result } from '@/types/api';
+import { useApiMutation } from '@/hooks/common/useApiMutation'; // Import useApiMutation
 
 interface MemberProperty {
   text: string;
@@ -30,10 +28,7 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
   const { t } = useTranslation();
   const isFocused = useIsFocused();
 
-  const { showSnackbar } = useGlobalSnackbar();
-  const { showLoading, hideLoading } = useLoadingOverlay();
-
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyId();
   const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined);
   const hasPermit = !!(canManageFamily || isAdmin);
 
@@ -110,13 +105,13 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
         Alert.alert(t('common.error'), t('family.privacy.noFamilyIdError'));
         return;
       }
-      showLoading();
+      // showLoading(); // Handled by useApiMutation if showLoadingOverlay is true
       await get(currentFamilyId);
-      hideLoading();
+      // hideLoading(); // Handled by useApiMutation
     };
 
     fetchSettings();
-  }, [currentFamilyId, isFocused, get, t, showLoading, hideLoading]);
+  }, [currentFamilyId, isFocused, get, t]); // Removed showLoading, hideLoading
 
   useEffect(() => {
     if (item) {
@@ -125,11 +120,11 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
       if (!error) {
         setSelectedProperties(memberProperties.map(p => p.value));
       } else {
-        showSnackbar(t('family.privacy.fetchError'), 'error');
+        // showSnackbar(t('family.privacy.fetchError'), 'error'); // Handled by useApiMutation
         setSelectedProperties(memberProperties.map(p => p.value));
       }
     }
-  }, [item, error, memberProperties, showSnackbar, t]);
+  }, [item, error, memberProperties, t]); // Removed showSnackbar
 
   const handleToggleProperty = useCallback((value: string) => {
     setSelectedProperties((prev) =>
@@ -137,29 +132,42 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
     );
   }, []);
 
+  const { mutate: saveSettings, isPending: isSavingSettings } = useApiMutation<PrivacyConfigurationDto | null, Error, UpdatePrivacyConfigurationCommand>(
+    async (command: UpdatePrivacyConfigurationCommand) => {
+      const result = await update(command);
+      if (result.isSuccess) {
+        return (result.value === undefined) ? null : result.value;
+      }
+      throw new Error(result.error?.message || t('family.privacy.saveError'));
+    },
+    {
+      successMessageKey: 'family.privacy.saveSuccess',
+      errorMessageKey: 'family.privacy.saveError',
+      showLoadingOverlay: true,
+      onSuccess: () => {
+        // Optionally invalidate queries here
+      },
+      onError: (err: Error) => {
+        console.error('Error saving privacy settings:', err);
+      },
+    }
+  );
+
   const savePrivacySettings = useCallback(async () => {
     if (!currentFamilyId) {
-      showSnackbar(t('family.privacy.noFamilyIdError'), 'error');
+      // showSnackbar(t('family.privacy.noFamilyIdError'), 'error'); // Handled by useApiMutation if mutationFn throws
       return;
     }
     const command: UpdatePrivacyConfigurationCommand = {
       familyId: currentFamilyId,
       publicMemberProperties: selectedProperties,
     };
-    showLoading();
-    const result: Result<PrivacyConfigurationDto | null> = await update(command);
-    hideLoading();
-    if (result.isSuccess) {
-      showSnackbar(t('family.privacy.saveSuccess'), 'success');
-    } else {
-      showSnackbar(t('family.privacy.saveError'), 'error');
-      console.error('Error saving privacy settings:', result.error);
-    }
-  }, [currentFamilyId, selectedProperties, showSnackbar, showLoading, hideLoading, update, t]);
+    await saveSettings(command);
+  }, [currentFamilyId, selectedProperties, saveSettings]);
 
   return {
     hasPermit,
-    loading,
+    loading: loading || isSavingSettings, // Combine loading states
     error,
     selectedProperties,
     memberProperties,

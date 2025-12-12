@@ -11,32 +11,32 @@ export const memberValidationSchema = yup.object({
   firstName: yup
     .string()
     .trim()
-    .required(() => globalI18n.t('memberForm.validation.firstNameRequired'))
-    .min(2, () => globalI18n.t('memberForm.validation.firstNameMinLength', { min: 2 }))
-    .max(50, () => globalI18n.t('memberForm.validation.firstNameMaxLength', { max: 50 })),
+    .required(() => globalI18n.t('validation.required'))
+    .min(2, () => globalI18n.t('validation.minLength', { min: 2 }))
+    .max(50, () => globalI18n.t('validation.maxLength', { max: 50 })),
   lastName: yup
     .string()
     .trim()
-    .required(() => globalI18n.t('memberForm.validation.lastNameRequired'))
-    .min(2, () => globalI18n.t('memberForm.validation.lastNameMinLength', { min: 2 }))
-    .max(50, () => globalI18n.t('memberForm.validation.lastNameMaxLength', { max: 50 })),
+    .required(() => globalI18n.t('validation.required'))
+    .min(2, () => globalI18n.t('validation.minLength', { min: 2 }))
+    .max(50, () => globalI18n.t('validation.maxLength', { max: 50 })),
   gender: yup
     .string()
-    .oneOf(['Male', 'Female', 'Other', 'Unknown'], () => globalI18n.t('memberForm.validation.genderInvalid'))
-    .required(() => globalI18n.t('memberForm.validation.genderRequired')),
+    .oneOf(['Male', 'Female', 'Other', 'Unknown'], () => globalI18n.t('validation.invalidSelection'))
+    .required(() => globalI18n.t('validation.required')),
   dateOfBirth: yup
     .date()
     .nullable()
     .optional()
-    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('memberForm.validation.dateOfBirthFuture')),
+    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('validation.futureDate')),
   dateOfDeath: yup
     .date()
     .nullable()
     .optional()
-    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('memberForm.validation.dateOfDeathFuture'))
+    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('validation.futureDate'))
     .test(
       'date-of-death-after-birth',
-      () => globalI18n.t('memberForm.validation.dateOfDeathBeforeBirth'),
+      () => globalI18n.t('validation.dateOfDeathBeforeBirth'),
       function (dateOfDeath) {
         const { dateOfBirth } = this.parent;
         if (dateOfDeath && dateOfBirth) {
@@ -49,22 +49,22 @@ export const memberValidationSchema = yup.object({
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .max(200, () => globalI18n.t('memberForm.validation.placeOfBirthMaxLength', { max: 200 }))
+    .max(200, () => globalI18n.t('validation.maxLength', { max: 200 }))
     .optional(),
   placeOfDeath: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .max(200, () => globalI18n.t('memberForm.validation.placeOfDeathMaxLength', { max: 200 }))
+    .max(200, () => globalI18n.t('validation.maxLength', { max: 200 }))
     .optional(),
   motherId: yup
     .string()
-    .uuid(() => globalI18n.t('memberForm.validation.motherIdInvalid'))
+    .uuid(() => globalI18n.t('validation.invalidUuid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
   fatherId: yup
     .string()
-    .uuid(() => globalI18n.t('memberForm.validation.fatherIdInvalid'))
+    .uuid(() => globalI18n.t('validation.invalidUuid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
   avatarUrl: yup
@@ -76,45 +76,45 @@ export const memberValidationSchema = yup.object({
     .optional(),
   isAlive: yup
     .boolean()
-    .required(() => globalI18n.t('memberForm.validation.isAliveRequired')),
+    .required(() => globalI18n.t('validation.required')),
   biography: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .max(1000, () => globalI18n.t('memberForm.validation.biographyMaxLength', { max: 1000 }))
+    .max(1000, () => globalI18n.t('validation.maxLength', { max: 1000 }))
     .optional(),
   occupation: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .max(100, () => globalI18n.t('memberForm.validation.occupationMaxLength', { max: 100 }))
+    .max(100, () => globalI18n.t('validation.maxLength', { max: 100 }))
     .optional(),
   phone: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .matches(/^\+?[0-9]{10,15}$/, { message: () => globalI18n.t('memberForm.validation.phoneInvalid'), excludeEmptyString: true })
+    .matches(/^\+?[0-9]{10,15}$/, { message: () => globalI18n.t('validation.invalidPhone'), excludeEmptyString: true })
     .optional(),
   email: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .email(() => globalI18n.t('memberForm.validation.emailInvalid'))
+    .email(() => globalI18n.t('validation.invalidEmail'))
     .optional(),
   address: yup
     .string()
     .trim()
     .transform(value => value === '' ? undefined : value)
-    .max(200, () => globalI18n.t('memberForm.validation.addressMaxLength', { max: 200 }))
+    .max(200, () => globalI18n.t('validation.maxLength', { max: 200 }))
     .optional(),
   husbandId: yup
     .string()
-    .uuid(() => globalI18n.t('memberForm.validation.husbandIdInvalid'))
+    .uuid(() => globalI18n.t('validation.invalidUuid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
   wifeId: yup
     .string()
-    .uuid(() => globalI18n.t('memberForm.validation.wifeIdInvalid'))
+    .uuid(() => globalI18n.t('validation.invalidUuid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
 });

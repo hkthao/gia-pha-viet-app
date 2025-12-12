@@ -31,15 +31,15 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
 
   const firstName = watch('firstName');
   const lastName = watch('lastName');
-  const gender = watch('gender');
+  // const gender = watch('gender'); // Removed
   const placeOfBirth = watch('placeOfBirth');
   const placeOfDeath = watch('placeOfDeath');
   const occupation = watch('occupation');
   const biography = watch('biography');
-  const motherId = watch('motherId');
-  const fatherId = watch('fatherId');
-  const husbandId = watch('husbandId');
-  const wifeId = watch('wifeId');
+  // const motherId = watch('motherId'); // Removed
+  // const fatherId = watch('fatherId'); // Removed
+  // const husbandId = watch('husbandId'); // Removed
+  // const wifeId = watch('wifeId'); // Removed
 
   const pickImage = async () => {
     if (!mediaLibraryPermission?.granted) {
@@ -136,45 +136,64 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
           </View>
 
-          <TextInput
-            label={t('memberForm.firstName')}
-            mode="outlined"
-            value={firstName}
-            onChangeText={(text) => setValue('firstName', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.firstName}
-            left={<TextInput.Icon icon="account" />}
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.firstName')}
+                mode="outlined"
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.firstName}
+                left={<TextInput.Icon icon="account" />}
+              />
+            )}
           />
           {errors.firstName && <Text style={styles.errorText}>{errors.firstName.message}</Text>}
 
-          <TextInput
-            label={t('memberForm.lastName')}
-            mode="outlined"
-            value={lastName}
-            onChangeText={(text) => setValue('lastName', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.lastName}
-            left={<TextInput.Icon icon="account-details" />}
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.lastName')}
+                mode="outlined"
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.lastName}
+                left={<TextInput.Icon icon="account-details" />}
+              />
+            )}
           />
           {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
           <View style={styles.segmentedButtonContainer}>
-            <SegmentedButtons
-              value={gender as string}
-              onValueChange={newValue => setValue('gender', newValue as Gender, { shouldValidate: true })}
-              buttons={[
-                {
-                  value: Gender.Male, label: t('common.male'), style: {
-                    borderRadius: theme.roundness
-                  }
-                },
-                { value: Gender.Female, label: t('common.female') },
-                {
-                  value: Gender.Other, label: t('common.other'), style: {
-                    borderRadius: theme.roundness
-                  }
-                },
-              ]}
+            <Text style={{ marginBottom: SPACING_SMALL }}>{t('memberForm.gender')}</Text>
+            <Controller
+              control={control}
+              name="gender"
+              render={({ field: { onChange, value } }) => (
+                <SegmentedButtons
+                  value={value as string}
+                  onValueChange={newValue => onChange(newValue as Gender)}
+                  buttons={[
+                    {
+                      value: Gender.Male, label: t('common.male'), style: {
+                        borderRadius: theme.roundness
+                      }
+                    },
+                    { value: Gender.Female, label: t('common.female') },
+                    {
+                      value: Gender.Other, label: t('common.other'), style: {
+                        borderRadius: theme.roundness
+                      }
+                    },
+                  ]}
+                />
+              )}
             />
             {errors.gender && <Text style={styles.errorText}>{errors.gender.message}</Text>}
           </View>
@@ -211,99 +230,147 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             )}
           />
 
-          <TextInput
-            label={t('memberDetail.placeOfBirth')}
-            mode="outlined"
-            value={placeOfBirth ?? ''}
-            onChangeText={(text) => setValue('placeOfBirth', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.placeOfBirth}
-            left={<TextInput.Icon icon="map-marker-outline" />}
+          <Controller
+            control={control}
+            name="placeOfBirth"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberDetail.placeOfBirth')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.placeOfBirth}
+                left={<TextInput.Icon icon="map-marker-outline" />}
+              />
+            )}
           />
           {errors.placeOfBirth && <Text style={styles.errorText}>{errors.placeOfBirth.message}</Text>}
 
-          <TextInput
-            label={t('memberDetail.placeOfDeath')}
-            mode="outlined"
-            value={placeOfDeath ?? ''}
-            onChangeText={(text) => setValue('placeOfDeath', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.placeOfDeath}
-            left={<TextInput.Icon icon="map-marker-off-outline" />}
+          <Controller
+            control={control}
+            name="placeOfDeath"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberDetail.placeOfDeath')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.placeOfDeath}
+                left={<TextInput.Icon icon="map-marker-off-outline" />}
+              />
+            )}
           />
           {errors.placeOfDeath && <Text style={styles.errorText}>{errors.placeOfDeath.message}</Text>}
 
 
-          <TextInput
-            label={t('memberDetail.occupation')}
-            mode="outlined"
-            value={occupation ?? ''}
-            onChangeText={(text) => setValue('occupation', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.occupation}
-            left={<TextInput.Icon icon="briefcase-outline" />}
+          <Controller
+            control={control}
+            name="occupation"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberDetail.occupation')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.occupation}
+                left={<TextInput.Icon icon="briefcase-outline" />}
+              />
+            )}
           />
           {errors.occupation && <Text style={styles.errorText}>{errors.occupation.message}</Text>}
 
-          <TextInput
-            label={t('memberDetail.biography')}
-            mode="outlined"
-            multiline
-            numberOfLines={10}
-            value={biography ?? ''}
-            onChangeText={(text) => setValue('biography', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.biography}
-            left={<TextInput.Icon icon="note-text-outline" />}
+          <Controller
+            control={control}
+            name="biography"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberDetail.biography')}
+                mode="outlined"
+                multiline
+                numberOfLines={10}
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.biography}
+                left={<TextInput.Icon icon="note-text-outline" />}
+              />
+            )}
           />
           {errors.biography && <Text style={styles.errorText}>{errors.biography.message}</Text>}
         </View>
 
         <View style={styles.formSection}>
           <View style={styles.input}>
-            <MemberSelectInput
-              label={t('member.father')}
-              memberId={fatherId}
-              onMemberSelected={(id, name) => setValue('fatherId', id === null ? undefined : id, { shouldValidate: true })}
-              error={!!errors.fatherId}
-              helperText={errors.fatherId?.message}
-              fieldName="fatherId"
-              leftIcon="human-male"
-            />          </View>
-
-          <View style={styles.input}>
-            <MemberSelectInput
-              label={t('member.mother')}
-              memberId={motherId}
-              onMemberSelected={(id, name) => setValue('motherId', id === null ? undefined : id, { shouldValidate: true })}
-              error={!!errors.motherId}
-              helperText={errors.motherId?.message}
-              fieldName="motherId"
-              leftIcon="human-female"
-            />
-          </View>
-          <View style={styles.input}>
-
-            <MemberSelectInput
-              label={t('member.husband')}
-              memberId={husbandId}
-              onMemberSelected={(id, name) => setValue('husbandId', id === null ? undefined : id, { shouldValidate: true })}
-              error={!!errors.husbandId}
-              helperText={errors.husbandId?.message}
-              fieldName="husbandId"
-              leftIcon="human-male"
+            <Controller
+              control={control}
+              name="fatherId"
+              render={({ field: { onChange, value } }) => (
+                <MemberSelectInput
+                  label={t('member.father')}
+                  memberId={value}
+                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  error={!!errors.fatherId}
+                  helperText={errors.fatherId?.message}
+                  fieldName="fatherId"
+                  leftIcon="human-male"
+                />
+              )}
             />
           </View>
 
           <View style={styles.input}>
-            <MemberSelectInput
-              label={t('member.wife')}
-              memberId={wifeId}
-              onMemberSelected={(id, name) => setValue('wifeId', id === null ? undefined : id, { shouldValidate: true })}
-              error={!!errors.wifeId}
-              helperText={errors.wifeId?.message}
-              fieldName="wifeId"
-              leftIcon="human-female"
+            <Controller
+              control={control}
+              name="motherId"
+              render={({ field: { onChange, value } }) => (
+                <MemberSelectInput
+                  label={t('member.mother')}
+                  memberId={value}
+                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  error={!!errors.motherId}
+                  helperText={errors.motherId?.message}
+                  fieldName="motherId"
+                  leftIcon="human-female"
+                />
+              )}
+            />
+          </View>
+          <View style={styles.input}>
+            <Controller
+              control={control}
+              name="husbandId"
+              render={({ field: { onChange, value } }) => (
+                <MemberSelectInput
+                  label={t('member.husband')}
+                  memberId={value}
+                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  error={!!errors.husbandId}
+                  helperText={errors.husbandId?.message}
+                  fieldName="husbandId"
+                  leftIcon="human-male"
+                />
+              )}
+            />
+          </View>
+
+          <View style={styles.input}>
+            <Controller
+              control={control}
+              name="wifeId"
+              render={({ field: { onChange, value } }) => (
+                <MemberSelectInput
+                  label={t('member.wife')}
+                  memberId={value}
+                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  error={!!errors.wifeId}
+                  helperText={errors.wifeId?.message}
+                  fieldName="wifeId"
+                  leftIcon="human-female"
+                />
+              )}
             />
           </View>
 

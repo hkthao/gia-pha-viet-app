@@ -10,5 +10,6 @@ export { default as GlobalSnackbar } from './GlobalSnackbar';
 export { default as LoadingOverlay } from './LoadingOverlay';
 export { default as OptionSelectBottomSheet } from './OptionSelectBottomSheet';
 export { default as DateInput } from './DateInput'; // Export DateInput
+export { default as IosDatePickerModal } from './IosDatePickerModal'; // Export IosDatePickerModal
 export { UserCheckModal } from './UserCheckModal';
 export { UserRoleSelector } from './UserRoleSelector';

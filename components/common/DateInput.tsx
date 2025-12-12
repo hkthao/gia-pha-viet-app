@@ -4,6 +4,7 @@ import { TextInput, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
+import IosDatePickerModal from './IosDatePickerModal'; // Import IosDatePickerModal
 
 interface DateInputProps {
   label?: string;
@@ -33,7 +34,7 @@ const DateInput: React.FC<DateInputProps> = ({
   const [showPicker, setShowPicker] = useState(false);
 
   const formattedDate = useMemo(() => {
-    if (value) {
+    if (value instanceof Date && !isNaN(value.getTime())) {
       // Format as dd/MM/yyyy
       return new Intl.DateTimeFormat('vi-VN', {
         day: '2-digit',
@@ -50,14 +51,8 @@ const DateInput: React.FC<DateInputProps> = ({
 
   const handleDateChange = useCallback((event: any, selectedDate: Date | undefined) => {
     setShowPicker(false);
-    if (selectedDate) {
+    if (selectedDate !== undefined) {
       onChange(selectedDate);
-    } else if (Platform.OS === 'android') {
-      // On Android, if user cancels, selectedDate is undefined.
-      // We don't want to clear the date unless explicitly desired.
-      // So, we just close the picker without changing the value.
-    } else {
-      // On iOS, if user cancels, selectedDate is undefined, keep previous date
     }
   }, [onChange]);
 
@@ -84,14 +79,28 @@ const DateInput: React.FC<DateInputProps> = ({
       />
       {helperText && error && <Text style={{ color: theme.colors.error }}>{helperText}</Text>}
 
-      {showPicker && (
+      {Platform.OS === 'ios' && (
+        <IosDatePickerModal
+          visible={showPicker}
+          onDismiss={() => setShowPicker(false)}
+          value={value}
+          onChange={onChange}
+          mode={mode}
+          maximumDate={maximumDate}
+          minimumDate={minimumDate}
+          label={label}
+        />
+      )}
+
+      {Platform.OS === 'android' && showPicker && (
         <DateTimePicker
           value={value || new Date()} // Use current value or default to today
           mode={mode}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="default" // Android default display
           maximumDate={maximumDate}
           minimumDate={minimumDate}
           onChange={handleDateChange}
+          textColor={theme.colors.onSurface} // Added textColor
         />
       )}
     </View>

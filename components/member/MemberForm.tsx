@@ -12,6 +12,7 @@ import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use fo
 import { Gender } from '@/types';
 import { MemberSelectInput } from './'; // Import MemberSelectInput from the index file
 import { DateInput } from '@/components/common'; // Import DateInput
+import { Controller } from 'react-hook-form'; // Import Controller
 
 interface MemberFormProps {
   initialValues?: MemberDetailDto;
@@ -31,8 +32,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   const firstName = watch('firstName');
   const lastName = watch('lastName');
   const gender = watch('gender');
-  const dateOfBirth = watch('dateOfBirth');
-  const dateOfDeath = watch('dateOfDeath');
   const placeOfBirth = watch('placeOfBirth');
   const placeOfDeath = watch('placeOfDeath');
   const occupation = watch('occupation');
@@ -180,24 +179,36 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             {errors.gender && <Text style={styles.errorText}>{errors.gender.message}</Text>}
           </View>
 
-          <DateInput
-            label={t('memberForm.dateOfBirth')}
-            value={dateOfBirth}
-            onChange={(date) => setValue('dateOfBirth', date, { shouldValidate: true })}
-            maximumDate={new Date()}
-            error={!!errors.dateOfBirth}
-            helperText={errors.dateOfBirth?.message}
-            style={styles.input}
+          <Controller
+            control={control}
+            name="dateOfBirth"
+            render={({ field: { onChange, value } }) => (
+              <DateInput
+                label={t('memberForm.dateOfBirth')}
+                value={value}
+                onChange={onChange}
+                maximumDate={new Date()}
+                error={!!errors.dateOfBirth}
+                helperText={errors.dateOfBirth?.message}
+                style={styles.input}
+              />
+            )}
           />
 
-          <DateInput
-            label={t('memberForm.dateOfDeath')}
-            value={dateOfDeath}
-            onChange={(date) => setValue('dateOfDeath', date, { shouldValidate: true })}
-            maximumDate={new Date()}
-            error={!!errors.dateOfDeath}
-            helperText={errors.dateOfDeath?.message}
-            style={styles.input}
+          <Controller
+            control={control}
+            name="dateOfDeath"
+            render={({ field: { onChange, value } }) => (
+              <DateInput
+                label={t('memberForm.dateOfDeath')}
+                value={value}
+                onChange={onChange}
+                maximumDate={new Date()}
+                error={!!errors.dateOfDeath}
+                helperText={errors.dateOfDeath?.message}
+                style={styles.input}
+              />
+            )}
           />
 
           <TextInput

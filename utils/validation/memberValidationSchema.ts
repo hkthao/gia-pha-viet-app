@@ -28,12 +28,12 @@ export const memberValidationSchema = yup.object({
     .date()
     .nullable()
     .optional()
-    .max(new Date(), () => globalI18n.t('memberForm.validation.dateOfBirthFuture')),
+    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('memberForm.validation.dateOfBirthFuture')),
   dateOfDeath: yup
     .date()
     .nullable()
     .optional()
-    .max(new Date(), () => globalI18n.t('memberForm.validation.dateOfDeathFuture'))
+    .max(new Date(new Date().setDate(new Date().getDate() + 1)), () => globalI18n.t('memberForm.validation.dateOfDeathFuture'))
     .test(
       'date-of-death-after-birth',
       () => globalI18n.t('memberForm.validation.dateOfDeathBeforeBirth'),

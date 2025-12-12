@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Platform } from 'react-native'; // Added Platform
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native'; // Added Platform
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMemberForm } from '@/hooks/member/useMemberForm';
@@ -114,7 +114,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
       justifyContent: 'flex-start',
     },
     segmentedButtonContainer: {
-      marginBottom: SPACING_MEDIUM,
+      marginVertical: SPACING_MEDIUM,
     },
   });
 
@@ -131,7 +131,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
               style={styles.avatar}
             />
             <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
-              {t('memberForm.chooseAvatar')}
+              {t('common.chooseAvatar')}
             </Button>
             {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
           </View>
@@ -171,7 +171,6 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
           {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
           <View style={styles.segmentedButtonContainer}>
-            <Text style={{ marginBottom: SPACING_SMALL }}>{t('memberForm.gender')}</Text>
             <Controller
               control={control}
               name="gender"

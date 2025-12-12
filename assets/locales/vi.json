@@ -139,7 +139,7 @@
   "familyDict.type.other": "Khác",
   "familyForm.address": "Địa chỉ",
   "familyForm.avatar": "Ảnh đại diện",
-  "familyForm.chooseAvatar": "Chọn ảnh đại diện",
+  "common.chooseAvatar": "Chọn ảnh đại diện",
   "familyForm.createError": "Tạo gia đình thất bại.",
   "familyForm.createSuccess": "Tạo gia đình thành công!",
   "familyForm.createTitle": "Tạo gia đình mới",

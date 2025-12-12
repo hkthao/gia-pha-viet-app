@@ -135,7 +135,7 @@
   "familyDict.type.other": "Other",
   "familyForm.address": "Address",
   "familyForm.avatar": "Family Avatar",
-  "familyForm.chooseAvatar": "Choose Avatar",
+  "common.chooseAvatar": "Choose Avatar",
   "familyForm.createError": "Failed to create family.",
   "familyForm.createSuccess": "Family created successfully!",
   "familyForm.createTitle": "Create New Family",

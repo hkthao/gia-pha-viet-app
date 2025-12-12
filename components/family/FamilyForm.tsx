@@ -150,7 +150,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
               style={styles.avatar}
             />
             <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
-              {t('familyForm.chooseAvatar')}
+              {t('common.chooseAvatar')}
             </Button>
             {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
           </View>

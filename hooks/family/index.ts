@@ -3,3 +3,4 @@ export * from './useFamilyForm';
 export * from './useFamilyDetails';
 export * from './useCreateFamily';
 export * from './useCurrentFamilyId';
+export * from './useFamilyUserManagement';

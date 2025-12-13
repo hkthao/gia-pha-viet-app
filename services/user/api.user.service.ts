@@ -3,7 +3,13 @@ import { IUserService } from './user.service.interface';
 import { UserCheckResultDto, PaginatedList, UserListDto, SearchUsersQuery } from '@/types';
 
 export class ApiUserService implements IUserService {
-  constructor(private apiClient: ApiClientMethods) {}
+  constructor(private apiClient: ApiClientMethods) { }
+
+  async getByIds(ids: string[]): Promise<UserListDto[]> {
+    return await this.apiClient.get<UserListDto[]>(`/user/by-ids`, {
+      params: { ids: ids.join(",") },
+    });
+  }
 
   async checkUserByEmailOrUsername(identifier: string): Promise<UserCheckResultDto> {
     const response = await this.apiClient.get<UserCheckResultDto>(`/user/check-by-identifier`, {

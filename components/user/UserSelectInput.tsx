@@ -41,7 +41,6 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
       return result;
     },
     enabled: userIds && userIds.length > 0,
-    staleTime: Infinity,
   });
 
   const selectedUsers = useMemo(() => fetchedUsers || [], [fetchedUsers]);

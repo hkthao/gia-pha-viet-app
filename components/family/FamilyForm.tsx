@@ -12,6 +12,8 @@ import type { FamilyDetailDto, FamilyUserDto, UserListDto } from '@/types';
 import { FamilyRole } from '@/types';
 import { UserSelectInput } from '@/components/user';
 import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // Import useQuery, useQueryClient
+import { userService } from '@/services'; // Import userService
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -21,47 +23,99 @@ interface FamilyFormProps {
 export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit }) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const queryClient = useQueryClient();
 
   const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useFamilyForm({ initialValues, onSubmit });
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  const familyUsers = useMemo(() => watch('familyUsers') || [], [watch]);
+  const familyUsers = watch('familyUsers') || [];
 
-  const managers = useMemo(() => familyUsers
-    .filter(fu => fu.role === FamilyRole.Manager)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '', authProviderId: '' })), [familyUsers]);
+  const allUserIds = familyUsers.map(fu => fu.userId);
 
-  const viewers = useMemo(() => familyUsers
-    .filter(fu => fu.role === FamilyRole.Viewer)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '',  authProviderId: '' })), [familyUsers]);
+  const { data: fetchedFamilyUserDetails } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
+    queryKey: ['familyUserDetails', { userIds: allUserIds }],
+    queryFn: async ({ queryKey }) => {
+      const [, { userIds: idsToFetch }] = queryKey;
+      if (!idsToFetch || idsToFetch.length === 0) {
+        return [];
+      }
+      const result = await userService.getByIds(idsToFetch);
+      return result;
+    },
+    enabled: allUserIds.length > 0,
+  });
+
+  const managers = useMemo(() => {
+    if (!fetchedFamilyUserDetails) {
+      return [];
+    }
+    const mgrs = familyUsers
+      .filter(fu => fu.role === FamilyRole.Manager)
+      .map(fu => {
+        const userDetail = fetchedFamilyUserDetails.find(detail => detail.id === fu.userId);
+        return {
+          id: fu.userId,
+          name: userDetail?.name || fu.userName || '',
+          email: userDetail?.email || '',
+        };
+      });
+    return mgrs;
+  }, [familyUsers, fetchedFamilyUserDetails]);
+
+  const viewers = useMemo(() => {
+    if (!fetchedFamilyUserDetails) {
+      return [];
+    }
+    const vwrs = familyUsers
+      .filter(fu => fu.role === FamilyRole.Viewer)
+      .map(fu => {
+        const userDetail = fetchedFamilyUserDetails.find(detail => detail.id === fu.userId);
+        return {
+          id: fu.userId,
+          name: userDetail?.name || fu.userName || '',
+          email: userDetail?.email || '',
+        };
+      });
+    return vwrs;
+  }, [familyUsers, fetchedFamilyUserDetails]);
 
 
   const handleManagersChanged = useCallback((managerIds: string[]) => {
+    const newManagersWithDetails = managerIds.map(userId => {
+      const userDetail = fetchedFamilyUserDetails?.find(detail => detail.id === userId);
+      return {
+        familyId: initialValues?.id,
+        userId: userId,
+        userName: userDetail?.name || '', // Use fetched name
+        email: userDetail?.email || '',   // Use fetched email
+        role: FamilyRole.Manager,
+      };
+    });
 
-    const newManagers: FamilyUserDto[] = managerIds.map(userId => ({
-      familyId: initialValues?.id,
-      userId: userId,
-      userName: '', // Placeholder
-      email: '',   // Placeholder
-      role: FamilyRole.Manager,
-    }));
     const currentViewers = familyUsers.filter(fu => fu.role === FamilyRole.Viewer);
-    setValue('familyUsers', [...newManagers, ...currentViewers], { shouldValidate: true });
-  }, [initialValues?.id, familyUsers, setValue]);
+    const updatedFamilyUsers = [...newManagersWithDetails, ...currentViewers];
+    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
+    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails]);
 
   const handleViewersChanged = useCallback((viewerIds: string[]) => {
+    const newViewersWithDetails = viewerIds.map(userId => {
+      const userDetail = fetchedFamilyUserDetails?.find(detail => detail.id === userId);
+      return {
+        familyId: initialValues?.id,
+        userId: userId,
+        userName: userDetail?.name || '', // Use fetched name
+        email: userDetail?.email || '',   // Use fetched email
+        role: FamilyRole.Viewer,
+      };
+    });
 
-    const newViewers: FamilyUserDto[] = viewerIds.map(userId => ({
-      familyId: initialValues?.id,
-      userId: userId,
-      userName: '', // Placeholder
-      email: '',   // Placeholder
-      role: FamilyRole.Viewer,
-    }));
     const currentManagers = familyUsers.filter(fu => fu.role === FamilyRole.Manager);
-    setValue('familyUsers', [...currentManagers, ...newViewers], { shouldValidate: true });
-  }, [initialValues?.id, familyUsers, setValue]);
+    const updatedFamilyUsers = [...currentManagers, ...newViewersWithDetails];
+    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
+    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails]);
 
   const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {

@@ -3,16 +3,17 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { familyValidationSchema, FamilyFormData, setFamilyValidationI18n } from '@/utils/validation';
 import { useEffect, useMemo } from 'react';
-import type { FamilyDetailDto, FamilyUserDto } from '@/types/family'; // Import FamilyUserDto
+import { FamilyDetailDto, FamilyRole } from '@/types'; // Import FamilyUserDto
 
 // Define a type that aligns with FamilyFormData (from yup.optional())
 type FamilyFormInitialValues = {
   name: string;
-  description?: string; // undefined, not null
-  address?: string;     // undefined, not null
-  avatarUrl?: string;   // undefined, not null
+  description?: string;
+  address?: string;
+  avatarUrl?: string;
   visibility: 'Public' | 'Private';
-  familyUsers?: FamilyUserDto[]; // Add familyUsers
+  managerIds?: string[];
+  viewerIds?: string[];
 };
 
 interface UseFamilyFormProps {
@@ -30,16 +31,24 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
 
   const defaultFormValues: FamilyFormInitialValues = {
     name: '',
-    description: undefined, // Use undefined
-    address: undefined,     // Use undefined
-    avatarUrl: undefined,   // Use undefined
+    description: undefined,
+    address: undefined,
+    avatarUrl: undefined,
     visibility: 'Private',
-    familyUsers: [], // Default to empty array
+    managerIds: [], // Initialize as empty array
+    viewerIds: [],  // Initialize as empty array
   };
 
   // Convert initialValues from FamilyDetailDto to FamilyFormInitialValues
   const mappedInitialValues: FamilyFormInitialValues | undefined = useMemo(() => {
     if (initialValues) {
+      const initialManagerIds = initialValues.familyUsers
+        ?.filter(fu => fu.role === FamilyRole.Manager)
+        .map(fu => fu.userId) || [];
+      const initialViewerIds = initialValues.familyUsers
+        ?.filter(fu => fu.role === FamilyRole.Viewer)
+        .map(fu => fu.userId) || [];
+
       return {
         name: initialValues.name,
         description: initialValues.description || undefined, // Convert null to undefined
@@ -48,13 +57,14 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
         visibility: (initialValues.visibility === 'Public' || initialValues.visibility === 'Private')
           ? initialValues.visibility
           : 'Private',
-        familyUsers: initialValues.familyUsers || [], // Include familyUsers
+        managerIds: initialManagerIds,
+        viewerIds: initialViewerIds,
       };
     }
     return undefined;
   }, [initialValues]);
 
-  const { control, handleSubmit, formState: { errors, isSubmitting, isValid }, reset, setValue, watch } = useForm<FamilyFormData>({
+  const { control, handleSubmit, formState: { errors, isSubmitting, isValid }, reset, setValue, watch, trigger } = useForm<FamilyFormData>({
     resolver: yupResolver(familyValidationSchema),
     defaultValues: mappedInitialValues || defaultFormValues,
   });
@@ -74,5 +84,6 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
     setValue,
     watch,
     isValid,
+    trigger, // Add trigger to the returned object
   };
 }

@@ -30,22 +30,39 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { data: fetchedUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string }]>({
-    queryKey: ['users', { userIds: JSON.stringify([...userIds].sort()) }],
+  // Log received userIds prop
+  console.log('UserSelectInput: received userIds prop:', userIds);
+
+  const queryKey = useMemo(() => ['users', { userIds: JSON.stringify([...userIds].sort()) }], [userIds]);
+  console.log('UserSelectInput: generated queryKey:', queryKey);
+
+  const { data: fetchedUsers, isFetching, isStale, error: queryError } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string }]>({
+    queryKey: queryKey as [string, { userIds: string }],
     queryFn: async ({ queryKey }) => {
       const [, { userIds: idsToFetchString }] = queryKey;
       const idsToFetch = JSON.parse(idsToFetchString);
+      console.log('UserSelectInput: queryFn called with idsToFetch:', idsToFetch);
       if (!idsToFetch || idsToFetch.length === 0) {
+        console.log('UserSelectInput: queryFn - no IDs to fetch, returning empty array.');
         return [];
       }
       const result = await userService.getByIds(idsToFetch);
+      console.log('UserSelectInput: userService.getByIds returned:', result);
       return result;
     },
     enabled: userIds && userIds.length > 0,
+    staleTime: 0, // Force re-fetch on every query key change or invalidation
   });
 
-  const selectedUsers = useMemo(() => fetchedUsers || [], [fetchedUsers]);
-
+  console.log('UserSelectInput: useQuery status - isFetching:', isFetching, 'isStale:', isStale, 'error:', queryError);
+  
+  const selectedUsers = useMemo(() => {
+    const users = fetchedUsers || [];
+    console.log('UserSelectInput: selectedUsers (derived from fetchedUsers):', users);
+    return users;
+  }, [fetchedUsers]);
+  
+  
   const handleOpenModal = useCallback(() => {
     setModalVisible(true);
   }, []);

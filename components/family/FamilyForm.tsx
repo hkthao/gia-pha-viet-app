@@ -1,7 +1,7 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/services';
-import { UserListDto, FamilyRole } from '@/types';
+import { UserListDto } from '@/types';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +26,13 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useFamilyForm({ initialValues, onSubmit });
   const queryClient = useQueryClient();
 
+  const managerIds = watch('managerIds');
+  const viewerIds = watch('viewerIds');
+
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
   // Watch managerIds and viewerIds from the form
-  const managerIds = watch('managerIds');
-  const viewerIds = watch('viewerIds');
+
 
   // Combine all user IDs for fetching details
   const allUserIds = useMemo(() => {
@@ -57,29 +59,17 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     if (!fetchedAllUserDetails || !managerIds) {
       return [];
     }
-    return managerIds.map(id => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
+    return managerIds.map((id: string) => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
   }, [managerIds, fetchedAllUserDetails]);
 
   const viewersWithDetails = useMemo(() => {
     if (!fetchedAllUserDetails || !viewerIds) {
       return [];
     }
-    return viewerIds.map(id => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
+    return viewerIds.map((id: string) => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
   }, [viewerIds, fetchedAllUserDetails]);
 
-  // Handle changes for managers
-  const handleManagersChanged = useCallback((newManagerIds: string[]) => {
-    setValue('managerIds', newManagerIds, { shouldValidate: true });
-    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] }); // Invalidate detail query in this component
-    queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate general users query for UserSelectInput
-  }, [setValue, queryClient]);
 
-  // Handle changes for viewers
-  const handleViewersChanged = useCallback((newViewerIds: string[]) => {
-    setValue('viewerIds', newViewerIds, { shouldValidate: true });
-    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] }); // Invalidate detail query in this component
-    queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate general users query for UserSelectInput
-  }, [setValue, queryClient]);
 
 
 
@@ -274,19 +264,41 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
         </View>
 
         <View style={styles.formSection}>
-          <UserSelectInput
-            userIds={managerIds || []}
-            onUserIdsChanged={handleManagersChanged}
-            label={t('familyForm.selectManagers')}
-            leftIcon="account-group"
+          <Controller
+            control={control}
+            name="managerIds"
+            render={({ field: { onChange, value } }) => (
+              <UserSelectInput
+                userIds={value || []}
+                onUserIdsChanged={(newIds) => {
+                  onChange(newIds); // Update react-hook-form state
+                  // Invalidate queries manually as onChange does not re-trigger the useCallback
+                  queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+                  queryClient.invalidateQueries({ queryKey: ['users'] });
+                }}
+                label={t('familyForm.selectManagers')}
+                leftIcon="account-group"
+              />
+            )}
           />
 
 
-          <UserSelectInput
-            userIds={viewerIds || []}
-            onUserIdsChanged={handleViewersChanged}
-            label={t('familyForm.selectViewers')}
-            leftIcon="account-group-outline"
+          <Controller
+            control={control}
+            name="viewerIds"
+            render={({ field: { onChange, value } }) => (
+              <UserSelectInput
+                userIds={value || []}
+                onUserIdsChanged={(newIds) => {
+                  onChange(newIds); // Update react-hook-form state
+                  // Invalidate queries manually as onChange does not re-trigger the useCallback
+                  queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+                  queryClient.invalidateQueries({ queryKey: ['users'] });
+                }}
+                label={t('familyForm.selectViewers')}
+                leftIcon="account-group-outline"
+              />
+            )}
           />
 
         </View>

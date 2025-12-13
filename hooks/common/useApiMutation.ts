@@ -44,7 +44,8 @@ export const useApiMutation = <TData = unknown, TError = unknown, TVariables = v
         if (typeof (result as any).isSuccess === 'boolean') {
           const apiResult = result as Result<any>;
           if (!apiResult.isSuccess) {
-            throw new Error(apiResult.error?.message || t(errorMessageKey || 'common.error'));
+            // Return a rejected promise instead of throwing synchronously
+            return Promise.reject(new Error(apiResult.error?.message || t(errorMessageKey || 'common.error')));
           }
         }
         return result;
@@ -62,8 +63,10 @@ export const useApiMutation = <TData = unknown, TError = unknown, TVariables = v
       options?.onSuccess?.(data, variables, onMutateResult, context);
     },
     onError: (error: TError, variables: TVariables, onMutateResult: any, context: any) => {
-      const message = (error as any)?.message || t(errorMessageKey || 'common.error');
-      showSnackbar(message, 'error');
+      if (errorMessageKey) { // Only show snackbar if errorMessageKey is provided
+        const message = (error as any)?.message || t(errorMessageKey || 'common.error');
+        showSnackbar(message, 'error');
+      }
       // Call original onError if provided
       options?.onError?.(error, variables, onMutateResult, context);
     },

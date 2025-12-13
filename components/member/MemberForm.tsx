@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native'; // Added Platform
-import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
+import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons, Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useMemberForm } from '@/hooks/member/useMemberForm';
 import { MemberDetailDto } from '@/types/member'; // Import MemberDetailDto
@@ -12,7 +12,7 @@ import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use fo
 import { Gender } from '@/types';
 import { MemberSelectInput } from './'; // Import MemberSelectInput from the index file
 import { DateInput } from '@/components/common'; // Import DateInput
-import { Controller } from 'react-hook-form'; // Import Controller
+import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
 
 interface MemberFormProps {
   initialValues?: MemberDetailDto;
@@ -36,10 +36,13 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   const placeOfDeath = watch('placeOfDeath');
   const occupation = watch('occupation');
   const biography = watch('biography');
-  // const motherId = watch('motherId'); // Removed
-  // const fatherId = watch('fatherId'); // Removed
-  // const husbandId = watch('husbandId'); // Removed
-  // const wifeId = watch('wifeId'); // Removed
+  const isDeceasedValue = !!useWatch({ control, name: 'isDeceased' });
+
+  React.useEffect(() => {
+    if (!isDeceasedValue) {
+      setValue('dateOfDeath', null, { shouldValidate: true });
+    }
+  }, [isDeceasedValue, setValue]);
 
   const pickImage = async () => {
     if (!mediaLibraryPermission?.granted) {
@@ -170,6 +173,77 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
           />
           {errors.lastName && <Text style={styles.errorText}>{errors.lastName.message}</Text>}
 
+          <Controller
+            control={control}
+            name="nickname"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.nickname')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.nickname}
+                left={<TextInput.Icon icon="card-account-details-outline" />}
+              />
+            )}
+          />
+          {errors.nickname && <Text style={styles.errorText}>{errors.nickname.message}</Text>}
+
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.phone')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.phone}
+                left={<TextInput.Icon icon="phone" />}
+                keyboardType="phone-pad"
+              />
+            )}
+          />
+          {errors.phone && <Text style={styles.errorText}>{errors.phone.message}</Text>}
+
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.email')}
+                mode="outlined"
+                value={value ?? ''}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.email}
+                left={<TextInput.Icon icon="email" />}
+                keyboardType="email-address"
+              />
+            )}
+          />
+          {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+          <Controller
+            control={control}
+            name="order"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('memberForm.order')}
+                mode="outlined"
+                value={value?.toString() ?? ''}
+                onChangeText={(text) => onChange(text ? parseInt(text, 10) : undefined)}
+                style={styles.input}
+                error={!!errors.order}
+                left={<TextInput.Icon icon="format-list-numbered" />}
+                keyboardType="numeric"
+              />
+            )}
+          />
+          {errors.order && <Text style={styles.errorText}>{errors.order.message}</Text>}
+
           <View style={styles.segmentedButtonContainer}>
             <Controller
               control={control}
@@ -215,19 +289,35 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
 
           <Controller
             control={control}
-            name="dateOfDeath"
+            name="isDeceased"
             render={({ field: { onChange, value } }) => (
-              <DateInput
-                label={t('memberForm.dateOfDeath')}
-                value={value}
-                onChange={onChange}
-                maximumDate={new Date()}
-                error={!!errors.dateOfDeath}
-                helperText={errors.dateOfDeath?.message}
-                style={styles.input}
-              />
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING_MEDIUM }}>
+                <Switch
+                  value={!!value}
+                  onValueChange={onChange}
+                />
+                <Text style={{ marginLeft: SPACING_MEDIUM }}>{t('memberForm.isDeceased')}</Text>
+              </View>
             )}
           />
+
+          {isDeceasedValue && (
+            <Controller
+              control={control}
+              name="dateOfDeath"
+              render={({ field: { onChange, value } }) => (
+                <DateInput
+                  label={t('memberForm.dateOfDeath')}
+                  value={value}
+                  onChange={onChange}
+                  maximumDate={new Date()}
+                  error={!!errors.dateOfDeath}
+                  helperText={errors.dateOfDeath?.message}
+                  style={styles.input}
+                />
+              )}
+            />
+          )}
 
           <Controller
             control={control}
@@ -299,6 +389,20 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
             )}
           />
           {errors.biography && <Text style={styles.errorText}>{errors.biography.message}</Text>}
+
+          <Controller
+            control={control}
+            name="isRoot"
+            render={({ field: { onChange, value } }) => (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING_MEDIUM }}>
+                <Switch
+                  value={!!value}
+                  onValueChange={onChange}
+                />
+                <Text style={{ marginLeft: SPACING_MEDIUM }}>{t('memberForm.isRoot')}</Text>
+              </View>
+            )}
+          />
         </View>
 
         <View style={styles.formSection}>

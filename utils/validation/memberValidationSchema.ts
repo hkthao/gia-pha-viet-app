@@ -117,6 +117,25 @@ export const memberValidationSchema = yup.object({
     .uuid(() => globalI18n.t('validation.invalidUuid'))
     .transform(value => value === '' ? undefined : value)
     .optional(),
+  nickname: yup
+    .string()
+    .trim()
+    .transform(value => value === '' ? undefined : value)
+    .max(100, () => globalI18n.t('validation.maxLength', { max: 100 }))
+    .optional(),
+  order: yup
+    .number()
+    .transform(value => (isNaN(value as number) || value === null) ? undefined : value) // Ensure value is treated as number
+    .integer(() => globalI18n.t('validation.invalidNumber', { fieldName: globalI18n.t('memberForm.order') }))
+    .min(0, () => globalI18n.t('validation.min', { fieldName: globalI18n.t('memberForm.order'), min: 0 }))
+    .nullable()
+    .optional(),
+  isDeceased: yup
+    .boolean()
+    .optional(),
+  isRoot: yup
+    .boolean()
+    .optional(),
 });
 
 export interface MemberFormData {
@@ -131,7 +150,7 @@ export interface MemberFormData {
   fatherId?: string;
   avatarUrl?: string;
   avatarBase64?: string;
-  isAlive: boolean;
+  isAlive: boolean; // This should probably be derived from dateOfDeath or removed if isDeceased is explicit
   biography?: string;
   occupation?: string;
   phone?: string;
@@ -139,4 +158,8 @@ export interface MemberFormData {
   address?: string;
   husbandId?: string;
   wifeId?: string;
+  nickname?: string;
+  order?: number;
+  isDeceased?: boolean;
+  isRoot?: boolean;
 }

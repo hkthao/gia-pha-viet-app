@@ -79,4 +79,6 @@ export interface MemberDetailDto extends BaseAuditableDto {
   wifeId?: string;
   sourceRelationships: RelationshipDto[];
   targetRelationships: RelationshipDto[];
+  order?: number;
+  isDeceased?: boolean;
 }

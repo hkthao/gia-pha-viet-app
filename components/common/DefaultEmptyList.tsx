@@ -9,7 +9,10 @@ interface DefaultEmptyListProps {
 
 const DefaultEmptyList: React.FC<DefaultEmptyListProps> = React.memo(({ styles, t }) => {
   return (
-    <View style={styles.emptyContainer}>
+    <View style={{
+      display:"flex",
+      alignItems:"center"
+    }}>
       <Text variant="titleMedium" style={styles.emptyListText}>
         {t('search.no_results')}
       </Text>

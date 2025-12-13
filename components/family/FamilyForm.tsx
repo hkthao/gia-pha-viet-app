@@ -11,7 +11,7 @@ import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import type { FamilyDetailDto, FamilyUserDto, UserListDto } from '@/types';
 import { FamilyRole } from '@/types';
 import { UserSelectInput } from '@/components/user';
-
+import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -23,11 +23,9 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   const theme = useTheme();
 
   const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useFamilyForm({ initialValues, onSubmit });
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  // Watch familyUsers from form state
   const familyUsers = useMemo(() => watch('familyUsers') || [], [watch]);
 
   const managers = useMemo(() => familyUsers
@@ -63,7 +61,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     setValue('familyUsers', [...currentManagers, ...newViewers], { shouldValidate: true });
   }, [initialValues?.id, familyUsers, setValue, t]);
 
-  const pickImage = async () => {
+  const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
       const { granted } = await requestMediaLibraryPermission();
       if (!granted) {
@@ -83,8 +81,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
       const selectedUri = result.assets[0].uri;
       const base64Data = result.assets[0].base64; // Get base64 data
 
-      setAvatarPreview(selectedUri);
-      setValue('avatarUrl', selectedUri, { shouldValidate: true });
+      onFieldChange(selectedUri); // Use onChange from Controller
       if (base64Data) {
         setValue('avatarBase64', `data:image/jpeg;base64,${base64Data}`, { shouldValidate: true }); // Prepend data URI scheme
       }
@@ -145,79 +142,109 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     <View style={styles.mainContainer}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.formSection}>
-          <View style={styles.avatarSection}>
-            <Avatar.Image
-              size={96}
-              source={avatarPreview ? { uri: avatarPreview } : DefaultFamilyAvatar}
-              style={styles.avatar}
-            />
-            <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
-              {t('common.chooseAvatar')}
-            </Button>
-            {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
-          </View>
+          <Controller
+            control={control}
+            name="avatarUrl"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.avatarSection}>
+                <Avatar.Image
+                  size={96}
+                  source={value ? { uri: value } : DefaultFamilyAvatar}
+                  style={styles.avatar}
+                />
+                <Button mode="outlined" onPress={() => pickImage(onChange)} disabled={!mediaLibraryPermission?.granted}>
+                  {t('common.chooseAvatar')}
+                </Button>
+              </View>
+            )}
+          />
+          {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
         </View>
 
         <View style={styles.formSection}>
-          <SegmentedButtons
-            theme={{ roundness: theme.roundness }}
-            value={control._formValues.visibility as 'Public' | 'Private'}
-            onValueChange={newValue => setValue('visibility', newValue as 'Public' | 'Private', { shouldValidate: true })}
-            buttons={[
-              {
-                value: 'Public',
-                label: t('familyForm.public'),
-                style: {
-                  borderRadius: theme.roundness,
-                }
-              },
-              {
-                value: 'Private',
-                label: t('familyForm.private'),
-                style: {
-                  borderRadius: theme.roundness,
-                }
-              },
-            ]}
+          <Controller
+            control={control}
+            name="visibility"
+            render={({ field: { onChange, value } }) => (
+              <SegmentedButtons
+                theme={{ roundness: theme.roundness }}
+                value={value as 'Public' | 'Private'}
+                onValueChange={newValue => onChange(newValue as 'Public' | 'Private')}
+                buttons={[
+                  {
+                    value: 'Public',
+                    label: t('familyForm.public'),
+                    style: {
+                      borderRadius: theme.roundness,
+                    }
+                  },
+                  {
+                    value: 'Private',
+                    label: t('familyForm.private'),
+                    style: {
+                      borderRadius: theme.roundness,
+                    }
+                  },
+                ]}
+              />
+            )}
           />
           {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
         </View>
 
         <View style={styles.formSection}>
-          <TextInput
-            label={t('familyForm.name')}
-            mode="outlined"
-            value={control._formValues.name}
-            onChangeText={(text) => setValue('name', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.name}
-            left={<TextInput.Icon icon="account" />}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('familyForm.name')}
+                mode="outlined"
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.name}
+                left={<TextInput.Icon icon="account" />}
+              />
+            )}
           />
           {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
-            <TextInput
-            label={t('familyForm.address')}
-            mode="outlined"
-            multiline
-            numberOfLines={2}
-            value={control._formValues.address}
-            onChangeText={(text) => setValue('address', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.address}
-            left={<TextInput.Icon icon="map-marker-outline" />}
+          <Controller
+            control={control}
+            name="address"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('familyForm.address')}
+                mode="outlined"
+                multiline
+                numberOfLines={2}
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.address}
+                left={<TextInput.Icon icon="map-marker-outline" />}
+              />
+            )}
           />
           {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
 
-          <TextInput
-            label={t('familyForm.description')}
-            mode="outlined"
-            multiline
-            numberOfLines={10}
-            value={control._formValues.description}
-            onChangeText={(text) => setValue('description', text, { shouldValidate: true })}
-            style={styles.input}
-            error={!!errors.description}
-            left={<TextInput.Icon icon="note-text-outline" />}
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('familyForm.description')}
+                mode="outlined"
+                multiline
+                numberOfLines={10}
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.description}
+                left={<TextInput.Icon icon="note-text-outline" />}
+              />
+            )}
           />
           {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
         </View>

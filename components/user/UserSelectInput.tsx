@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { userService } from '@/services';
-import { SearchUsersQuery, PaginatedList } from '@/types';
+import { SearchUsersQuery } from '@/types';
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Text, useTheme, Chip } from 'react-native-paper';
@@ -30,17 +30,16 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { data: fetchedUsers, isLoading: isFetchingUsers } = useQuery<PaginatedList<UserListDto>, Error, UserListDto[], [string, { userIds: string[] }]>({
+  const { data: fetchedUsers, isLoading: isFetchingUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
     queryKey: ['users', { userIds }],
     queryFn: async ({ queryKey }) => {
       const [, { userIds: idsToFetch }] = queryKey;
       if (!idsToFetch || idsToFetch.length === 0) {
-        return { items: [], totalCount: 0, page: 1, totalPages: 0, totalItems: 0 };
+        return [];
       }
-      const result = await userService.search({ userIds: idsToFetch });
+      const result = await userService.getByIds(idsToFetch);
       return result;
     },
-    select: (data) => data.items,
     enabled: userIds && userIds.length > 0,
     staleTime: Infinity,
   });

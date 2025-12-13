@@ -46,6 +46,9 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
   viewerIds: yup
     .array(yup.string().defined().nonNullable())
     .default([]),
+  code: yup
+    .string()
+    .optional(),
 });
 
 export type FamilyFormData = {
@@ -57,4 +60,5 @@ export type FamilyFormData = {
   visibility: 'Public' | 'Private';
   managerIds?: string[];
   viewerIds?: string[];
+  code?: string;
 };

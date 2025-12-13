@@ -1,6 +1,6 @@
 import React from 'react';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2';
-import { MemberItem } from '@/components/member';
+import MemberItem from './MemberItem';
 import { MemberListDto, SearchMembersQuery } from '@/types';
 import { Modal, Portal, Text, IconButton } from 'react-native-paper';
 import { View, StyleSheet } from 'react-native';

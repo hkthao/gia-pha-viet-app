@@ -137,6 +137,7 @@
   "familyForm.address": "Address",
   "familyForm.avatar": "Family Avatar",
   "common.chooseAvatar": "Choose Avatar",
+  "familyForm.code": "Family Code",
   "familyForm.createError": "Failed to create family.",
   "familyForm.createSuccess": "Family created successfully!",
   "familyForm.createTitle": "Create New Family",

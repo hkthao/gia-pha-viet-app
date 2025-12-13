@@ -14,6 +14,7 @@ type FamilyFormInitialValues = {
   visibility: 'Public' | 'Private';
   managerIds: string[];
   viewerIds: string[];
+  code?: string;
 };
 
 interface UseFamilyFormProps {
@@ -37,6 +38,7 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
     visibility: 'Private',
     managerIds: [], // Initialize as empty array
     viewerIds: [],  // Initialize as empty array
+    code: undefined, // Default to undefined
   };
 
   // Convert initialValues from FamilyDetailDto to FamilyFormInitialValues

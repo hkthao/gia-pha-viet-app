@@ -26,6 +26,8 @@ export interface FamilyDetailDto extends BaseAuditableDto {
   totalMembers: number;
   totalGenerations: number;
   familyUsers: FamilyUserDto[];
+  managerIds: [];
+  viewerIds: [];
 }
 
 export interface FamilyListDto extends BaseAuditableDto {
@@ -37,6 +39,7 @@ export interface FamilyListDto extends BaseAuditableDto {
   totalMembers: number;
   totalGenerations: number;
   visibility: string;
+
 }
 
-export interface SearchFamiliesQuery extends BaseSearchQuery {}
+export interface SearchFamiliesQuery extends BaseSearchQuery { }

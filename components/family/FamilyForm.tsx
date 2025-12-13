@@ -205,6 +205,24 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
           <Controller
             control={control}
+            name="code"
+            render={({ field: { onChange, value } }) => (
+              <TextInput
+                label={t('familyForm.code')}
+                mode="outlined"
+                value={value}
+                onChangeText={onChange}
+                style={styles.input}
+                error={!!errors.code}
+                editable={false} // Make it read-only
+                left={<TextInput.Icon icon="pound" />}
+              />
+            )}
+          />
+          {errors.code && <Text style={styles.errorText}>{errors.code.message}</Text>}
+
+          <Controller
+            control={control}
             name="address"
             render={({ field: { onChange, value } }) => (
               <TextInput

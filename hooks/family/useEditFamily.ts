@@ -67,8 +67,10 @@ export const useEditFamily = () => {
       ];
 
       const result = await familyService.update(familyId, {
+        id: familyId,
         name: data.name,
         description: convertNullToUndefined(data.description),
+        code: convertNullToUndefined(data.code),
         address: convertNullToUndefined(data.address),
         avatarUrl: convertNullToUndefined(data.avatarUrl),
         visibility: data.visibility,

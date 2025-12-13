@@ -141,6 +141,7 @@
   "familyForm.address": "Địa chỉ",
   "familyForm.avatar": "Ảnh đại diện",
   "common.chooseAvatar": "Chọn ảnh đại diện",
+  "familyForm.code": "Mã gia đình",
   "familyForm.createError": "Tạo gia đình thất bại.",
   "familyForm.createSuccess": "Tạo gia đình thành công!",
   "familyForm.createTitle": "Tạo gia đình mới",

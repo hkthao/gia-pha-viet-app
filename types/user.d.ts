@@ -14,4 +14,5 @@ export interface UserListDto {
 }
 
 export interface SearchUsersQuery extends BaseSearchQuery {
+  userIds?: string[];
 }

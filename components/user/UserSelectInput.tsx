@@ -1,4 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { userService } from '@/services';
+import { SearchUsersQuery, PaginatedList } from '@/types';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Text, useTheme, Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -7,18 +10,18 @@ import { UserSelectModalComponent } from './UserSelectModal';
 import { SPACING_SMALL, SPACING_MEDIUM } from '@/constants/dimensions';
 
 interface UserSelectInputProps {
-  selectedUsers: UserListDto[];
+  userIds: string[];
   label?: string;
-  onUsersChanged: (users: UserListDto[]) => void;
+  onUserIdsChanged: (userIds: string[]) => void;
   error?: boolean;
   helperText?: string;
   leftIcon?: string;
 }
 
 const UserSelectInput: React.FC<UserSelectInputProps> = ({
-  selectedUsers,
+  userIds,
   label,
-  onUsersChanged,
+  onUserIdsChanged,
   error,
   helperText,
   leftIcon,
@@ -26,6 +29,23 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
+
+  const { data: fetchedUsers, isLoading: isFetchingUsers } = useQuery<PaginatedList<UserListDto>, Error, UserListDto[], [string, { userIds: string[] }]>({
+    queryKey: ['users', { userIds }],
+    queryFn: async ({ queryKey }) => {
+      const [, { userIds: idsToFetch }] = queryKey;
+      if (!idsToFetch || idsToFetch.length === 0) {
+        return { items: [], totalCount: 0, page: 1, totalPages: 0, totalItems: 0 };
+      }
+      const result = await userService.search({ userIds: idsToFetch });
+      return result;
+    },
+    select: (data) => data.items,
+    enabled: userIds && userIds.length > 0,
+    staleTime: Infinity,
+  });
+
+  const selectedUsers = useMemo(() => fetchedUsers || [], [fetchedUsers]);
 
   const handleOpenModal = useCallback(() => {
     setModalVisible(true);
@@ -36,14 +56,13 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   }, []);
 
   const handleUsersSelectedFromModal = useCallback((users: UserListDto[]) => {
-    onUsersChanged(users);
+    onUserIdsChanged(users.map(u => u.id)); // Emit user IDs
     setModalVisible(false);
-  }, [onUsersChanged]);
+  }, [onUserIdsChanged]);
 
   const handleRemoveUser = useCallback((userToRemove: UserListDto) => {
-    onUsersChanged(selectedUsers.filter(user => user.id !== userToRemove.id));
-  }, [selectedUsers, onUsersChanged]);
-
+    onUserIdsChanged(selectedUsers.filter(user => user.id !== userToRemove.id).map(u => u.id)); // Emit user IDs
+  }, [selectedUsers, onUserIdsChanged]);
   const displayValue = selectedUsers.length > 0
     ? selectedUsers.map(user => user.email).join(', ')
     : t('userSelectInput.selectUsers');

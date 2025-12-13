@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native'; // Added Platform
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons, Switch } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';

@@ -30,36 +30,38 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
   const managers = useMemo(() => familyUsers
     .filter(fu => fu.role === FamilyRole.Manager)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]);
+    .map(fu => ({ id: fu.userId, name: fu.userName || '', authProviderId: '' })), [familyUsers]);
 
   const viewers = useMemo(() => familyUsers
     .filter(fu => fu.role === FamilyRole.Viewer)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]);
+    .map(fu => ({ id: fu.userId, name: fu.userName || '',  authProviderId: '' })), [familyUsers]);
 
 
-  const handleManagersChanged = useCallback((selectedManagerUsers: UserListDto[]) => {
+  const handleManagersChanged = useCallback((managerIds: string[]) => {
 
-    const newManagers: FamilyUserDto[] = selectedManagerUsers.map(user => ({
+    const newManagers: FamilyUserDto[] = managerIds.map(userId => ({
       familyId: initialValues?.id,
-      userId: user.id,
-      userName: user.name,
+      userId: userId,
+      userName: '', // Placeholder
+      email: '',   // Placeholder
       role: FamilyRole.Manager,
     }));
     const currentViewers = familyUsers.filter(fu => fu.role === FamilyRole.Viewer);
     setValue('familyUsers', [...newManagers, ...currentViewers], { shouldValidate: true });
-  }, [initialValues?.id, familyUsers, setValue, t]);
+  }, [initialValues?.id, familyUsers, setValue]);
 
-  const handleViewersChanged = useCallback((selectedViewerUsers: UserListDto[]) => {
+  const handleViewersChanged = useCallback((viewerIds: string[]) => {
 
-    const newViewers: FamilyUserDto[] = selectedViewerUsers.map(user => ({
+    const newViewers: FamilyUserDto[] = viewerIds.map(userId => ({
       familyId: initialValues?.id,
-      userId: user.id,
-      userName: user.name,
+      userId: userId,
+      userName: '', // Placeholder
+      email: '',   // Placeholder
       role: FamilyRole.Viewer,
     }));
     const currentManagers = familyUsers.filter(fu => fu.role === FamilyRole.Manager);
     setValue('familyUsers', [...currentManagers, ...newViewers], { shouldValidate: true });
-  }, [initialValues?.id, familyUsers, setValue, t]);
+  }, [initialValues?.id, familyUsers, setValue]);
 
   const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
@@ -252,8 +254,8 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>{t('familyForm.managers')}</Text>
           <UserSelectInput
-            selectedUsers={managers}
-            onUsersChanged={handleManagersChanged}
+            userIds={managers.map(m => m.id)}
+            onUserIdsChanged={handleManagersChanged}
             label={t('familyForm.selectManagers')}
             leftIcon="account-group"
           />
@@ -263,8 +265,8 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
           <Text style={styles.sectionTitle}>{t('familyForm.viewers')}</Text>
           <UserSelectInput
-            selectedUsers={viewers}
-            onUsersChanged={handleViewersChanged}
+            userIds={viewers.map(v => v.id)}
+            onUserIdsChanged={handleViewersChanged}
             label={t('familyForm.selectViewers')}
             leftIcon="account-group-outline"
           />

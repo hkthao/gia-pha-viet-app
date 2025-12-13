@@ -7,7 +7,7 @@ import { useFamilyListStore } from '@/stores/useFamilyListStore';
 import { familyService } from '@/services';
 import { convertNullToUndefined } from '@/utils/typeUtils';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
-import { FamilyDetailDto } from '@/types'; // Import FamilyDetailDto for onSuccess result type
+import { FamilyDetailDto, FamilyRole } from '@/types'; // Import FamilyDetailDto for onSuccess result type
 
 /**
  * Custom hook for creating a new family.
@@ -21,12 +21,25 @@ export const useCreateFamily = () => {
 
   const { mutate, isPending, isError } = useApiMutation<FamilyDetailDto, Error, FamilyFormData>(
     async (data: FamilyFormData) => {
+      // Transform managerIds and viewerIds into FamilyUserDto[]
+      const familyUsers = [
+        ...(data.managerIds || []).map(id => ({
+          userId: id,
+          role: FamilyRole.Manager,
+        })),
+        ...(data.viewerIds || []).map(id => ({
+          userId: id,
+          role: FamilyRole.Viewer,
+        })),
+      ];
+
       const result = await familyService.create({
         name: data.name,
         description: convertNullToUndefined(data.description),
         address: convertNullToUndefined(data.address),
         avatarUrl: convertNullToUndefined(data.avatarUrl),
         visibility: data.visibility,
+        familyUsers: familyUsers, // Pass the transformed familyUsers
       });
       if (result.isSuccess) {
         return result.value as FamilyDetailDto;

@@ -3,7 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { familyValidationSchema, FamilyFormData, setFamilyValidationI18n } from '@/utils/validation';
 import { useEffect, useMemo } from 'react';
-import { FamilyDetailDto, FamilyRole } from '@/types'; // Import FamilyUserDto
+import { FamilyDetailDto } from '@/types'; // Import FamilyUserDto
 
 // Define a type that aligns with FamilyFormData (from yup.optional())
 type FamilyFormInitialValues = {
@@ -12,8 +12,8 @@ type FamilyFormInitialValues = {
   address?: string;
   avatarUrl?: string;
   visibility: 'Public' | 'Private';
-  managerIds?: string[];
-  viewerIds?: string[];
+  managerIds: string[];
+  viewerIds: string[];
 };
 
 interface UseFamilyFormProps {
@@ -42,13 +42,6 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
   // Convert initialValues from FamilyDetailDto to FamilyFormInitialValues
   const mappedInitialValues: FamilyFormInitialValues | undefined = useMemo(() => {
     if (initialValues) {
-      const initialManagerIds = initialValues.familyUsers
-        ?.filter(fu => fu.role === FamilyRole.Manager)
-        .map(fu => fu.userId) || [];
-      const initialViewerIds = initialValues.familyUsers
-        ?.filter(fu => fu.role === FamilyRole.Viewer)
-        .map(fu => fu.userId) || [];
-
       return {
         name: initialValues.name,
         description: initialValues.description || undefined, // Convert null to undefined
@@ -57,8 +50,8 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
         visibility: (initialValues.visibility === 'Public' || initialValues.visibility === 'Private')
           ? initialValues.visibility
           : 'Private',
-        managerIds: initialManagerIds,
-        viewerIds: initialViewerIds,
+        managerIds: initialValues.managerIds,
+        viewerIds: initialValues.viewerIds,
       };
     }
     return undefined;

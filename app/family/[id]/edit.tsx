@@ -4,7 +4,7 @@ import { Appbar, useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { FamilyForm } from '@/components/family';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
-import { useEditFamilyForm } from '@/hooks/family/useEditFamilyForm';
+import { useEditFamily } from '@/hooks/family/useEditFamily';
 
 export default function EditFamilyScreen() {
   const { t } = useTranslation();
@@ -17,7 +17,7 @@ export default function EditFamilyScreen() {
     // isSubmitting, // Removed as unused
     handleUpdateFamily,
     handleCancel,
-  } = useEditFamilyForm();
+  } = useEditFamily();
 
   const styles = StyleSheet.create({
     container: {

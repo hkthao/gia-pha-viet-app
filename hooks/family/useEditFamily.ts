@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { familyService } from '@/services';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { useFamilyListStore } from '@/stores/useFamilyListStore';
-import type { FamilyDetailDto } from '@/types/family';
+import { FamilyDetailDto, FamilyRole } from '@/types';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
 import { convertNullToUndefined } from '@/utils/typeUtils';
 
-export const useEditFamilyForm = () => {
+export const useEditFamily = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -55,12 +55,24 @@ export const useEditFamilyForm = () => {
     }
     setIsSubmitting(true);
     try {
+      const familyUsers = [
+        ...(data.managerIds || []).map(id => ({
+          userId: id,
+          role: FamilyRole.Manager,
+        })),
+        ...(data.viewerIds || []).map(id => ({
+          userId: id,
+          role: FamilyRole.Viewer,
+        })),
+      ];
+
       const result = await familyService.update(familyId, {
         name: data.name,
         description: convertNullToUndefined(data.description),
         address: convertNullToUndefined(data.address),
         avatarUrl: convertNullToUndefined(data.avatarUrl),
         visibility: data.visibility,
+        familyUsers: familyUsers,
       });
 
       if (result.isSuccess) {

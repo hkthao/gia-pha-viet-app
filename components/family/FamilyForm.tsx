@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper'; // Added Chip
+import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useFamilyForm } from '@/hooks/family/useFamilyForm';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
@@ -8,10 +8,10 @@ import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/
 import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
-import type { FamilyDetailDto, FamilyUserDto, UserCheckResultDto, UserListDto } from '@/types'; // Added UserListDto
+import type { FamilyDetailDto, FamilyUserDto, UserListDto } from '@/types';
 import { FamilyRole } from '@/types';
-import { UserSelectInput } from '@/components/user'; // New import
-import { useMemo } from 'react'; // Added useMemo
+import { UserSelectInput } from '@/components/user';
+
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -28,15 +28,15 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
   // Watch familyUsers from form state
-  const familyUsers = watch('familyUsers') || [];
+  const familyUsers = useMemo(() => watch('familyUsers') || [], [watch]);
 
   const managers = useMemo(() => familyUsers
     .filter(fu => fu.role === FamilyRole.Manager)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]); // Map to UserListDto
+    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]);
 
   const viewers = useMemo(() => familyUsers
     .filter(fu => fu.role === FamilyRole.Viewer)
-    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]); // Map to UserListDto
+    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]);
 
 
   const handleManagersChanged = useCallback((selectedManagerUsers: UserListDto[]) => {
@@ -47,7 +47,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     const newManagers: FamilyUserDto[] = selectedManagerUsers.map(user => ({
       familyId: initialValues.id,
       userId: user.id,
-      userName: user.name, // Assuming name from UserListDto maps to userName in FamilyUserDto
+      userName: user.name,
       role: FamilyRole.Manager,
     }));
     const currentViewers = familyUsers.filter(fu => fu.role === FamilyRole.Viewer);
@@ -62,7 +62,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     const newViewers: FamilyUserDto[] = selectedViewerUsers.map(user => ({
       familyId: initialValues.id,
       userId: user.id,
-      userName: user.name, // Assuming name from UserListDto maps to userName in FamilyUserDto
+      userName: user.name,
       role: FamilyRole.Viewer,
     }));
     const currentManagers = familyUsers.filter(fu => fu.role === FamilyRole.Manager);

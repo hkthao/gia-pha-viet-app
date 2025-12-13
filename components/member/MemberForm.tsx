@@ -10,7 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use for member if no specific one
 import { Gender } from '@/types';
-import { MemberSelectInput } from './'; // Import MemberSelectInput from the index file
+import { MemberSelectInput } from './MemberSelectInput';
 import { DateInput } from '@/components/common'; // Import DateInput
 import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
 

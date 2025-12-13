@@ -25,16 +25,9 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   const theme = useTheme();
 
   const { control, handleSubmit, errors, setValue, isSubmitting, isValid } = useMemberForm({ initialValues, onSubmit, isSubmitting: isSubmittingProp });
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  // const firstName = watch('firstName'); // Removed as unused
-  // const lastName = watch('lastName'); // Removed as unused
-  // const placeOfBirth = watch('placeOfBirth'); // Removed as unused
-  // const placeOfDeath = watch('placeOfDeath'); // Removed as unused
-  // const occupation = watch('occupation'); // Removed as unused
-  // const biography = watch('biography'); // Removed as unused
   const isDeceasedValue = !!useWatch({ control, name: 'isDeceased' });
 
   React.useEffect(() => {
@@ -43,7 +36,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
     }
   }, [isDeceasedValue, setValue]);
 
-  const pickImage = async () => {
+  const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
       const { granted } = await requestMediaLibraryPermission();
       if (!granted) {
@@ -63,8 +56,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
       const selectedUri = result.assets[0].uri;
       const base64Data = result.assets[0].base64; // Get base64 data
 
-      setAvatarPreview(selectedUri);
-      setValue('avatarUrl', selectedUri, { shouldValidate: true });
+      onFieldChange(selectedUri); // Use onChange from Controller
       if (base64Data) {
         setValue('avatarBase64', `data:image/jpeg;base64,${base64Data}`, { shouldValidate: true }); // Prepend data URI scheme
       }
@@ -126,17 +118,23 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.formSection}>
-          <View style={styles.avatarSection}>
-            <Avatar.Image
-              size={96}
-              source={avatarPreview ? { uri: avatarPreview } : DefaultFamilyAvatar}
-              style={styles.avatar}
-            />
-            <Button mode="outlined" onPress={pickImage} disabled={!mediaLibraryPermission?.granted}>
-              {t('common.chooseAvatar')}
-            </Button>
-            {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
-          </View>
+          <Controller
+            control={control}
+            name="avatarUrl"
+            render={({ field: { onChange, value } }) => (
+              <View style={styles.avatarSection}>
+                <Avatar.Image
+                  size={96}
+                  source={value ? { uri: value } : DefaultFamilyAvatar}
+                  style={styles.avatar}
+                />
+                <Button mode="outlined" onPress={() => pickImage(onChange)} disabled={!mediaLibraryPermission?.granted}>
+                  {t('common.chooseAvatar')}
+                </Button>
+              </View>
+            )}
+          />
+          {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
 
           <Controller
             control={control}

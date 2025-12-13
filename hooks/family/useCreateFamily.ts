@@ -38,6 +38,7 @@ export const useCreateFamily = () => {
         description: convertNullToUndefined(data.description),
         address: convertNullToUndefined(data.address),
         avatarUrl: convertNullToUndefined(data.avatarUrl),
+        avatarBase64: convertNullToUndefined(data.avatarBase64),
         visibility: data.visibility,
         familyUsers: familyUsers, // Pass the transformed familyUsers
       });

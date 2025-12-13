@@ -1,6 +1,6 @@
 // apps/mobile/family_tree_rn/services/family/api.family.service.ts
 
-import { FamilyListDto, SearchFamiliesQuery, FamilyDetailDto, PaginatedList, Result as TResult } from '@/types';
+import { FamilyListDto, SearchFamiliesQuery, FamilyDetailDto, PaginatedList, Result as TResult, FamilyCreateRequestDto, FamilyUpdateRequestDto } from '@/types';
 import { IFamilyService } from '@/services/family/family.service.interface';
 import { GenericService } from '../base/abstract.generic.service';
 import { ApiClientMethods } from '@/types/apiClient';
@@ -38,7 +38,7 @@ export class ApiFamilyService extends GenericService<FamilyListDto, SearchFamili
   }
 
   // Explicitly implement create for FamilyDetailDto
-  async create(entity: Partial<FamilyDetailDto>): Promise<TResult<FamilyDetailDto>> {
+  async create(entity: FamilyCreateRequestDto): Promise<TResult<FamilyDetailDto>> {
     try {
       const response = await this.apiClient.post<FamilyDetailDto>(this.baseEndpoint, entity);
       return Result.success(response);
@@ -48,7 +48,7 @@ export class ApiFamilyService extends GenericService<FamilyListDto, SearchFamili
   }
 
   // Explicitly implement update for FamilyDetailDto
-  async update(id: string, entity: Partial<FamilyDetailDto>): Promise<TResult<FamilyDetailDto>> {
+  async update(id: string, entity: FamilyUpdateRequestDto): Promise<TResult<FamilyDetailDto>> {
     try {
       const response = await this.apiClient.put<FamilyDetailDto>(`${this.baseEndpoint}/${id}`, entity);
       return Result.success(response);

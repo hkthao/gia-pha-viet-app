@@ -65,30 +65,30 @@ export default function DetailedInfoCard({ family }: DetailedInfoCardProps) {
             title={t('familyDetail.details.manager')}
             left={() => <List.Icon icon="account-tie" />}
             right={() => (
-                          <View style={styles.chipsContainer}>
-                            {family.familyUsers
-                              .filter((fu: FamilyUserDto) => fu.role === FamilyRole.Manager)
-                              .map((fu: FamilyUserDto, index: number) => (
-                                <Chip key={index} >
-                                  {fu.userName || fu.userId} {/* Display userName, fallback to userId */}
-                                </Chip>
-                              ))}
-                          </View>            )}
+              <View style={styles.chipsContainer}>
+                {family.familyUsers
+                  .filter((fu: FamilyUserDto) => fu.role === FamilyRole.Manager)
+                  .map((fu: FamilyUserDto, index: number) => (
+                    <Chip key={index} >
+                      {fu.email || fu.userId} {/* Display userName, fallback to userId */}
+                    </Chip>
+                  ))}
+              </View>)}
           />
           <Divider />
           <List.Item
             title={t('familyDetail.details.viewers')}
             left={() => <List.Icon icon="eye-outline" />}
             right={() => (
-                          <View style={styles.chipsContainer}>
-                            {family.familyUsers
-                              .filter((fu: FamilyUserDto) => fu.role === FamilyRole.Viewer)
-                              .map((fu: FamilyUserDto, index: number) => (
-                                <Chip key={index} >
-                                  {fu.userName || fu.userId} {/* Display userName, fallback to userId */}
-                                </Chip>
-                              ))}
-                          </View>            )}
+              <View style={styles.chipsContainer}>
+                {family.familyUsers
+                  .filter((fu: FamilyUserDto) => fu.role === FamilyRole.Viewer)
+                  .map((fu: FamilyUserDto, index: number) => (
+                    <Chip key={index} >
+                      {fu.email || fu.userId} {/* Display userName, fallback to userId */}
+                    </Chip>
+                  ))}
+              </View>)}
           />
           <Divider />
           <List.Item

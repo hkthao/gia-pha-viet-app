@@ -73,6 +73,7 @@ export const useEditFamily = () => {
         code: convertNullToUndefined(data.code),
         address: convertNullToUndefined(data.address),
         avatarUrl: convertNullToUndefined(data.avatarUrl),
+        avatarBase64: convertNullToUndefined(data.avatarBase64),
         visibility: data.visibility,
         familyUsers: familyUsers,
       });

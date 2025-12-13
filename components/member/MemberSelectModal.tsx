@@ -1,17 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
+import React from 'react';
+import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2';
 import { MemberItem } from '@/components/member';
-import { MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import { Modal, Portal, useTheme, Text, IconButton } from 'react-native-paper';
-import { Dimensions, View, StyleSheet } from 'react-native';
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { memberService } from '@/services'; // Import memberService
-import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
-import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
-
-const screenHeight = Dimensions.get('window').height;
+import { MemberListDto, SearchMembersQuery } from '@/types';
+import { Modal, Portal, Text, IconButton } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { SPACING_MEDIUM } from '@/constants/dimensions';
+import DefaultEmptyList from '@/components/common/DefaultEmptyList';
+import { useMemberSelectModal } from '@/hooks/member/useMemberSelectModal';
 
 const styles = StyleSheet.create({
   headerStyle: {
@@ -26,9 +21,6 @@ const styles = StyleSheet.create({
   }
 });
 
-// -----------------------------------------------------------------------------
-// MemberSelectModal Component
-// -----------------------------------------------------------------------------
 interface MemberSelectModalProps<TFieldName extends string> {
   isVisible: boolean;
   onClose: () => void;
@@ -42,58 +34,21 @@ const MemberSelectModalComponent = <TFieldName extends string>({
   onSelectMember,
   fieldName,
 }: MemberSelectModalProps<TFieldName>) => {
-  const { t } = useTranslation();
-  const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const {
+    memberSearchQueryFn,
+    getMemberSearchQueryKey,
+    initialQuery,
+    handleMemberPress,
+    containerStyle,
+    modalStyle,
+    currentFamilyId,
+    screenHeight,
+    t,
+  } = useMemberSelectModal({ onSelectMember, fieldName, onClose });
 
-  // Define the query function for fetching member data
-  const memberSearchQueryFn = useCallback(
-    async ({ pageParam = 1, filters }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {
-      if (!currentFamilyId) {
-        // This case should ideally be handled by disabling the query if currentFamilyId is null
-        // or by ensuring the modal isn't visible without a family context.
-        return { items: [], page: 1, totalPages: 0, totalItems: 0 };
-      }
-      const result = await memberService.search({ ...filters, familyId: currentFamilyId, page: pageParam });
-      if (result.isSuccess && result.value) {
-        return result.value;
-      }
-      throw new Error(result.error?.message || t('memberSearch.errors.unknown'));
-    },
-    [currentFamilyId, t]
-  );
-
-  // Define the query key generation function
-  const getMemberSearchQueryKey = useCallback((filters: SearchMembersQuery): QueryKey => {
-    return ['members', 'modalSearch', currentFamilyId, filters];
-  }, [currentFamilyId]);
-
-  const initialQuery: SearchMembersQuery = useMemo(() => ({
-    searchQuery: '',
-    gender: undefined,
-    isRoot: undefined,
-    familyId: currentFamilyId || '',
-  }), [currentFamilyId]);
-
-  const handleMemberPress = useCallback((member: MemberListDto) => {
-    onSelectMember(member, fieldName);
-    onClose();
-  }, [onSelectMember, onClose, fieldName]);
-
-  const customRenderItem = useCallback(({ item }: { item: MemberListDto, index: number }) => (
+  const customRenderItem = ({ item }: { item: MemberListDto, index: number }) => (
     <MemberItem item={item} onPress={() => handleMemberPress(item)} />
-  ), [handleMemberPress]);
-
-  const containerStyle = useMemo(() => ({
-    padding: SPACING_SMALL,
-    borderRadius: theme.roundness,
-    flex: 1,
-  }), [theme]);
-
-  const modalStyle = useMemo(() => ({
-    backgroundColor: theme.colors.background
-  }), [theme]);
-
+  );
 
   return (
     <Portal>
@@ -113,10 +68,10 @@ const MemberSelectModalComponent = <TFieldName extends string>({
           searchPlaceholder={t('memberSearch.placeholder')}
           containerStyle={{
             height: screenHeight * 0.9,
-            backgroundColor: theme.colors.background
+            backgroundColor: modalStyle.backgroundColor
           }}
           showFilterButton={false}
-          externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
+          externalDependencies={[currentFamilyId]}
           ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
         />
       </Modal>

@@ -40,12 +40,9 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
 
   const handleManagersChanged = useCallback((selectedManagerUsers: UserListDto[]) => {
-    if (initialValues?.id === undefined) {
-      Alert.alert(t('common.error'), t('familyForm.validation.cannotAddUsersDuringCreation'));
-      return;
-    }
+
     const newManagers: FamilyUserDto[] = selectedManagerUsers.map(user => ({
-      familyId: initialValues.id,
+      familyId: initialValues?.id,
       userId: user.id,
       userName: user.name,
       role: FamilyRole.Manager,
@@ -55,12 +52,9 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   }, [initialValues?.id, familyUsers, setValue, t]);
 
   const handleViewersChanged = useCallback((selectedViewerUsers: UserListDto[]) => {
-    if (initialValues?.id === undefined) {
-      Alert.alert(t('common.error'), t('familyForm.validation.cannotAddUsersDuringCreation'));
-      return;
-    }
+
     const newViewers: FamilyUserDto[] = selectedViewerUsers.map(user => ({
-      familyId: initialValues.id,
+      familyId: initialValues?.id,
       userId: user.id,
       userName: user.name,
       role: FamilyRole.Viewer,

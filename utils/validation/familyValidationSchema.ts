@@ -14,7 +14,7 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
   name: yup
     .string()
     .trim()
-    .required(() => globalI18n.t('validation.required'))
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('familyForm.name') }))
     .min(3, () => globalI18n.t('validation.minLength', { min: 3 }))
     .max(100, () => globalI18n.t('validation.maxLength', { max: 100 })),
   description: yup
@@ -39,7 +39,7 @@ export const familyValidationSchema: yup.ObjectSchema<FamilyFormData> = yup.obje
   visibility: yup
     .string()
     .oneOf(['Public', 'Private'], () => globalI18n.t('familyForm.validation.visibilityInvalid'))
-    .required(() => globalI18n.t('validation.required')) as yup.Schema<'Public' | 'Private'>,
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('familyForm.visibility') })) as yup.Schema<'Public' | 'Private'>,
   managerIds: yup
     .array(yup.string().defined().nonNullable())
     .default([]),

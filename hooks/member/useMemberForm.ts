@@ -38,6 +38,10 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
     wifeId: undefined,
     avatarUrl: undefined,
     avatarBase64: undefined,
+    order: undefined, // ensure order is in default form values
+    nickname: undefined, // ensure nickname is in default form values
+    isRoot: undefined, // ensure isRoot is in default form values
+    // isDeceased: is handled by form logic, not directly in default
   };
 
   const currentDefaultValues = useMemo(() => {
@@ -61,7 +65,11 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
         husbandId: initialValues.husbandId || undefined,
         wifeId: initialValues.wifeId || undefined,
         avatarUrl: initialValues.avatarUrl || undefined,
-        avatarBase64: undefined,
+        avatarBase64: undefined, // Not typically retrieved, only sent on update
+        order: initialValues.order || undefined,
+        nickname: initialValues.nickname || undefined,
+        isRoot: initialValues.isRoot || undefined,
+        isDeceased: initialValues.dateOfDeath ? true : false, // Derived from dateOfDeath
       };
     }
     return defaultFormValues;
@@ -74,42 +82,51 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
     setValue,
     watch,
     reset,
+    trigger, // Added trigger
   } = useForm<MemberFormData>({
     resolver: yupResolver(memberValidationSchema) as Resolver<MemberFormData>,
     defaultValues: currentDefaultValues,
+    mode: 'onTouched', // Changed from onMount because it's not a valid option, trigger will be used for onMount validation
   });
+
+  useEffect(() => {
+    trigger();
+  }, [trigger]);
 
   useEffect(() => {
     // Only reset if initialValues actually change to prevent infinite loops
     // and only if the form is not dirty to avoid overriding user input
     // The equality check here is simple; for complex objects, a deep comparison might be needed.
-    if (initialValues) {
-      const newMappedValues: MemberFormData = {
-        firstName: initialValues.firstName,
-        lastName: initialValues.lastName,
-        gender: (initialValues.gender || 'Unknown') as MemberFormData['gender'],
-        isAlive: !initialValues.dateOfDeath,
-        dateOfBirth: initialValues.dateOfBirth ? new Date(initialValues.dateOfBirth) : null,
-        dateOfDeath: initialValues.dateOfDeath ? new Date(initialValues.dateOfDeath) : null,
-        placeOfBirth: initialValues.placeOfBirth || undefined,
-        placeOfDeath: initialValues.placeOfDeath || undefined,
-        occupation: initialValues.occupation || undefined,
-        biography: initialValues.biography || undefined,
-        phone: initialValues.phone || undefined,
-        email: initialValues.email || undefined,
-        address: initialValues.address || undefined,
-        fatherId: initialValues.fatherId || undefined,
-        motherId: initialValues.motherId || undefined,
-        husbandId: initialValues.husbandId || undefined,
-        wifeId: initialValues.wifeId || undefined,
-        avatarUrl: initialValues.avatarUrl || undefined,
-        avatarBase64: undefined,
-      };
-      reset(newMappedValues);
-    } else {
-      reset(defaultFormValues);
-    }
-  }, [initialValues, reset, defaultFormValues]); // Re-run effect if initialValues or reset function changes
+    // If we have initial values, use them, otherwise use default form values.
+    const newValuesToReset = initialValues ? {
+      firstName: initialValues.firstName,
+      lastName: initialValues.lastName,
+      gender: (initialValues.gender || 'Unknown') as MemberFormData['gender'],
+      isAlive: !initialValues.dateOfDeath,
+      dateOfBirth: initialValues.dateOfBirth ? new Date(initialValues.dateOfBirth) : null,
+      dateOfDeath: initialValues.dateOfDeath ? new Date(initialValues.dateOfDeath) : null,
+      placeOfBirth: initialValues.placeOfBirth || undefined,
+      placeOfDeath: initialValues.placeOfBirth || undefined,
+      occupation: initialValues.occupation || undefined,
+      biography: initialValues.biography || undefined,
+      phone: initialValues.phone || undefined,
+      email: initialValues.email || undefined,
+      address: initialValues.address || undefined,
+      fatherId: initialValues.fatherId || undefined,
+      motherId: initialValues.motherId || undefined,
+      husbandId: initialValues.husbandId || undefined,
+      wifeId: initialValues.wifeId || undefined,
+      avatarUrl: initialValues.avatarUrl || undefined,
+      avatarBase64: undefined,
+      order: initialValues.order || undefined,
+      nickname: initialValues.nickname || undefined,
+      isRoot: initialValues.isRoot || undefined,
+      isDeceased: initialValues.dateOfDeath ? true : false, // Derived from dateOfDeath
+    } : defaultFormValues;
+
+    reset(newValuesToReset);
+
+  }, [initialValues, reset, defaultFormValues]);
 
   return {
     control,

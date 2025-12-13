@@ -11,19 +11,18 @@ export const memberValidationSchema = yup.object({
   firstName: yup
     .string()
     .trim()
-    .required(() => globalI18n.t('validation.required'))
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memberForm.firstName') }))
     .min(2, () => globalI18n.t('validation.minLength', { min: 2 }))
     .max(50, () => globalI18n.t('validation.maxLength', { max: 50 })),
   lastName: yup
     .string()
     .trim()
-    .required(() => globalI18n.t('validation.required'))
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memberForm.lastName') }))
     .min(2, () => globalI18n.t('validation.minLength', { min: 2 }))
     .max(50, () => globalI18n.t('validation.maxLength', { max: 50 })),
   gender: yup
     .string()
-    .oneOf(['Male', 'Female', 'Other', 'Unknown'], () => globalI18n.t('validation.invalidSelection'))
-    .required(() => globalI18n.t('validation.required')),
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memberForm.gender') })),
   dateOfBirth: yup
     .date()
     .nullable()
@@ -76,7 +75,7 @@ export const memberValidationSchema = yup.object({
     .optional(),
   isAlive: yup
     .boolean()
-    .required(() => globalI18n.t('validation.required')),
+    .required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memberForm.isAlive') })),
   biography: yup
     .string()
     .trim()

@@ -62,7 +62,13 @@ export function useFamilyForm({ initialValues, onSubmit, isSubmitting: isSubmitt
   const { control, handleSubmit, formState: { errors, isSubmitting, isValid }, reset, setValue, watch, trigger } = useForm<FamilyFormData>({
     resolver: yupResolver(familyValidationSchema),
     defaultValues: mappedInitialValues || defaultFormValues,
+    mode: 'onTouched', // Changed from onMount because it's not a valid option, trigger will be used for onMount validation
   });
+
+  // Effect to trigger validation on mount
+  useEffect(() => {
+    trigger();
+  }, [trigger]);
 
   useEffect(() => {
     if (mappedInitialValues) {

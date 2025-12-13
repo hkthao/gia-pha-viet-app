@@ -10,7 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Re-use for member if no specific one
 import { Gender } from '@/types';
-import { MemberSelectInput } from './MemberSelectInput';
+import MemberSelectInput from './MemberSelectInput';
 import { DateInput } from '@/components/common'; // Import DateInput
 import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
 
@@ -413,7 +413,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
                 <MemberSelectInput
                   label={t('member.father')}
                   memberId={value}
-                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  onMemberSelected={(id: string | null, name: string | null) => onChange(id === null ? undefined : id)}
                   error={!!errors.fatherId}
                   helperText={errors.fatherId?.message}
                   fieldName="fatherId"
@@ -431,7 +431,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
                 <MemberSelectInput
                   label={t('member.mother')}
                   memberId={value}
-                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  onMemberSelected={(id: string | null, name: string | null) => onChange(id === null ? undefined : id)}
                   error={!!errors.motherId}
                   helperText={errors.motherId?.message}
                   fieldName="motherId"
@@ -448,7 +448,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
                 <MemberSelectInput
                   label={t('member.husband')}
                   memberId={value}
-                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  onMemberSelected={(id: string | null, name: string | null) => onChange(id === null ? undefined : id)}
                   error={!!errors.husbandId}
                   helperText={errors.husbandId?.message}
                   fieldName="husbandId"
@@ -466,7 +466,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
                 <MemberSelectInput
                   label={t('member.wife')}
                   memberId={value}
-                  onMemberSelected={(id, name) => onChange(id === null ? undefined : id)}
+                  onMemberSelected={(id: string | null, name: string | null) => onChange(id === null ? undefined : id)}
                   error={!!errors.wifeId}
                   helperText={errors.wifeId?.message}
                   fieldName="wifeId"

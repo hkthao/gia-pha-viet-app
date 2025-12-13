@@ -54,27 +54,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     enabled: allUserIds.length > 0,
   });
 
-  // Derive managers and viewers with full details for display in UserSelectInput
-  const managersWithDetails = useMemo(() => {
-    if (!fetchedAllUserDetails || !managerIds) {
-      return [];
-    }
-    return managerIds.map((id: string) => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
-  }, [managerIds, fetchedAllUserDetails]);
-
-  const viewersWithDetails = useMemo(() => {
-    if (!fetchedAllUserDetails || !viewerIds) {
-      return [];
-    }
-    return viewerIds.map((id: string) => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
-  }, [viewerIds, fetchedAllUserDetails]);
-
-
-
-
-
-
-
   const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
       const { granted } = await requestMediaLibraryPermission();

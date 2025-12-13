@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -8,12 +8,12 @@ import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/
 import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
-import type { FamilyDetailDto, FamilyUserDto, UserListDto } from '@/types';
+import type { FamilyDetailDto, UserListDto } from '@/types';
 import { FamilyRole } from '@/types';
 import { UserSelectInput } from '@/components/user';
-import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
-import { useQuery, useQueryClient } from '@tanstack/react-query'; // Import useQuery, useQueryClient
-import { userService } from '@/services'; // Import userService
+import { Controller } from 'react-hook-form';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { userService } from '@/services';
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -29,7 +29,8 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  const familyUsers = watch('familyUsers') || [];
+  const rawFamilyUsers = watch('familyUsers');
+  const familyUsers = useMemo(() => rawFamilyUsers || [], [rawFamilyUsers]);
 
   const allUserIds = familyUsers.map(fu => fu.userId);
 
@@ -97,7 +98,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     const updatedFamilyUsers = [...newManagersWithDetails, ...currentViewers];
     setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
     queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
-  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails]);
+  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails, queryClient]);
 
   const handleViewersChanged = useCallback((viewerIds: string[]) => {
     const newViewersWithDetails = viewerIds.map(userId => {
@@ -115,7 +116,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
     const updatedFamilyUsers = [...currentManagers, ...newViewersWithDetails];
     setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
     queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
-  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails]);
+  }, [initialValues?.id, familyUsers, setValue, fetchedFamilyUserDetails, queryClient]);
 
   const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
@@ -306,7 +307,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
         </View>
 
         <View style={styles.formSection}>
-          <Text style={styles.sectionTitle}>{t('familyForm.managers')}</Text>
           <UserSelectInput
             userIds={managers.map(m => m.id)}
             onUserIdsChanged={handleManagersChanged}
@@ -317,7 +317,6 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
             <Text style={styles.errorText}>{errors.familyUsers.message}</Text>
           )}
 
-          <Text style={styles.sectionTitle}>{t('familyForm.viewers')}</Text>
           <UserSelectInput
             userIds={viewers.map(v => v.id)}
             onUserIdsChanged={handleViewersChanged}

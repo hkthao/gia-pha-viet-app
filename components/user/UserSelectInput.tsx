@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { userService } from '@/services';
-import { SearchUsersQuery } from '@/types';
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { TextInput, Text, useTheme, Chip } from 'react-native-paper';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
+import { Text, useTheme, Chip, TouchableRipple, HelperText } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { UserListDto } from '@/types';
 import { UserSelectModalComponent } from './UserSelectModal';
-import { SPACING_SMALL, SPACING_MEDIUM } from '@/constants/dimensions';
+import { SPACING_SMALL, SPACING_MEDIUM, SPACING_EXTRA_LARGE } from '@/constants/dimensions';
 
 interface UserSelectInputProps {
   userIds: string[];
@@ -30,7 +30,7 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { data: fetchedUsers, isLoading: isFetchingUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
+  const { data: fetchedUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
     queryKey: ['users', { userIds }],
     queryFn: async ({ queryKey }) => {
       const [, { userIds: idsToFetch }] = queryKey;
@@ -61,32 +61,46 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const handleRemoveUser = useCallback((userToRemove: UserListDto) => {
     onUserIdsChanged(selectedUsers.filter(user => user.id !== userToRemove.id).map(u => u.id)); // Emit user IDs
   }, [selectedUsers, onUserIdsChanged]);
-  const displayValue = selectedUsers.length > 0
-    ? selectedUsers.map(user => user.email).join(', ')
-    : t('userSelectInput.selectUsers');
 
   const styles = StyleSheet.create({
     container: {
       marginBottom: SPACING_MEDIUM,
     },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
+    dropdownContainer: {
+      borderWidth: 1,
+      borderColor: theme.colors.outline,
+      borderRadius: theme.roundness,
+      paddingHorizontal: SPACING_MEDIUM,
+      paddingVertical: SPACING_SMALL,
+      minHeight: 56, // Standard TextInput height
+      justifyContent: 'center',
+      backgroundColor: theme.colors.surface,
     },
-    chipContainer: {
+    dropdownContent: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginTop: SPACING_SMALL,
+      alignItems: 'center',
+      minHeight: 30, // Adjust as needed
+      marginLeft: SPACING_MEDIUM + 8
+    },
+    dropdownPlaceholder: {
+      color: theme.colors.onSurfaceVariant,
+    },
+    chipWrapper: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      // No marginTop here, as it's part of the dropdownContent
     },
     chip: {
       marginRight: SPACING_SMALL,
-      marginBottom: SPACING_SMALL,
+      marginBottom: SPACING_SMALL / 2, // Adjust for better vertical spacing
+      marginTop: SPACING_SMALL / 2, // Adjust for better vertical spacing
     },
-    textInput: {
-      flex: 1,
-      backgroundColor: theme.colors.surface,
-    },
-    rightInputContainer: {
+    rightIconContainer: {
+      position: 'absolute',
+      right: SPACING_MEDIUM,
+      top: '50%',
+      transform: [{ translateY: -12 }], // Center vertically
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -94,47 +108,80 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
       marginRight: SPACING_SMALL / 2,
       color: theme.colors.onSurfaceVariant,
     },
+    errorText: {
+      color: theme.colors.error,
+      marginTop: SPACING_SMALL / 2,
+      marginLeft: SPACING_MEDIUM,
+    },
+    leftIcon: {
+      position: 'absolute',
+      left: SPACING_MEDIUM + 5,
+      top: '50%',
+      transform: [{ translateY: -12 }], // Center vertically
+    },
   });
 
   return (
     <View style={styles.container}>
-      <TextInput
-        label={label || t('userSelectInput.selectUsers')}
-        value={displayValue}
-        mode="outlined"
-        readOnly
+      <TouchableRipple
         onPress={handleOpenModal}
-        left={leftIcon ? <TextInput.Icon icon={leftIcon} /> : undefined}
-        right={
-          <View style={styles.rightInputContainer}>
-            {selectedUsers.length > 0 && (
-              <Text style={styles.selectedCountText}>({selectedUsers.length})</Text>
+        style={[
+          styles.dropdownContainer,
+          error && { borderColor: theme.colors.error },
+          leftIcon && { paddingLeft: SPACING_EXTRA_LARGE + SPACING_SMALL }, // Make space for the icon
+        ]}
+      >
+        <View>
+          {label && (
+            <Text style={{ color: theme.colors.onSurfaceVariant, fontSize: 12, marginBottom: SPACING_MEDIUM }}>
+              {label}
+            </Text>
+          )}
+          <View style={styles.dropdownContent}>
+            {selectedUsers.length > 0 ? (
+              <View style={styles.chipWrapper}>
+                {selectedUsers.map((user) => (
+                  <Chip
+                    key={user.id}
+                    icon="account"
+                    onClose={() => handleRemoveUser(user)}
+                    style={styles.chip}
+                  >
+                    {user.email}
+                  </Chip>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.dropdownPlaceholder}>
+                {t('userSelectInput.selectUsers')}
+              </Text>
             )}
-            <TextInput.Icon
-              icon="chevron-down"
-              onPress={handleOpenModal}
-            />
           </View>
-        }
-        error={error}
-        style={styles.textInput}
-      />
-      {helperText && error && <Text style={{ color: theme.colors.error }}>{helperText}</Text>}
-      {selectedUsers.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipContainer}>
-          {selectedUsers.map(user => (
-            <Chip
-              key={user.id}
-              icon="account"
-              onClose={() => handleRemoveUser(user)}
-              style={styles.chip}
-            >
-              {user.email}
-            </Chip>
-          ))}
-        </ScrollView>
+        </View>
+      </TouchableRipple>
+      {leftIcon && (
+        <MaterialCommunityIcons
+          name={leftIcon as any}
+          size={24}
+          color={theme.colors.onSurfaceVariant}
+          style={styles.leftIcon}
+        />
       )}
-
+      <View style={styles.rightIconContainer}>
+        {selectedUsers.length > 0 && (
+          <Text style={styles.selectedCountText}>({selectedUsers.length})</Text>
+        )}
+        <MaterialCommunityIcons
+          name="chevron-down"
+          size={24}
+          color={theme.colors.onSurface}
+        />
+      </View>
+      {helperText && error && (
+        <HelperText type="error" visible={error}>
+          {helperText}
+        </HelperText>
+      )}
 
       <UserSelectModalComponent
         isVisible={modalVisible}

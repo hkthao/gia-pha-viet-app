@@ -1,0 +1,5 @@
+feat: UserSelectInput uses new userService.getByIds API
+
+- Cập nhật `UserSelectInput.tsx` để sử dụng phương thức `userService.getByIds` mới thay vì `userService.search` để tìm nạp chi tiết người dùng.
+- Điều chỉnh hook `useQuery` và các tham số kiểu liên quan để phù hợp với việc trả về trực tiếp `UserListDto[]`.
+- Xóa import `PaginatedList` không còn cần thiết trong file này.

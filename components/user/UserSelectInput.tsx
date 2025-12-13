@@ -30,10 +30,11 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   const theme = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const { data: fetchedUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
-    queryKey: ['users', { userIds }],
+  const { data: fetchedUsers } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string }]>({
+    queryKey: ['users', { userIds: JSON.stringify([...userIds].sort()) }],
     queryFn: async ({ queryKey }) => {
-      const [, { userIds: idsToFetch }] = queryKey;
+      const [, { userIds: idsToFetchString }] = queryKey;
+      const idsToFetch = JSON.parse(idsToFetchString);
       if (!idsToFetch || idsToFetch.length === 0) {
         return [];
       }

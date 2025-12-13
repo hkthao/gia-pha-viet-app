@@ -1,4 +1,7 @@
-import React, { } from 'react';
+import React, { useMemo, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { userService } from '@/services';
+import { UserListDto, FamilyRole } from '@/types';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +14,6 @@ import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import type { FamilyDetailDto } from '@/types';
 import { UserSelectInput } from '@/components/user';
 import { Controller } from 'react-hook-form';
-import { useFamilyUserManagement } from '@/hooks/family/useFamilyUserManagement';
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -22,14 +24,66 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   const { t } = useTranslation();
   const theme = useTheme();
   const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useFamilyForm({ initialValues, onSubmit });
+  const queryClient = useQueryClient();
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  const { managers, viewers, handleManagersChanged, handleViewersChanged } = useFamilyUserManagement({
-    initialFamilyId: initialValues?.id,
-    setValue,
-    watch,
+  // Watch managerIds and viewerIds from the form
+  const managerIds = watch('managerIds');
+  const viewerIds = watch('viewerIds');
+
+  // Combine all user IDs for fetching details
+  const allUserIds = useMemo(() => {
+    const uniqueIds = new Set([...(managerIds || []), ...(viewerIds || [])]);
+    return Array.from(uniqueIds);
+  }, [managerIds, viewerIds]);
+
+  // Fetch details for all users (managers and viewers)
+  const { data: fetchedAllUserDetails } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
+    queryKey: ['familyUserDetails', { userIds: allUserIds }],
+    queryFn: async ({ queryKey }) => {
+      const [, { userIds: idsToFetch }] = queryKey;
+      if (!idsToFetch || idsToFetch.length === 0) {
+        return [];
+      }
+      const result = await userService.getByIds(idsToFetch);
+      return result;
+    },
+    enabled: allUserIds.length > 0,
   });
+
+  // Derive managers and viewers with full details for display in UserSelectInput
+  const managersWithDetails = useMemo(() => {
+    if (!fetchedAllUserDetails || !managerIds) {
+      return [];
+    }
+    return managerIds.map(id => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
+  }, [managerIds, fetchedAllUserDetails]);
+
+  const viewersWithDetails = useMemo(() => {
+    if (!fetchedAllUserDetails || !viewerIds) {
+      return [];
+    }
+    return viewerIds.map(id => fetchedAllUserDetails.find(user => user.id === id)).filter(Boolean) as UserListDto[];
+  }, [viewerIds, fetchedAllUserDetails]);
+
+  // Handle changes for managers
+  const handleManagersChanged = useCallback((newManagerIds: string[]) => {
+    setValue('managerIds', newManagerIds, { shouldValidate: true });
+    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] }); // Invalidate detail query in this component
+    queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate general users query for UserSelectInput
+  }, [setValue, queryClient]);
+
+  // Handle changes for viewers
+  const handleViewersChanged = useCallback((newViewerIds: string[]) => {
+    setValue('viewerIds', newViewerIds, { shouldValidate: true });
+    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] }); // Invalidate detail query in this component
+    queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalidate general users query for UserSelectInput
+  }, [setValue, queryClient]);
+
+
+
+
 
   const pickImage = async (onFieldChange: (value: string | undefined) => void) => {
     if (!mediaLibraryPermission?.granted) {
@@ -221,24 +275,20 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
         <View style={styles.formSection}>
           <UserSelectInput
-            userIds={managers.map(m => m.id)}
+            userIds={managerIds || []}
             onUserIdsChanged={handleManagersChanged}
             label={t('familyForm.selectManagers')}
             leftIcon="account-group"
           />
-          {errors.familyUsers && errors.familyUsers.type === 'managers' && (
-            <Text style={styles.errorText}>{errors.familyUsers.message}</Text>
-          )}
+
 
           <UserSelectInput
-            userIds={viewers.map(v => v.id)}
+            userIds={viewerIds || []}
             onUserIdsChanged={handleViewersChanged}
             label={t('familyForm.selectViewers')}
             leftIcon="account-group-outline"
           />
-          {errors.familyUsers && errors.familyUsers.type === 'viewers' && (
-            <Text style={styles.errorText}>{errors.familyUsers.message}</Text>
-          )}
+
         </View>
 
         <Button

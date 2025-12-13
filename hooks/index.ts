@@ -12,3 +12,4 @@ export * from './family';
 export * from './dashboard';
 export * from './onboarding';
 export * from './member';
+export * from './user';

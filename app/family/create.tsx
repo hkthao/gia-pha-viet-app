@@ -11,7 +11,7 @@ export default function CreateFamilyScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const { createFamily, isCreatingFamily } = useCreateFamily(); // Use the new hook
+  const { createFamily } = useCreateFamily(); // Use the new hook
 
   const handleSubmit = useCallback(async (data: FamilyFormData) => {
     // createFamily already handles navigation and snackbar through react-query's onSuccess/onError

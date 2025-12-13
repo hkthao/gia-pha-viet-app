@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Text, useTheme, Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';

@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, FAB, useTheme } from 'react-native-paper';
+import { Appbar, FAB } from 'react-native-paper';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { FamilyListDto, SearchFamiliesQuery, PaginatedList } from '@/types';
@@ -24,8 +24,7 @@ const getStyles = () => StyleSheet.create({
 
 export default function SearchScreen() {
   const router = useRouter(); // Initialize useRouter
-  const theme = useTheme();
-  const styles = useMemo(() => getStyles(), [theme]);
+  const styles = useMemo(() => getStyles(), []);
   const { t } = useTranslation(); // Initialize useTranslation
 
 

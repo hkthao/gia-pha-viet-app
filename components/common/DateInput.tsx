@@ -29,7 +29,7 @@ const DateInput: React.FC<DateInputProps> = ({
   maximumDate,
   minimumDate,
 }) => {
-  const { t } = useTranslation();
+  useTranslation();
   const theme = useTheme();
   const [showPicker, setShowPicker] = useState(false);
 

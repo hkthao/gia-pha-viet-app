@@ -50,7 +50,7 @@ export default function FamilyDetailsScreen() {
       bottom: 0,
       zIndex: 10,
     },
-  }), [theme]);
+  }), [theme]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (

@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, useTheme, Text } from 'react-native-paper'; // Import Text from react-native-paper
+import { useTheme, Text } from 'react-native-paper'; // Import Text from react-native-paper
 import { useTranslation } from 'react-i18next';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router'; // Remove useRouter
 import { MemberForm } from '@/components/member';
 import { useCreateMember } from '@/hooks/member/useCreateMember';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
@@ -11,7 +11,6 @@ import { useFamilyStore } from '@/stores/useFamilyStore'; // To get current fami
 export default function CreateMemberScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
   const { createMember, isCreatingMember } = useCreateMember();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const { familyId: paramFamilyId } = useLocalSearchParams();

@@ -24,18 +24,17 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { control, handleSubmit, errors, setValue, watch, isSubmitting, isValid } = useMemberForm({ initialValues, onSubmit, isSubmitting: isSubmittingProp });
+  const { control, handleSubmit, errors, setValue, isSubmitting, isValid } = useMemberForm({ initialValues, onSubmit, isSubmitting: isSubmittingProp });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialValues?.avatarUrl || null);
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
 
-  const firstName = watch('firstName');
-  const lastName = watch('lastName');
-  // const gender = watch('gender'); // Removed
-  const placeOfBirth = watch('placeOfBirth');
-  const placeOfDeath = watch('placeOfDeath');
-  const occupation = watch('occupation');
-  const biography = watch('biography');
+  // const firstName = watch('firstName'); // Removed as unused
+  // const lastName = watch('lastName'); // Removed as unused
+  // const placeOfBirth = watch('placeOfBirth'); // Removed as unused
+  // const placeOfDeath = watch('placeOfDeath'); // Removed as unused
+  // const occupation = watch('occupation'); // Removed as unused
+  // const biography = watch('biography'); // Removed as unused
   const isDeceasedValue = !!useWatch({ control, name: 'isDeceased' });
 
   React.useEffect(() => {

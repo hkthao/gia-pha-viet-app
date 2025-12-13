@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, List, useTheme } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
+import { List, useTheme } from 'react-native-paper';
 import { UserListDto } from '@/types';
 import { SPACING_SMALL } from '@/constants/dimensions';
 

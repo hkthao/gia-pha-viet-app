@@ -15,8 +15,8 @@ const UserItem: React.FC<UserItemProps> = ({ user, onToggle, isSelected }) => {
 
   return (
     <List.Item
-      title={user.fullName}
-      description={user.userName}
+      title={user.name}
+      description={user.email}
       left={() => <List.Icon icon={isSelected ? "check-circle" : "account-circle-outline"} color={isSelected ? theme.colors.primary : theme.colors.onSurfaceVariant} />}
       onPress={() => onToggle(user)}
       style={[

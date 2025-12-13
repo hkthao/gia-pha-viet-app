@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper'; // Added Chip
 import { useTranslation } from 'react-i18next';
@@ -8,9 +8,10 @@ import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/
 import * as ImagePicker from 'expo-image-picker';
 import { useMediaLibraryPermissions } from 'expo-image-picker';
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
-import type { FamilyDetailDto, FamilyUserDto, UserCheckResultDto } from '@/types';
+import type { FamilyDetailDto, FamilyUserDto, UserCheckResultDto, UserListDto } from '@/types'; // Added UserListDto
 import { FamilyRole } from '@/types';
-import { UserRoleSelector } from '@/components/common';
+import { UserSelectInput } from '@/components/user'; // New import
+import { useMemo } from 'react'; // Added useMemo
 
 interface FamilyFormProps {
   initialValues?: FamilyDetailDto;
@@ -29,37 +30,44 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   // Watch familyUsers from form state
   const familyUsers = watch('familyUsers') || [];
 
-  const handleAddUserFromSelector = (userResult: UserCheckResultDto, role: FamilyRole) => {
+  const managers = useMemo(() => familyUsers
+    .filter(fu => fu.role === FamilyRole.Manager)
+    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]); // Map to UserListDto
+
+  const viewers = useMemo(() => familyUsers
+    .filter(fu => fu.role === FamilyRole.Viewer)
+    .map(fu => ({ id: fu.userId, name: fu.userName || '', email: '', authProviderId: '' })), [familyUsers]); // Map to UserListDto
+
+
+  const handleManagersChanged = useCallback((selectedManagerUsers: UserListDto[]) => {
     if (initialValues?.id === undefined) {
       Alert.alert(t('common.error'), t('familyForm.validation.cannotAddUsersDuringCreation'));
       return;
     }
+    const newManagers: FamilyUserDto[] = selectedManagerUsers.map(user => ({
+      familyId: initialValues.id,
+      userId: user.id,
+      userName: user.name, // Assuming name from UserListDto maps to userName in FamilyUserDto
+      role: FamilyRole.Manager,
+    }));
+    const currentViewers = familyUsers.filter(fu => fu.role === FamilyRole.Viewer);
+    setValue('familyUsers', [...newManagers, ...currentViewers], { shouldValidate: true });
+  }, [initialValues?.id, familyUsers, setValue, t]);
 
-    const newFamilyUser: FamilyUserDto = {
-      familyId: initialValues?.id,
-      userId: userResult.userId,
-      userName: userResult.userName,
-      role: role,
-    };
-
-    const isDuplicate = familyUsers.some(
-      (fu) => fu.userId === newFamilyUser.userId && fu.role === newFamilyUser.role
-    );
-    if (isDuplicate) {
-      Alert.alert(t('common.error'), t('familyForm.validation.userAlreadyAdded'));
+  const handleViewersChanged = useCallback((selectedViewerUsers: UserListDto[]) => {
+    if (initialValues?.id === undefined) {
+      Alert.alert(t('common.error'), t('familyForm.validation.cannotAddUsersDuringCreation'));
       return;
     }
-
-    const updatedFamilyUsers = [...familyUsers, newFamilyUser];
-    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
-  };
-
-  const handleRemoveUserFromSelector = (userIdToRemove: string, roleToRemove: FamilyRole) => {
-    const updatedFamilyUsers = familyUsers.filter(
-      (fu) => !(fu.userId === userIdToRemove && fu.role === roleToRemove)
-    );
-    setValue('familyUsers', updatedFamilyUsers, { shouldValidate: true });
-  };
+    const newViewers: FamilyUserDto[] = selectedViewerUsers.map(user => ({
+      familyId: initialValues.id,
+      userId: user.id,
+      userName: user.name, // Assuming name from UserListDto maps to userName in FamilyUserDto
+      role: FamilyRole.Viewer,
+    }));
+    const currentManagers = familyUsers.filter(fu => fu.role === FamilyRole.Manager);
+    setValue('familyUsers', [...currentManagers, ...newViewers], { shouldValidate: true });
+  }, [initialValues?.id, familyUsers, setValue, t]);
 
   const pickImage = async () => {
     if (!mediaLibraryPermission?.granted) {
@@ -220,21 +228,30 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
           {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
         </View>
 
-        <UserRoleSelector
-          title={t('familyForm.managers')}
-          familyUsers={familyUsers}
-          role={FamilyRole.Manager}
-          onAddUser={handleAddUserFromSelector}
-          onRemoveUser={handleRemoveUserFromSelector}
-        />
+        <View style={styles.formSection}>
+          <Text style={styles.sectionTitle}>{t('familyForm.managers')}</Text>
+          <UserSelectInput
+            selectedUsers={managers}
+            onUsersChanged={handleManagersChanged}
+            label={t('familyForm.selectManagers')}
+            leftIcon="account-group"
+          />
+          {errors.familyUsers && errors.familyUsers.type === 'managers' && (
+            <Text style={styles.errorText}>{errors.familyUsers.message}</Text>
+          )}
 
-        <UserRoleSelector
-          title={t('familyForm.viewers')}
-          familyUsers={familyUsers}
-          role={FamilyRole.Viewer}
-          onAddUser={handleAddUserFromSelector}
-          onRemoveUser={handleRemoveUserFromSelector}
-        />
+          <Text style={styles.sectionTitle}>{t('familyForm.viewers')}</Text>
+          <UserSelectInput
+            selectedUsers={viewers}
+            onUsersChanged={handleViewersChanged}
+            label={t('familyForm.selectViewers')}
+            leftIcon="account-group-outline"
+          />
+          {errors.familyUsers && errors.familyUsers.type === 'viewers' && (
+            <Text style={styles.errorText}>{errors.familyUsers.message}</Text>
+          )}
+        </View>
+
         <Button
           mode="contained"
           onPress={handleSubmit}

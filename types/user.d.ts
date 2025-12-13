@@ -8,10 +8,9 @@ export interface UserCheckResultDto {
 
 export interface UserListDto {
   id: string;
-  fullName: string;
-  userName: string;
+  name: string;
   email?: string;
-  authProviderId: string;
+  authProviderId?: string;
 }
 
 export interface SearchUsersQuery extends BaseSearchQuery {

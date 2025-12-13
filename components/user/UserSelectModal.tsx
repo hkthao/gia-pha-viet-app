@@ -85,7 +85,7 @@ const UserSelectModalComponent: React.FC<UserSelectModalProps> = ({
               onClose={() => handleUserToggle(user)}
               style={styles.chip}
             >
-              {user.fullName}
+              {user.name}
             </Chip>
           ))}
         </ScrollView>

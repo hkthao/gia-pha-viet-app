@@ -18,15 +18,15 @@ interface CrudState<TListDto, TDetailDto, TFilter> {
 }
 
 // Định nghĩa các hành động chung cho một CRUD store
-interface CrudActions<TListDto, TDetailDto, TFilter> {
+interface CrudActions<TListDto, TDetailDto, TFilter, TCreateDto, TUpdateDto> {
   // Hành động tìm kiếm và phân trang
   search: (filter: TFilter, isRefreshing?: boolean) => Promise<PaginatedList<TListDto> | null>;
   // Hành động lấy một đối tượng theo ID
   getById: (id: string) => Promise<TDetailDto | null>;
   // Hành động tạo mới một đối tượng
-  create: (item: Partial<TDetailDto>) => Promise<TDetailDto | null>;
+  create: (item: TCreateDto) => Promise<TDetailDto | null>;
   // Hành động cập nhật một đối tượng hiện có
-  update: (id: string, item: Partial<TDetailDto>) => Promise<TDetailDto | null>;
+  update: (id: string, item: TUpdateDto) => Promise<TDetailDto | null>;
   // Hành động xóa một đối tượng
   delete: (id: string) => Promise<boolean>;
   // Xóa đối tượng hiện tại được chọn (nếu có)
@@ -39,13 +39,13 @@ interface CrudActions<TListDto, TDetailDto, TFilter> {
   setFilter: (filter: TFilter) => void;
 }
 
-export type GenericCrudStore<TListDto, TDetailDto, TFilter> = CrudState<TListDto, TDetailDto, TFilter> & CrudActions<TListDto, TDetailDto, TFilter>;
+export type GenericCrudStore<TListDto, TDetailDto, TFilter, TCreateDto, TUpdateDto> = CrudState<TListDto, TDetailDto, TFilter> & CrudActions<TListDto, TDetailDto, TFilter, TCreateDto, TUpdateDto>;
 
 // Hàm factory để tạo generic CRUD store
-export const createGenericCrudStore = <TListDto, TDetailDto, TFilter>(
-  service: IGenericService<TListDto, TFilter, TDetailDto>,
+export const createGenericCrudStore = <TListDto, TDetailDto, TFilter, TCreateDto, TUpdateDto>(
+  service: IGenericService<TListDto, TFilter, TDetailDto, TCreateDto, TUpdateDto>,
   pageSize: number = 10
-): StateCreator<GenericCrudStore<TListDto, TDetailDto, TFilter>> => (set, get) => ({
+): StateCreator<GenericCrudStore<TListDto, TDetailDto, TFilter, TCreateDto, TUpdateDto>> => (set, get) => ({
   item: null,
   items: [],
   paginatedList: null,
@@ -110,7 +110,7 @@ export const createGenericCrudStore = <TListDto, TDetailDto, TFilter>(
     }
   },
 
-  create: async (item: Partial<TDetailDto>): Promise<TDetailDto | null> => {
+  create: async (item: TCreateDto): Promise<TDetailDto | null> => {
     set({ loading: true, error: null });
     try {
       const result: Result<TDetailDto> = await service.create(item);
@@ -135,7 +135,7 @@ export const createGenericCrudStore = <TListDto, TDetailDto, TFilter>(
     }
   },
 
-    update: async (id: string, item: Partial<TDetailDto>): Promise<TDetailDto | null> => {
+    update: async (id: string, item: TUpdateDto): Promise<TDetailDto | null> => {
       set({ loading: true, error: null });
       try {
         const result: Result<TDetailDto> = await service.update(id, item);

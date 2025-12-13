@@ -1,11 +1,12 @@
 // apps/mobile/family_tree_rn/services/member/api.member.service.ts
 
 import { ApiClientMethods } from '@/types';
-import { MemberListDto, SearchMembersQuery, MemberDetailDto } from '@/types';
+import { MemberListDto, SearchMembersQuery, MemberDetailDto, MemberCreateRequestDto, MemberUpdateRequestDto, Result as TResult } from '@/types';
+import { Result } from '@/utils/resultUtils'; // Import Result as a value
 import { IMemberService } from '@/services/member/member.service.interface';
 import { GenericService } from '../base/abstract.generic.service'; // NEW IMPORT
 
-export class ApiMemberService extends GenericService<MemberListDto, SearchMembersQuery, MemberDetailDto> implements IMemberService {
+export class ApiMemberService extends GenericService<MemberListDto, SearchMembersQuery, MemberDetailDto, MemberCreateRequestDto, MemberUpdateRequestDto> implements IMemberService {
   protected get baseEndpoint(): string {
     return '/member'; // Assuming /members is the base endpoint for member CRUD operations
   }

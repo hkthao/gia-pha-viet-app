@@ -5,10 +5,10 @@ import { createGenericCrudStore, GenericCrudStore } from '@/stores/useGenericCru
 
 const PAGE_SIZE = 10;
 
-export type FaceStore = GenericCrudStore<DetectedFaceDto, DetectedFaceDto, SearchFacesQuery>;
+export type FaceStore = GenericCrudStore<DetectedFaceDto, DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto>;
 
 export const useFaceStore = create<FaceStore>(
-  createGenericCrudStore<DetectedFaceDto, DetectedFaceDto, SearchFacesQuery>(
+  createGenericCrudStore<DetectedFaceDto, DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto>(
     defaultFaceService,
     PAGE_SIZE
   )

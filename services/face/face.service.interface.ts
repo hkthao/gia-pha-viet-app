@@ -12,6 +12,6 @@ export interface DetectFacesRequest {
   returnCrop: boolean;
 }
 
-export interface IFaceService extends IGenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto> {
+export interface IFaceService extends IGenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto, DetectedFaceDto> {
   detectFaces(request: DetectFacesRequest): Promise<Result<FaceDetectionResponseDto>>;
 }

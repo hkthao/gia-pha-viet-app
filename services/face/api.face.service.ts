@@ -7,7 +7,7 @@ import { GenericService } from '@/services/base/abstract.generic.service'; // Im
 import { ResultHelper } from '@/utils/resultUtils'; // Import ResultHelper
 import { parseError } from '@/utils/errorUtils'; // Import parseError
 
-export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto> implements IFaceService {
+export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto, DetectedFaceDto> implements IFaceService {
   protected get baseEndpoint(): string {
     return '/member-faces';
   }

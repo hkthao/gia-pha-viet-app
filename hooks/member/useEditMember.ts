@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { memberService } from '@/services';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
-import type { MemberDetailDto } from '@/types';
+import type { MemberDetailDto, MemberUpdateRequestDto } from '@/types';
 import { useApiMutation } from '@/hooks/common/useApiMutation';
 import { useQueryClient } from '@tanstack/react-query';
 import { convertNullToUndefined } from '@/utils/typeUtils'; // Import convertNullToUndefined
@@ -53,8 +53,14 @@ export const useEditMemberForm = () => {
       if (!memberId) {
         throw new Error(t('memberForm.errors.noMemberId'));
       }
-      const convertedData = convertNullToUndefined(formData) as Partial<MemberDetailDto>;
-      const result = await memberService.update(memberId, convertedData);
+      const dataToSubmit: MemberUpdateRequestDto = {
+        id: memberId,
+        ...formData,
+        avatarBase64: formData.avatarBase64,
+        dateOfBirth: formData.dateOfBirth instanceof Date ? formData.dateOfBirth.toISOString() : formData.dateOfBirth,
+        dateOfDeath: formData.dateOfDeath instanceof Date ? formData.dateOfDeath.toISOString() : formData.dateOfDeath,
+      }
+      const result = await memberService.update(memberId, convertNullToUndefined(dataToSubmit) as MemberUpdateRequestDto);
       if (result.isSuccess) {
         return; // Return void as the onSuccess callback does not use the returned data
       }

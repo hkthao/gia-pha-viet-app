@@ -12,6 +12,7 @@ export interface FamilyUserDto {
   familyId?: string;
   userId: string;
   email?: string;
+  userName?: string;
   role: FamilyRole;
 }
 

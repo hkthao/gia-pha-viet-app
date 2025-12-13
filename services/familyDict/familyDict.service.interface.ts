@@ -3,5 +3,5 @@
 import { Result, FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 import { IGenericService } from '../base/generic.service.interface';
 
-export interface IFamilyDictService extends IGenericService<FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto> {
+export interface IFamilyDictService extends IGenericService<FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto, FamilyDictDto, FamilyDictDto> {
 }

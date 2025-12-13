@@ -7,13 +7,13 @@ import { parseError } from '@/utils/errorUtils'; // Re-import parseError
 const PAGE_SIZE = 10;
 
 // Update EventStore type to extend GenericCrudStore and add specific actions
-export type EventStore = GenericCrudStore<EventDto, EventDto, SearchEventsQuery> & {
+export type EventStore = GenericCrudStore<EventDto, EventDto, SearchEventsQuery, EventDto, EventDto> & {
   upcomingEvents: EventDto[];
   fetchUpcomingEvents: (query: GetUpcomingEventsQuery) => Promise<EventDto[] | null>;
 };
 
 export const useEventStore = create<EventStore>((set, get, api) => ({
-  ...createGenericCrudStore<EventDto, EventDto, SearchEventsQuery>(
+  ...createGenericCrudStore<EventDto, EventDto, SearchEventsQuery, EventDto, EventDto>(
     defaultEventService,
     PAGE_SIZE
   )(set, get, api), // Initialize with generic CRUD store

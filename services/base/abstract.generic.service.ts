@@ -15,7 +15,7 @@ import { ApiClientMethods } from '@/types/apiClient'; // Import ApiClient interf
  * @template TFilter - Kiểu của đối tượng lọc dùng cho việc tìm kiếm và phân trang.
  * @template TEntity - Kiểu của đối tượng chi tiết được quản lý.
  */
-export abstract class GenericService<TListDto, TFilter extends { page?: number; itemsPerPage?: number }, TEntity> implements IGenericService<TListDto, TFilter, TEntity> {
+export abstract class GenericService<TListDto, TFilter extends { page?: number; itemsPerPage?: number }, TDetailDto, TCreateDto, TUpdateDto> implements IGenericService<TListDto, TFilter, TDetailDto, TCreateDto, TUpdateDto> {
   protected readonly apiClient: ApiClientMethods;
 
   /**
@@ -53,9 +53,9 @@ export abstract class GenericService<TListDto, TFilter extends { page?: number; 
    * @param id - ID của đối tượng.
    * @returns Promise<Result<T>>
    */
-  async getById(id: string): Promise<Result<TEntity>> {
+  async getById(id: string): Promise<Result<TDetailDto>> {
     try {
-      const response = await this.apiClient.get<TEntity>(`${this.baseEndpoint}/${id}`);
+      const response = await this.apiClient.get<TDetailDto>(`${this.baseEndpoint}/${id}`);
       return ResultHelper.success(response);
     } catch (error: any) {
       return ResultHelper.fail(parseError(error));
@@ -68,9 +68,9 @@ export abstract class GenericService<TListDto, TFilter extends { page?: number; 
    * @param entity - Đối tượng cần tạo.
    * @returns Promise<Result<T>>
    */
-  async create(entity: Partial<TEntity>): Promise<Result<TEntity>> {
+  async create(entity: TCreateDto): Promise<Result<TDetailDto>> {
     try {
-      const response = await this.apiClient.post<TEntity>(this.baseEndpoint, entity);
+      const response = await this.apiClient.post<TDetailDto>(this.baseEndpoint, entity);
       return ResultHelper.success(response);
     } catch (error: any) {
       return ResultHelper.fail(parseError(error));
@@ -84,9 +84,9 @@ export abstract class GenericService<TListDto, TFilter extends { page?: number; 
    * @param entity - Đối tượng với các thông tin cập nhật.
    * @returns Promise<Result<T>>
    */
-  async update(id: string, entity: Partial<TEntity>): Promise<Result<TEntity>> {
+  async update(id: string, entity: TUpdateDto): Promise<Result<TDetailDto>> {
     try {
-      const response = await this.apiClient.put<TEntity>(`${this.baseEndpoint}/${id}`, entity);
+      const response = await this.apiClient.put<TDetailDto>(`${this.baseEndpoint}/${id}`, entity);
       return ResultHelper.success(response);
     } catch (error: any) {
       return ResultHelper.fail(parseError(error));

@@ -3,18 +3,18 @@
 import { create, StateCreator } from 'zustand';
 import { memberService as defaultMemberService } from '@/services';
 import { IMemberService } from '@/services';
-import type { MemberListDto, SearchMembersQuery, MemberDetailDto } from '@/types';
+import type { MemberListDto, SearchMembersQuery, MemberDetailDto, MemberCreateRequestDto, MemberUpdateRequestDto } from '@/types';
 import { createGenericCrudStore, GenericCrudStore } from './useGenericCrudStore';
 
 const PAGE_SIZE = 10; // Define PAGE_SIZE constant
 
-export type MemberStore = GenericCrudStore<MemberListDto, MemberDetailDto, SearchMembersQuery>;
+export type MemberStore = GenericCrudStore<MemberListDto, MemberDetailDto, SearchMembersQuery, MemberCreateRequestDto, MemberUpdateRequestDto>;
 
 // Factory function to create the store
 export const createMemberStore = (
   memberService: IMemberService
 ): StateCreator<MemberStore> => (
-  createGenericCrudStore<MemberListDto, MemberDetailDto, SearchMembersQuery>(
+  createGenericCrudStore<MemberListDto, MemberDetailDto, SearchMembersQuery, MemberCreateRequestDto, MemberUpdateRequestDto>(
     memberService,
     PAGE_SIZE
   )

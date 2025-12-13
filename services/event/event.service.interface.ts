@@ -4,6 +4,6 @@ import { Result } from '@/types';
 import { EventDto, SearchEventsQuery, GetUpcomingEventsQuery } from '@/types';
 import { IGenericService } from '@/services/base/generic.service.interface';
 
-export interface IEventService extends IGenericService<EventDto, SearchEventsQuery, EventDto> {
+export interface IEventService extends IGenericService<EventDto, SearchEventsQuery, EventDto, EventDto, EventDto> {
   getUpcomingEvents(query: GetUpcomingEventsQuery): Promise<Result<EventDto[]>>;
 }

@@ -5,10 +5,10 @@ import { createGenericCrudStore, GenericCrudStore } from '@/stores/useGenericCru
 
 const PAGE_SIZE = 10;
 
-export type FamilyDictStore = GenericCrudStore<FamilyDictDto, FamilyDictDto, FamilyDictSearchQuery>;
+export type FamilyDictStore = GenericCrudStore<FamilyDictDto, FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto, FamilyDictDto>;
 
 export const useFamilyDictStore = create<FamilyDictStore>(
-  createGenericCrudStore<FamilyDictDto, FamilyDictDto, FamilyDictSearchQuery>(
+  createGenericCrudStore<FamilyDictDto, FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto, FamilyDictDto>(
     defaultFamilyDictService,
     PAGE_SIZE
   )

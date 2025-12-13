@@ -82,3 +82,56 @@ export interface MemberDetailDto extends BaseAuditableDto {
   order?: number;
   isDeceased?: boolean;
 }
+
+export interface MemberCreateRequestDto {
+  lastName: string;
+  firstName: string;
+  nickname?: string;
+  dateOfBirth?: string | null;
+  dateOfDeath?: string | null;
+  placeOfBirth?: string;
+  placeOfDeath?: string;
+  gender?: 'Male' | 'Female' | 'Other' | 'Unknown';
+  avatarUrl?: string;
+  avatarBase64?: string; // Optional, only present if image is uploaded
+  occupation?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  familyId: string;
+  biography?: string;
+  isRoot?: boolean;
+  fatherId?: string;
+  motherId?: string;
+  husbandId?: string;
+  wifeId?: string;
+  order?: number;
+  isDeceased?: boolean;
+}
+
+export interface MemberUpdateRequestDto {
+  id: string; // ID is required for update
+  lastName: string;
+  firstName: string;
+  nickname?: string;
+  dateOfBirth?: string | null;
+  dateOfDeath?: string | null;
+  placeOfBirth?: string;
+  placeOfDeath?: string;
+  gender?: 'Male' | 'Female' | 'Other' | 'Unknown';
+  avatarUrl?: string;
+  avatarBase64?: string; // Optional for update
+  occupation?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  familyId?: string; // Optional for update
+  biography?: string;
+  isRoot?: boolean;
+  fatherId?: string;
+  motherId?: string;
+  husbandId?: string;
+  wifeId?: string;
+  order?: number;
+  isDeceased?: boolean;
+}

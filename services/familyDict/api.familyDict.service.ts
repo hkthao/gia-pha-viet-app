@@ -4,7 +4,7 @@ import { ApiClientMethods, FamilyDictDto, FamilyDictSearchQuery } from '@/types'
 import { IFamilyDictService } from '@/services/familyDict/familyDict.service.interface';
 import { GenericService } from '../base/abstract.generic.service';
 
-export class ApiFamilyDictService extends GenericService<FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto> implements IFamilyDictService {
+export class ApiFamilyDictService extends GenericService<FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto, FamilyDictDto, FamilyDictDto> implements IFamilyDictService {
   protected get baseEndpoint(): string {
     return '/family-dict';
   }

@@ -9,7 +9,7 @@ import { Result, PaginatedList } from '@/types';
  * @template TFilter - Kiểu của đối tượng lọc dùng cho việc tìm kiếm và phân trang.
  * @template TEntity - Kiểu của đối tượng chi tiết (entity) được quản lý.
  */
-export interface IGenericService<TListDto, TFilter, TEntity> {
+export interface IGenericService<TListDto, TFilter, TDetailDto, TCreateDto, TUpdateDto> {
   /**
    * @method search
    * @description Tìm kiếm và trả về danh sách đối tượng có phân trang dựa trên bộ lọc.
@@ -24,7 +24,7 @@ export interface IGenericService<TListDto, TFilter, TEntity> {
    * @param id - ID của đối tượng cần lấy.
    * @returns Promise<Result<TEntity>> - Kết quả trả về là đối tượng TEntity hoặc lỗi.
    */
-  getById(id: string): Promise<Result<TEntity>>;
+  getById(id: string): Promise<Result<TDetailDto>>;
 
   /**
    * @method create
@@ -32,7 +32,7 @@ export interface IGenericService<TListDto, TFilter, TEntity> {
    * @param entity - Đối tượng cần tạo.
    * @returns Promise<Result<TEntity>> - Kết quả trả về là đối tượng TEntity đã được tạo hoặc lỗi.
    */
-  create(entity: Partial<TEntity>): Promise<Result<TEntity>>;
+  create(entity: TCreateDto): Promise<Result<TDetailDto>>;
 
   /**
    * @method update
@@ -41,7 +41,7 @@ export interface IGenericService<TListDto, TFilter, TEntity> {
    * @param entity - Đối tượng với các thông tin cập nhật.
    * @returns Promise<Result<TEntity>> - Kết quả trả về là đối tượng TEntity đã được cập nhật hoặc lỗi.
    */
-  update(id: string, entity: Partial<TEntity>): Promise<Result<TEntity>>;
+  update(id: string, entity: TUpdateDto): Promise<Result<TDetailDto>>;
 
   /**
    * @method delete

@@ -5,7 +5,7 @@ import { memberService } from '@/services';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { useQueryClient } from '@tanstack/react-query';
-import { MemberDetailDto } from '@/types'; // Import MemberDetailDto
+import { MemberDetailDto, MemberCreateRequestDto } from '@/types'; // Import MemberDetailDto and MemberCreateRequestDto
 import { convertNullToUndefined } from '@/utils/typeUtils'; // Import convertNullToUndefined
 
 /**
@@ -23,9 +23,14 @@ export const useCreateMember = () => {
       if (!currentFamilyId) {
         throw new Error(t('memberForm.errors.noFamilyId'));
       }
-      const dataToSubmit = { ...formData, familyId: currentFamilyId };
-      const convertedData = convertNullToUndefined(dataToSubmit) as Partial<MemberDetailDto>;
-      const result = await memberService.create(convertedData);
+      const dataToSubmit: MemberCreateRequestDto = {
+        ...formData,
+        familyId: currentFamilyId,
+        avatarBase64: formData.avatarBase64,
+        dateOfBirth: formData.dateOfBirth instanceof Date ? formData.dateOfBirth.toISOString() : formData.dateOfBirth,
+        dateOfDeath: formData.dateOfDeath instanceof Date ? formData.dateOfDeath.toISOString() : formData.dateOfDeath,
+      };
+      const result = await memberService.create(convertNullToUndefined(dataToSubmit) as MemberCreateRequestDto);
       if (result.isSuccess && result.value) { // Ensure value exists on success
         return result.value;
       }

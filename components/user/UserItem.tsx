@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { List, useTheme } from 'react-native-paper';
 import { UserListDto } from '@/types';
-import { SPACING_SMALL } from '@/constants/dimensions';
+import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 
 interface UserItemProps {
   user: UserListDto;
@@ -15,8 +15,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, onToggle, isSelected }) => {
 
   return (
     <List.Item
-      title={user.name}
-      description={user.email}
+      title={user.email}
       left={() => <List.Icon icon={isSelected ? "check-circle" : "account-circle-outline"} color={isSelected ? theme.colors.primary : theme.colors.onSurfaceVariant} />}
       onPress={() => onToggle(user)}
       style={[
@@ -33,6 +32,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     marginVertical: SPACING_SMALL / 2,
     borderRadius: SPACING_SMALL,
+    padding: SPACING_MEDIUM,
   },
 });
 

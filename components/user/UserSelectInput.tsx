@@ -45,7 +45,7 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
   }, [selectedUsers, onUsersChanged]);
 
   const displayValue = selectedUsers.length > 0
-    ? selectedUsers.map(user => user.name).join(', ')
+    ? selectedUsers.map(user => user.email).join(', ')
     : t('userSelectInput.selectUsers');
 
   const styles = StyleSheet.create({
@@ -112,7 +112,7 @@ const UserSelectInput: React.FC<UserSelectInputProps> = ({
               onClose={() => handleRemoveUser(user)}
               style={styles.chip}
             >
-              {user.name}
+              {user.email}
             </Chip>
           ))}
         </ScrollView>

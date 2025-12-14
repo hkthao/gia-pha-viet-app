@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider, Button } from 'react-native-paper';
 import { useDeleteMember } from '@/hooks/member/useDeleteMember';
@@ -9,7 +9,6 @@ import { SPACING_MEDIUM, SPACING_LARGE, SPACING_SMALL } from '@/constants/dimens
 
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Import default family avatar
 import { useMemberDetails } from '@/hooks/member/useMemberDetails'; // ADD: import useMemberDetails
-import ConfirmationDialog from '@/components/common/ConfirmationDialog'; // Import the new component
 
 export default function MemberDetailsScreen() {
 
@@ -27,35 +26,103 @@ export default function MemberDetailsScreen() {
 
 
 
-  const { member, isLoading, error } = useMemberDetails(memberId);
-
-  const { deleteMember, isDeleting } = useDeleteMember();
-
-  const { canManageFamily, isAdmin } = usePermissionCheck(member?.familyId);
+    const { member, isLoading, error } = useMemberDetails(memberId);
 
 
 
-  const [isDialogVisible, setIsDialogVisible] = React.useState(false);
+    const { deleteMember, isDeleting } = useDeleteMember();
 
 
 
-  const showDeleteDialog = () => setIsDialogVisible(true);
-
-  const hideDeleteDialog = () => setIsDialogVisible(false);
+    const { canManageFamily, isAdmin } = usePermissionCheck(member?.familyId);
 
 
 
-  const handleDelete = () => {
+  
 
-    if (member?.id) {
 
-      deleteMember(member.id);
 
-      hideDeleteDialog();
+    const handleDelete = () => {
 
-    }
 
-  };
+
+      if (member?.id) {
+
+
+
+        Alert.alert(
+
+
+
+          t('memberDetail.deleteConfirmTitle'),
+
+
+
+          t('memberDetail.deleteConfirmMessage', { memberName: member.fullName }),
+
+
+
+          [
+
+
+
+            {
+
+
+
+              text: t('common.cancel'),
+
+
+
+              style: 'cancel',
+
+
+
+              onPress: () => {}, // Do nothing on cancel
+
+
+
+            },
+
+
+
+            {
+
+
+
+              text: t('common.delete'),
+
+
+
+              style: 'destructive',
+
+
+
+              onPress: () => deleteMember(member.id), // Trigger delete mutation
+
+
+
+            },
+
+
+
+          ],
+
+
+
+          { cancelable: true }
+
+
+
+        );
+
+
+
+      }
+
+
+
+    };
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -367,7 +434,7 @@ export default function MemberDetailsScreen() {
             {(canManageFamily || isAdmin) && (
             <Button
               mode="contained"
-              onPress={showDeleteDialog} // Open confirmation dialog
+              onPress={handleDelete} // Call handleDelete directly
               style={styles.deleteButton}
               labelStyle={styles.deleteButtonLabel}
               loading={isDeleting}
@@ -377,17 +444,6 @@ export default function MemberDetailsScreen() {
             </Button>
           )}
         </ScrollView>
-
-        <ConfirmationDialog
-          visible={isDialogVisible}
-          onDismiss={hideDeleteDialog}
-          title={t('memberDetail.deleteConfirmTitle')}
-          message={t('memberDetail.deleteConfirmMessage', { memberName: member?.fullName })}
-          onConfirm={handleDelete}
-          loading={isDeleting}
-          confirmText={t('common.delete')}
-          cancelText={t('common.cancel')}
-        />
       </View>
     );
   }

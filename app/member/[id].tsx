@@ -2,21 +2,60 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider, Button } from 'react-native-paper';
+import { useDeleteMember } from '@/hooks/member/useDeleteMember';
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_LARGE, SPACING_SMALL } from '@/constants/dimensions';
 
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png'; // Import default family avatar
 import { useMemberDetails } from '@/hooks/member/useMemberDetails'; // ADD: import useMemberDetails
+import ConfirmationDialog from '@/components/common/ConfirmationDialog'; // Import the new component
 
 export default function MemberDetailsScreen() {
+
   const { id } = useLocalSearchParams();
+
   const router = useRouter();
+
   const { t } = useTranslation();
+
   const theme = useTheme();
+
+
 
   const memberId = Array.isArray(id) ? id[0] : id;
 
+
+
   const { member, isLoading, error } = useMemberDetails(memberId);
+
+  const { deleteMember, isDeleting } = useDeleteMember();
+
+  const { canManageFamily, isAdmin } = usePermissionCheck(member?.familyId);
+
+
+
+  const [isDialogVisible, setIsDialogVisible] = React.useState(false);
+
+
+
+  const showDeleteDialog = () => setIsDialogVisible(true);
+
+  const hideDeleteDialog = () => setIsDialogVisible(false);
+
+
+
+  const handleDelete = () => {
+
+    if (member?.id) {
+
+      deleteMember(member.id);
+
+      hideDeleteDialog();
+
+    }
+
+  };
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -82,11 +121,9 @@ export default function MemberDetailsScreen() {
     deleteButton: {
       marginTop: SPACING_SMALL,
       marginBottom: SPACING_LARGE,
-      backgroundColor: theme.colors.error,
       borderRadius: theme.roundness, // Apply theme's border radius
     },
     deleteButtonLabel: {
-      color: theme.colors.onError,
     },
   }), [theme]);
 
@@ -139,150 +176,151 @@ export default function MemberDetailsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title={t('memberDetail.title')} />
-          <Appbar.Action icon="pencil" onPress={() => router.push(`/member/${member.id}/edit`)} />
+          {(canManageFamily || isAdmin) && (
+            <Appbar.Action icon="pencil" onPress={() => router.push(`/member/${member.id}/edit`)} />
+          )}
         </Appbar.Header>
-
-          <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-            <Card style={styles.card}>
-              <Card.Content style={styles.cardContent}>
-                <Avatar.Image size={100} source={member.avatarUrl ? { uri: member.avatarUrl } : DefaultFamilyAvatar} style={styles.avatar} />
-                <View style={styles.detailsContainer}>
-                  <Text variant="headlineMedium" style={{ textAlign: 'center' }}>{member.fullName}</Text>
-                  {member.occupation && <Text variant="bodyLarge" style={{ textAlign: 'center' }}>{member.occupation}</Text>}
-                  {member.birthDeathYears && <Text variant="bodyMedium" style={{ textAlign: 'center' }}>{member.birthDeathYears}</Text>}
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+          <Card style={styles.card}>
+            <Card.Content style={styles.cardContent}>
+              <Avatar.Image size={100} source={member.avatarUrl ? { uri: member.avatarUrl } : DefaultFamilyAvatar} style={styles.avatar} />
+              <View style={styles.detailsContainer}>
+                <Text variant="headlineMedium" style={{ textAlign: 'center' }}>{member.fullName}</Text>
+                {member.occupation && <Text variant="bodyLarge" style={{ textAlign: 'center' }}>{member.occupation}</Text>}
+                {member.birthDeathYears && <Text variant="bodyMedium" style={{ textAlign: 'center' }}>{member.birthDeathYears}</Text>}
   
-                  <View style={styles.chipsContainer}>
-                    {member.gender && (
-                      <Chip icon="gender-male-female" style={styles.chip} compact={true}>
-                        {t(`memberSearch.filter.gender.${member.gender.toLowerCase()}`)}
-                      </Chip>
-                    )}
-                    {member.isRoot && (
-                      <Chip icon="account-star" style={styles.chip} compact={true}>
-                        {t('memberDetail.isRoot')}
-                      </Chip>
-                    )}
-                    {member.fatherFullName && (
-                      <Chip icon="human-male-boy" style={styles.chip} compact={true}>
-                        {member.fatherFullName}
-                      </Chip>
-                    )}
-                    {member.motherFullName && (
-                      <Chip icon="human-female-girl" style={styles.chip} compact={true}>
-                        {member.motherFullName}
-                      </Chip>
-                    )}
-                    {member.husbandFullName && (
-                      <Chip icon="heart" style={styles.chip} compact={true}>
-                        {member.husbandFullName}
-                      </Chip>
-                    )}
-                    {member.wifeFullName && (
-                      <Chip icon="heart" style={styles.chip} compact={true}>
-                        {member.wifeFullName}
-                      </Chip>
-                    )}
-                  </View>
+                <View style={styles.chipsContainer}>
+                  {member.gender && (
+                    <Chip icon="gender-male-female" style={styles.chip} compact={true}>
+                      {t(`memberSearch.filter.gender.${member.gender.toLowerCase()}`)}
+                    </Chip>
+                  )}
+                  {member.isRoot && (
+                    <Chip icon="account-star" style={styles.chip} compact={true}>
+                      {t('memberDetail.isRoot')}
+                    </Chip>
+                  )}
+                  {member.fatherFullName && (
+                    <Chip icon="human-male-boy" style={styles.chip} compact={true}>
+                      {member.fatherFullName}
+                    </Chip>
+                  )}
+                  {member.motherFullName && (
+                    <Chip icon="human-female-girl" style={styles.chip} compact={true}>
+                      {member.motherFullName}
+                    </Chip>
+                  )}
+                  {member.husbandFullName && (
+                    <Chip icon="heart" style={styles.chip} compact={true}>
+                      {member.husbandFullName}
+                    </Chip>
+                  )}
+                  {member.wifeFullName && (
+                    <Chip icon="heart" style={styles.chip} compact={true}>
+                      {member.wifeFullName}
+                    </Chip>
+                  )}
                 </View>
-              </Card.Content>
-            </Card>
+              </View>
+            </Card.Content>
+          </Card>
   
-            <Card style={styles.card}>
-              <Card.Content>
-                <List.Section>
-                  {/* Personal Information */}
-                  <List.Subheader>{t('memberDetail.personalInfo')}</List.Subheader>
+          <Card style={styles.card}>
+            <Card.Content>
+              <List.Section>
+                {/* Personal Information */}
+                <List.Subheader>{t('memberDetail.personalInfo')}</List.Subheader>
 
-                    <List.Item
-                      title={t('memberDetail.lastName')}
-                      left={() => <List.Icon icon="account" />}
-                      right={() => <Chip compact={true}>{member.lastName || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
-
-
-                    <List.Item
-                      title={t('memberDetail.firstName')}
-                      left={() => <List.Icon icon="account" />}
-                      right={() => <Chip compact={true}>{member.firstName || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.lastName')}
+                    left={() => <List.Icon icon="account" />}
+                    right={() => <Chip compact={true}>{member.lastName || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.nickname')}
-                      left={() => <List.Icon icon="tag" />}
-                      right={() => <Chip compact={true}>{member.nickname || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.firstName')}
+                    left={() => <List.Icon icon="account" />}
+                    right={() => <Chip compact={true}>{member.firstName || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.dateOfBirth')}
-                      left={() => <List.Icon icon="calendar-account" />}
-                      right={() => <Chip compact={true}>{member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.nickname')}
+                    left={() => <List.Icon icon="tag" />}
+                    right={() => <Chip compact={true}>{member.nickname || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.dateOfDeath')}
-                      left={() => <List.Icon icon="calendar-remove" />}
-                      right={() => <Chip compact={true}>{member.dateOfDeath ? new Date(member.dateOfDeath).toLocaleDateString() : t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.dateOfBirth')}
+                    left={() => <List.Icon icon="calendar-account" />}
+                    right={() => <Chip compact={true}>{member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.placeOfBirth')}
-                      left={() => <List.Icon icon="map-marker" />}
-                      right={() => <Chip compact={true}>{member.placeOfBirth || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.dateOfDeath')}
+                    left={() => <List.Icon icon="calendar-remove" />}
+                    right={() => <Chip compact={true}>{member.dateOfDeath ? new Date(member.dateOfDeath).toLocaleDateString() : t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.placeOfDeath')}
-                      left={() => <List.Icon icon="map-marker-off" />}
-                      right={() => <Chip compact={true}>{member.placeOfDeath || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.placeOfBirth')}
+                    left={() => <List.Icon icon="map-marker" />}
+                    right={() => <Chip compact={true}>{member.placeOfBirth || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.email')}
-                      left={() => <List.Icon icon="email" />}
-                      right={() => <Chip compact={true}>{member.email || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.placeOfDeath')}
+                    left={() => <List.Icon icon="map-marker-off" />}
+                    right={() => <Chip compact={true}>{member.placeOfDeath || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.phone')}
-                      left={() => <List.Icon icon="phone" />}
-                      right={() => <Chip compact={true}>{member.phone || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.email')}
+                    left={() => <List.Icon icon="email" />}
+                    right={() => <Chip compact={true}>{member.email || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.address')}
-                      left={() => <List.Icon icon="home-map-marker" />}
-                      right={() => <Chip compact={true}>{member.address || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.phone')}
+                    left={() => <List.Icon icon="phone" />}
+                    right={() => <Chip compact={true}>{member.phone || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
 
-                    <List.Item
-                      title={t('memberDetail.occupation')}
-                      left={() => <List.Icon icon="briefcase" />}
-                      right={() => <Chip compact={true}>{member.occupation || t('common.not_available')}</Chip>}
-                    />
-                    <Divider />
+                  <List.Item
+                    title={t('memberDetail.address')}
+                    left={() => <List.Icon icon="home-map-marker" />}
+                    right={() => <Chip compact={true}>{member.address || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
+
+
+                  <List.Item
+                    title={t('memberDetail.occupation')}
+                    left={() => <List.Icon icon="briefcase" />}
+                    right={() => <Chip compact={true}>{member.occupation || t('common.not_available')}</Chip>}
+                  />
+                  <Divider />
 
   
-                  {/* Family Relationships */}
-                  <List.Subheader>{t('memberDetail.familyRelationships')}</List.Subheader>
+                {/* Family Relationships */}
+                <List.Subheader>{t('memberDetail.familyRelationships')}</List.Subheader>
 
                     <List.Item
                       title={t('member.father')}
@@ -326,17 +364,30 @@ export default function MemberDetailsScreen() {
               </Card.Content>
             </Card>
 
-            {/* Delete Button */}
+            {(canManageFamily || isAdmin) && (
             <Button
               mode="contained"
-              onPress={() => console.log('Delete member:', member.id)} // Placeholder for delete action
+              onPress={showDeleteDialog} // Open confirmation dialog
               style={styles.deleteButton}
               labelStyle={styles.deleteButtonLabel}
+              loading={isDeleting}
+              disabled={isDeleting}
             >
               {t('common.delete')}
             </Button>
-          </ScrollView>
+          )}
+        </ScrollView>
 
+        <ConfirmationDialog
+          visible={isDialogVisible}
+          onDismiss={hideDeleteDialog}
+          title={t('memberDetail.deleteConfirmTitle')}
+          message={t('memberDetail.deleteConfirmMessage', { memberName: member?.fullName })}
+          onConfirm={handleDelete}
+          loading={isDeleting}
+          confirmText={t('common.delete')}
+          cancelText={t('common.cancel')}
+        />
       </View>
     );
   }

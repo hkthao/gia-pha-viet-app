@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { memberService } from '@/services';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
 import type { MemberDetailDto, MemberUpdateRequestDto } from '@/types';
 import { useApiMutation } from '@/hooks/common/useApiMutation';
@@ -13,7 +12,6 @@ export const useEditMemberForm = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const { showSnackbar } = useGlobalSnackbar();
   const queryClient = useQueryClient();
 
   const memberId = Array.isArray(id) ? id[0] : id;

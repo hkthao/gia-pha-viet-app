@@ -25,6 +25,7 @@ export default function FamilyStackLayout() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="create" options={{ title: t('familyForm.createTitle'), headerShown: false }} />
       <Stack.Screen name="[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="face-data" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -1,13 +1,15 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { useTheme, Text, List, Switch, Button, Icon } from 'react-native-paper';
+import { useTheme, Text, List, Switch, Button, Icon, Appbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useFamilyPrivacySettings } from '@/hooks/permissions/useFamilyPrivacySettings'; // Import the new hook
 
 const PrivacyScreen: React.FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
 
   const {
     hasPermit,
@@ -68,7 +70,11 @@ const PrivacyScreen: React.FC = () => {
   }), [theme]);
 
   return (
-    <View style={styles.safeArea}>
+    <View style={{ flex: 1 }}>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={t('more.privacy')} />
+      </Appbar.Header>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>{t('family.privacy.title')}</Text>
         <Text style={styles.infoText}>{t('family.privacy.description')}</Text>

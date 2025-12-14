@@ -162,7 +162,6 @@ export default function FamilyDashboardScreen() {
   return (
     <View style={styles.container}>
       <Appbar.Header>
-        {/* For a tab screen, usually a back action is not needed, but if there's a navigation stack above it, it would be router.back() */}
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={family.name || t('familyDetail.title')} />
         {canEditOrDelete && (

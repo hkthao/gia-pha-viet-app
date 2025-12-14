@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text, useTheme, Appbar } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { useFamilySharing } from '@/hooks/family/useFamilySharing'; // Import the new hook
 import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
 import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
@@ -8,7 +10,9 @@ import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilySto
 export default function FamilyTreeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const navigation = useNavigation();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId from store
+  const { onShare } = useFamilySharing();
 
   const styles = StyleSheet.create({
     container: {
@@ -25,6 +29,13 @@ export default function FamilyTreeScreen() {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => navigation.goBack()} />
+        <Appbar.Content title={t('familyDetail.tab.familyTreeShort')} />
+        {currentFamilyId && (
+          <Appbar.Action icon="share-variant" onPress={onShare} color={theme.colors.onSurface} />
+        )}
+      </Appbar.Header>
       {currentFamilyId ? (
         <WebView
           source={{ uri: familyDetailUrl }}

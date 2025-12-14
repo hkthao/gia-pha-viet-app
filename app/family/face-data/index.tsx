@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme, FAB, Appbar } from 'react-native-paper'; // Import FAB
+import { Chip, useTheme, FAB } from 'react-native-paper'; // Import FAB
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router'; // Import useRouter
 
@@ -120,33 +120,27 @@ export default function FamilyFaceDataScreen() {
   ), [router]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={t('more.faceData')} />
-      </Appbar.Header>
-      <View style={styles.safeArea}>
-        <PaginatedSearchListV2<DetectedFaceDto, SearchFacesQuery>
-          queryKey={getFaceSearchQueryKey}
-          queryFn={faceSearchQueryFn}
-          initialFilters={initialQuery}
-          renderItem={renderFaceItem}
-          keyExtractor={(item) => item.id}
-          searchPlaceholder={t('faceSearch.placeholder')}
-          containerStyle={styles.container}
-          showFilterButton={true}
-          FilterComponent={FaceFilterComponent}
-          ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
-          externalDependencies={[currentFamilyId]}
+    <View style={styles.safeArea}>
+      <PaginatedSearchListV2<DetectedFaceDto, SearchFacesQuery>
+        queryKey={getFaceSearchQueryKey}
+        queryFn={faceSearchQueryFn}
+        initialFilters={initialQuery}
+        renderItem={renderFaceItem}
+        keyExtractor={(item) => item.id}
+        searchPlaceholder={t('faceSearch.placeholder')}
+        containerStyle={styles.container}
+        showFilterButton={true}
+        FilterComponent={FaceFilterComponent}
+        ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
+        externalDependencies={[currentFamilyId]}
+      />
+      {(canManageFamily || isAdmin) && (
+        <FAB
+          style={styles.fab}
+          icon="plus"
+          onPress={() => router.push(`/family/face-data/create`)}
         />
-        {(canManageFamily || isAdmin) && (
-          <FAB
-            style={styles.fab}
-            icon="plus"
-            onPress={() => router.push(`/family/(tabs)/more/face-data/create`)}
-          />
-        )}
-      </View>
+      )}
     </View>
   );
 }

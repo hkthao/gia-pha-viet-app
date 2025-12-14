@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme, FAB } from 'react-native-paper'; // Import FAB
+import { Chip, useTheme, FAB, Appbar } from 'react-native-paper'; // Import FAB, Appbar
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router'; // Import useRouter
 
@@ -139,26 +139,32 @@ export default function FamilyMembersScreen() {
 
   return (
     <View style={styles.safeArea}>
-      <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
-        queryKey={getMemberSearchQueryKey}
-        queryFn={memberSearchQueryFn}
-        initialFilters={initialQuery}
-        renderItem={renderMemberItem}
-        keyExtractor={(item) => item.id}
-        searchPlaceholder={t('memberSearch.placeholder')}
-        containerStyle={styles.container}
-        showFilterButton={true}
-        FilterComponent={MemberFilterComponent}
-        ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
-        externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
-      />
-      {canManageFamily && currentFamilyId && (
-        <FAB
-          style={styles.fab}
-          icon="plus"
-          onPress={() => router.push(`/member/create?familyId=${currentFamilyId}`)}
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={t('familyDetail.tab.members')} />
+      </Appbar.Header>
+      <View style={{ flex: 1 }}>
+        <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
+          queryKey={getMemberSearchQueryKey}
+          queryFn={memberSearchQueryFn}
+          initialFilters={initialQuery}
+          renderItem={renderMemberItem}
+          keyExtractor={(item) => item.id}
+          searchPlaceholder={t('memberSearch.placeholder')}
+          containerStyle={styles.container}
+          showFilterButton={true}
+          FilterComponent={MemberFilterComponent}
+          ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
+          externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
         />
-      )}
+        {canManageFamily && currentFamilyId && (
+          <FAB
+            style={styles.fab}
+            icon="plus"
+            onPress={() => router.push(`/member/create?familyId=${currentFamilyId}`)}
+          />
+        )}
+      </View>
     </View>
   );
 }

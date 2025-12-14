@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
-import { useTheme, Button, Text, IconButton, Card } from 'react-native-paper';
+import { useTheme, Button, Text, IconButton, Card, Appbar } from 'react-native-paper';
 import { MemberItem } from '@/components';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { MemberListDto } from '@/types';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useRelationshipDetection } from '@/hooks/relationship/useRelationshipDetection'; // Import the new hook
 
@@ -35,6 +36,7 @@ const DEFAULT_MEMBER_B: MemberListDto = {
 export default function DetectRelationshipScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
 
   const {
     selectedMember1,
@@ -99,7 +101,11 @@ export default function DetectRelationshipScreen() {
   }, [showMemberSelectModal, handleMemberSelected]);
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={t('detectRelationship.title')} />
+      </Appbar.Header>
       <ScrollView style={styles.content}>
         <View style={styles.selectedMemberWrapper}>
           <MemberItem

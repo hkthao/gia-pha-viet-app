@@ -2,7 +2,8 @@ import { SPACING_MEDIUM } from '@/constants/dimensions';
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Agenda, AgendaEntry } from 'react-native-calendars';
-import { Divider, useTheme, Text } from 'react-native-paper';
+import { Divider, useTheme, Text, Appbar } from 'react-native-paper';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AgendaItem } from '@/components/event';
 import { useFamilyAgendaEvents } from '@/hooks/lists/useFamilyAgendaEvents'; // Import the new hook
@@ -10,6 +11,7 @@ import { useFamilyAgendaEvents } from '@/hooks/lists/useFamilyAgendaEvents'; // 
 export default function FamilyEventsScreen() {
   const theme = useTheme();
   const { t } = useTranslation();
+  const router = useRouter();
 
   const { items, markedDates, loadItemsForMonth, error, getDayName, rowHasChanged } = useFamilyAgendaEvents();
 
@@ -132,48 +134,50 @@ export default function FamilyEventsScreen() {
     );
   }, [theme.colors.background, theme.colors.onSurfaceVariant, styles, getDayName]);
 
-  if (error) {
-    return (
-      <View style={styles.container}>
+  return (
+    <View style={{ flex: 1 }}>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={t('more.calendar')} />
+      </Appbar.Header>
+      {error ? (
         <View style={styles.errorContainer}>
           <Text variant="bodyMedium" style={styles.errorText}>
             {t('common.error_occurred')}: {error}
           </Text>
         </View>
-      </View>
-    );
-  }
-
-  return (
-    <Agenda
-      items={items}
-      loadItemsForMonth={loadItemsForMonth}
-      selected={new Date().toISOString().split('T')[0]} // Set selected to today's date
-      renderEmptyDate={renderEmptyDate}
-      rowHasChanged={rowHasChanged}
-      showClosingKnob={true}
-      markedDates={markedDates}
-      renderList={renderList}
-      theme={{
-        agendaDayTextColor: theme.colors.primary,
-        agendaDayNumColor: theme.colors.primary,
-        agendaTodayColor: theme.colors.tertiary,
-        agendaKnobColor: theme.colors.primary,
-        backgroundColor: theme.colors.background,
-        calendarBackground: theme.colors.surface,
-        dayTextColor: theme.colors.onSurface,
-        textSectionTitleColor: theme.colors.onSurfaceVariant,
-        textDisabledColor: theme.colors.outline,
-        dotColor: theme.colors.primary,
-        selectedDotColor: theme.colors.onPrimary,
-        monthTextColor: theme.colors.onSurface,
-        textDayFontFamily: 'monospace',
-        textMonthFontFamily: 'monospace',
-        textDayHeaderFontFamily: 'monospace',
-        textDayFontSize: 16,
-        textMonthFontSize: 16,
-        textDayHeaderFontSize: 13
-      }}
-    />
+      ) : (
+        <Agenda
+          items={items}
+          loadItemsForMonth={loadItemsForMonth}
+          selected={new Date().toISOString().split('T')[0]} // Set selected to today's date
+          renderEmptyDate={renderEmptyDate}
+          rowHasChanged={rowHasChanged}
+          showClosingKnob={true}
+          markedDates={markedDates}
+          renderList={renderList}
+          theme={{
+            agendaDayTextColor: theme.colors.primary,
+            agendaDayNumColor: theme.colors.primary,
+            agendaTodayColor: theme.colors.tertiary,
+            agendaKnobColor: theme.colors.primary,
+            backgroundColor: theme.colors.background,
+            calendarBackground: theme.colors.surface,
+            dayTextColor: theme.colors.onSurface,
+            textSectionTitleColor: theme.colors.onSurfaceVariant,
+            textDisabledColor: theme.colors.outline,
+            dotColor: theme.colors.primary,
+            selectedDotColor: theme.colors.onPrimary,
+            monthTextColor: theme.colors.onSurface,
+            textDayFontFamily: 'monospace',
+            textMonthFontFamily: 'monospace',
+            textDayHeaderFontFamily: 'monospace',
+            textDayFontSize: 16,
+            textMonthFontSize: 16,
+            textDayHeaderFontSize: 13
+          }}
+        />
+      )}
+    </View>
   );
 }

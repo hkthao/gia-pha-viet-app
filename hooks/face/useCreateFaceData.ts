@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 
-import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto } from '@/types';
+import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto, FaceStatus } from '@/types'; // Import FaceStatus
 import { faceService } from '@/services';
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
@@ -63,7 +63,12 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
   // Initialize detectedFacesWithMember when detectedFaces changes from useImageFaceDetection
   useEffect(() => {
     if (detectedFaces && detectedFaces.length > 0) {
-      setDetectedFacesWithMember(detectedFaces.map(face => ({ ...face, memberId: undefined, memberName: undefined })));
+      setDetectedFacesWithMember(detectedFaces.map(face => ({
+        ...face,
+        memberId: face.memberId || undefined, // Keep existing memberId if any
+        memberName: face.memberName || undefined, // Keep existing memberName if any
+        status: face.status || (face.memberId ? FaceStatus.OriginalRecognized : FaceStatus.Unrecognized) // Use existing status or derive
+      })));
     } else {
       setDetectedFacesWithMember([]);
     }
@@ -116,7 +121,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       setDetectedFacesWithMember(prevFaces =>
         prevFaces.map(face =>
           face.id === faceIdBeingMapped
-            ? { ...face, memberId: member.id, memberName: member.fullName }
+            ? { ...face, memberId: member.id, memberName: member.fullName, status: FaceStatus.NewlyLabeled } // Update status
             : face
         )
       );
@@ -125,9 +130,15 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
   }, []);
 
   const handlePressFaceToSelectMember = useCallback((face: DetectedFaceDto) => {
+    if (face.status && [FaceStatus.Recognized, FaceStatus.OriginalRecognized].includes(face.status)) {
+      // If recognized, do not allow changing member here directly.
+      // This is for unrecognized faces to be assigned.
+      Alert.alert(t('common.error'), t('faceDataForm.recognizedFaceCannotBeAssigned')); // New translation key
+      return;
+    }
     setSelectedFaceForMemberMapping(face); // Still set for potential UI indication or other use
     showMemberSelectModal((member: MemberListDto, fieldName: string) => handleMemberSelected(member, fieldName), face.id); // Pass face.id as the fieldName
-  }, [showMemberSelectModal, handleMemberSelected]);
+  }, [showMemberSelectModal, handleMemberSelected, t]); // Added t to dependencies
 
   const handleSubmit = useCallback(async () => {
     if (!currentFamilyId || !image || detectedFacesWithMember.length === 0) {
@@ -159,7 +170,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       t('faceDataForm.confirmDeleteFace'), // New translation key needed
       [
         { text: t('common.cancel'), style: 'cancel' },
-        {
+        { 
           text: t('common.delete'),
           style: 'destructive',
           onPress: () => {

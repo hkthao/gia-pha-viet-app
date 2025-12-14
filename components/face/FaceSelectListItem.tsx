@@ -1,7 +1,7 @@
 // gia-pha-viet-app/components/face/FaceSelectListItem.tsx
 import { StyleSheet, Image, View } from 'react-native';
 import { useTheme, IconButton, List } from 'react-native-paper';
-import { DetectedFaceDto } from '@/types';
+import { DetectedFaceDto, FaceStatus } from '@/types'; // Import FaceStatus
 import { SPACING_SMALL } from '@/constants/dimensions';
 
 interface FaceSelectListItemProps {
@@ -15,12 +15,25 @@ const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, 
   const theme = useTheme();
   const memberName = face.memberName || t('faceDataForm.unassigned');
 
+  const getListItemStyle = () => {
+    let backgroundColor = theme.colors.surface;
+    if (face.status === FaceStatus.NewlyLabeled) {
+      backgroundColor = theme.colors.tertiaryContainer; // Highlight for newly labeled
+    } else if (face.status === FaceStatus.Unrecognized) {
+      backgroundColor = theme.colors.errorContainer; // Indicate unrecognized
+    }
+    return { backgroundColor, paddingVertical: 0 };
+  };
+
+  const isEditable = face.status === FaceStatus.Unrecognized || face.status === FaceStatus.NewlyLabeled;
+
   const styles = StyleSheet.create({
     thumbnail: {
       width: 40,
       height: 40,
       borderRadius: theme.roundness,
       marginRight: SPACING_SMALL,
+      marginLeft: SPACING_SMALL,
     },
     actionsContainer: {
       flexDirection: 'row',
@@ -58,22 +71,24 @@ const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, 
       )}
       right={() => (
         <View style={styles.actionsContainer}>
-          {onDelete && (
+          {isEditable && onDelete && (
             <IconButton
               icon="delete"
               onPress={() => onDelete(face)}
               iconColor={theme.colors.error}
             />
           )}
-          <IconButton
-            icon="account-edit" // Edit icon
-            onPress={() => onPress(face)}
-            iconColor={theme.colors.onSurface}
-          />
+          {isEditable && (
+            <IconButton
+              icon="account-edit" // Edit icon
+              onPress={() => onPress(face)}
+              iconColor={theme.colors.onSurface}
+            />
+          )}
         </View>
       )}
       onPress={() => onPress(face)} // Allow pressing the whole item
-      style={{ backgroundColor: theme.colors.surface, paddingVertical: 0 }}
+      style={getListItemStyle()}
       titleStyle={styles.memberName}
       descriptionStyle={styles.confidence}
     />

@@ -26,11 +26,14 @@ export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQ
         type: request.fileType,
       } as any); // Type assertion for FormData.append
 
-      // Append other parameters
-      formData.append('familyId', request.familyId);
-      formData.append('returnCrop', request.returnCrop.toString());
+      // Construct query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('familyId', request.familyId);
+      queryParams.append('returnCrop', request.returnCrop.toString());
 
-      const response = await this.apiClient.post<FaceDetectionResponseDto>('/member-faces/detect', formData, {
+      const url = `/member-faces/detect?${queryParams.toString()}`;
+
+      const response = await this.apiClient.post<FaceDetectionResponseDto>(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

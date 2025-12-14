@@ -7,6 +7,13 @@ export interface BoundingBoxDto {
   height: number;
 }
 
+export enum FaceStatus {
+  Recognized = 'recognized',
+  Unrecognized = 'unrecognized',
+  NewlyLabeled = 'newly-labeled',
+  OriginalRecognized = 'original-recognized',
+}
+
 export interface DetectedFaceDto {
   id: string;
   boundingBox: BoundingBoxDto;
@@ -21,6 +28,7 @@ export interface DetectedFaceDto {
   birthYear?: number;
   deathYear?: number;
   familyAvatarUrl?: string;
+  status?: FaceStatus; // New status field
 }
 
 export interface FaceDetectionResponseDto {

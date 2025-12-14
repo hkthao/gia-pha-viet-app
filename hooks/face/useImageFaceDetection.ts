@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { useCameraPermissions } from 'expo-camera';
 import { faceService } from '@/services';
-import type { DetectedFaceDto } from '@/types';
+import type { DetectedFaceDto } from '@/types'; // Removed FaceStatus import
 import { useTranslation } from 'react-i18next';
-import { useMutation } from '@tanstack/react-query'; // Added useMutation
+import { useMutation } from '@tanstack/react-query';
 
 
 interface ImageDimensions {
@@ -83,7 +83,7 @@ export function useImageFaceDetection(familyId: string | null): UseImageFaceDete
       }
     },
     onSuccess: (data) => {
-      setDetectedFaces(data);
+      setDetectedFaces(data); // Directly use data from server
     },
     onError: (err) => {
       console.error('Face detection API error:', err);

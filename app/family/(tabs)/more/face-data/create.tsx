@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native'; // Removed Image, Dimensions
 import { Appbar, useTheme, Text, Button, ActivityIndicator } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { Svg, Rect, G, Text as SvgText } from 'react-native-svg';
 import FaceSelectListItem from '@/components/face/FaceSelectListItem';
+import { FaceBoundingBoxes } from '@/components/face'; // Import FaceBoundingBoxes
 import { useCreateFaceData } from '@/hooks/face/useCreateFaceData';
 
 export default function CreateFaceDataScreen() {
@@ -46,21 +46,6 @@ export default function CreateFaceDataScreen() {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    imageContainer: {
-      width: '100%',
-      aspectRatio: 4 / 3,
-      borderColor: theme.colors.outline,
-      borderWidth: 0.5,
-      borderRadius: theme.roundness,
-      marginBottom: SPACING_MEDIUM,
-      position: 'relative',
-      overflow: 'hidden',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      resizeMode: 'contain',
     },
     selectImageButton: {
       marginBottom: SPACING_MEDIUM,
@@ -120,64 +105,13 @@ export default function CreateFaceDataScreen() {
           {t('faceDataForm.selectImage')}
         </Button>
 
-        {image && imageDimensions && (
-          <View
-            style={styles.imageContainer}
-          >
-            <Image source={{ uri: image }} style={styles.image} />
-            <Svg
-              height="100%"
-              width="100%"
-              style={StyleSheet.absoluteFill}
-            >
-              {detectedFacesWithMember.map((face, index) => {
-                const roundedScaledBox = calculateBoundingBox(face, { width: screenWidth - (SPACING_MEDIUM * 2), height: (screenWidth - (SPACING_MEDIUM * 2)) * (imageDimensions.height / imageDimensions.width) }, imageDimensions);
-
-                if (!roundedScaledBox) {
-                  return null;
-                }
-
-                const memberName = face.memberName || t('faceDataForm.unassigned');
-
-                return (
-                  <G
-                    key={face.id}
-                    onPress={() => handlePressFaceToSelectMember(face)}
-                  >
-                    <Rect
-                      x={roundedScaledBox.scaledX}
-                      y={roundedScaledBox.scaledY}
-                      width={roundedScaledBox.scaledWidth}
-                      height={roundedScaledBox.scaledHeight}
-                      stroke={face.memberId ? theme.colors.primary : theme.colors.error}
-                      strokeWidth="2"
-                      fill="rgba(0,0,0,0)"
-                    />
-                    <Rect
-                      x={roundedScaledBox.scaledX + roundedScaledBox.scaledWidth / 2 - (memberName.length * 3)}
-                      y={roundedScaledBox.scaledY - 20}
-                      width={memberName.length * 6 + 10}
-                      height="20"
-                      fill="rgba(0,0,0,0.5)"
-                      rx="3"
-                      ry="3"
-                    />
-                    <SvgText
-                      x={roundedScaledBox.scaledX + roundedScaledBox.scaledWidth / 2}
-                      y={roundedScaledBox.scaledY - 5}
-                      fill="white"
-                      fontSize="12"
-                      fontWeight="bold"
-                      textAnchor="middle"
-                    >
-                      {memberName}
-                    </SvgText>
-                  </G>
-                );
-              })}
-            </Svg>
-          </View>
-        )}
+        <FaceBoundingBoxes
+          image={image}
+          imageDimensions={imageDimensions}
+          detectedFaces={detectedFacesWithMember}
+          calculateBoundingBox={calculateBoundingBox}
+          onPressFace={handlePressFaceToSelectMember}
+        />
 
         {(detectionError || saveMutationError) && (
           <Text style={{ color: theme.colors.error, textAlign: 'center', marginBottom: SPACING_MEDIUM }}>

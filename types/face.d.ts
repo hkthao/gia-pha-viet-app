@@ -35,3 +35,16 @@ export interface SearchFacesQuery extends BaseSearchQuery {
   maxConfidence?: number;
   // Add other relevant search parameters for faces
 }
+
+export interface FaceDataMappingDto {
+  faceId: string;
+  boundingBox: BoundingBoxDto;
+  confidence: number;
+  memberId?: string; // Optional, as it might not be assigned yet
+}
+
+export interface CreateFaceDataRequestDto {
+  familyId: string;
+  imageUrl: string;
+  detectedFaces: FaceDataMappingDto[];
+}

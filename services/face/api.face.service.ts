@@ -1,13 +1,13 @@
 // services/face/api.face.service.ts
 
 import { ApiClientMethods } from '@/types';
-import { Result, DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto } from '@/types';
+import { Result, DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto, CreateFaceDataRequestDto } from '@/types';
 import { IFaceService, DetectFacesRequest } from '@/services/face/face.service.interface';
 import { GenericService } from '@/services/base/abstract.generic.service'; // Import GenericService
 import { ResultHelper } from '@/utils/resultUtils'; // Import ResultHelper
 import { parseError } from '@/utils/errorUtils'; // Import parseError
 
-export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto, DetectedFaceDto> implements IFaceService {
+export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, CreateFaceDataRequestDto, DetectedFaceDto> implements IFaceService {
   protected get baseEndpoint(): string {
     return '/member-faces';
   }

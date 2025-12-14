@@ -1,7 +1,7 @@
 // services/face/face.service.interface.ts
 
 import { Result, PaginatedList } from '@/types';
-import { DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto } from '@/types';
+import { DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto, CreateFaceDataRequestDto } from '@/types';
 import { IGenericService } from '@/services/base/generic.service.interface';
 
 export interface DetectFacesRequest {
@@ -12,6 +12,6 @@ export interface DetectFacesRequest {
   returnCrop: boolean;
 }
 
-export interface IFaceService extends IGenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, DetectedFaceDto, DetectedFaceDto> {
+export interface IFaceService extends IGenericService<DetectedFaceDto, SearchFacesQuery, DetectedFaceDto, CreateFaceDataRequestDto, DetectedFaceDto> {
   detectFaces(request: DetectFacesRequest): Promise<Result<FaceDetectionResponseDto>>;
 }

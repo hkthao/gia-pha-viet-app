@@ -29,7 +29,7 @@ export interface UseImageFaceDetectionResult {
   error: string | null;
   pickImage: () => Promise<void>;
   takePhoto: () => Promise<void>;
-  clearImage: () => void;
+  resetFaceDetection: () => void;
   calculateBoundingBox: (
     face: DetectedFaceDto,
     containerDimensions: ImageDimensions,
@@ -214,7 +214,7 @@ export function useImageFaceDetection(familyId: string | null): UseImageFaceDete
     error: detectFacesMutation.error ? detectFacesMutation.error.message : null,
     pickImage,
     takePhoto,
-    clearImage,
+    resetFaceDetection: clearImage,
     calculateBoundingBox,
   };
 }

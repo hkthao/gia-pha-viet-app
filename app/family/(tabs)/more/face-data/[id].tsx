@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Divider } from 'react-native-paper';
+import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Divider, List, Chip } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
@@ -52,43 +52,25 @@ export default function FaceDataDetailsScreen() {
       alignItems: 'center',
       padding: SPACING_MEDIUM,
     },
-    imageContainer: {
-      alignItems: 'center',
-      marginBottom: SPACING_MEDIUM,
-    },
-    thumbnail: {
-      width: 200,
-      height: 200,
-      borderRadius: theme.roundness,
-      resizeMode: 'contain',
-      backgroundColor: theme.colors.surfaceVariant,
-    },
     card: {
       marginBottom: SPACING_MEDIUM,
       borderRadius: theme.roundness,
     },
-    cardTitle: {
-      fontWeight: 'bold',
+    thumbnailContainer: {
+      alignItems: 'center',
+      paddingVertical: SPACING_MEDIUM,
+    },
+    thumbnail: {
+      width: 150,
+      height: 150,
+      borderRadius: theme.roundness,
+      resizeMode: 'contain',
+      backgroundColor: theme.colors.surfaceVariant,
       marginBottom: SPACING_SMALL,
-    },
-    detailRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: SPACING_SMALL,
-    },
-    detailLabel: {
-      fontWeight: 'bold',
-      color: theme.colors.onSurfaceVariant,
-      marginRight: SPACING_SMALL,
-    },
-    detailValue: {
-      flexShrink: 1,
-      color: theme.colors.onSurface,
-      textAlign: 'right',
     },
     buttonContainer: {
       flexDirection: 'row',
-      justifyContent: 'space-around',
+      justifyContent: 'space-around'
     },
     button: {
       flex: 1,
@@ -99,6 +81,11 @@ export default function FaceDataDetailsScreen() {
     },
     deleteButtonLabel: {
       color: theme.colors.onError,
+    },
+    infoText: {
+      color: theme.colors.onSurfaceVariant,
+      textAlign: 'center',
+      marginBottom: SPACING_SMALL,
     },
   }), [theme]);
 
@@ -125,55 +112,35 @@ export default function FaceDataDetailsScreen() {
         <Appbar.Content title={t('faceDataDetail.title')} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.imageContainer}>
-          {faceData.thumbnailUrl ? (
-            <Image source={{ uri: faceData.thumbnailUrl }} style={styles.thumbnail} />
-          ) : (
-            <View style={styles.thumbnail}>
-              <Text variant="bodySmall" style={{ textAlign: 'center', paddingTop: '40%' }}>{t('faceDataDetail.noThumbnail')}</Text>
-            </View>
-          )}
-        </View>
-
         <Card style={styles.card}>
-          <Card.Title title={t('faceDataDetail.details')} titleVariant="titleMedium" />
-          <Card.Content>
-            {faceData.memberName && (
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('faceDataDetail.associatedMember')}:</Text>
-                <Text style={styles.detailValue} onPress={() => router.push(`/member/${faceData.memberId}`)}>
-                  {faceData.memberName} ({faceData.familyName})
-                </Text>
+          <Card.Content style={styles.thumbnailContainer}>
+            {faceData.thumbnailUrl ? (
+              <Image source={{ uri: faceData.thumbnailUrl }} style={styles.thumbnail} />
+            ) : (
+              <View style={[styles.thumbnail, { justifyContent: 'center' }]}>
+                <Text variant="bodySmall" style={styles.infoText}>{t('faceDataDetail.noThumbnail')}</Text>
               </View>
             )}
-            {faceData.emotion && (
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('faceDataDetail.emotion')}:</Text>
-                <Text style={styles.detailValue}>{faceData.emotion}</Text>
-              </View>
-            )}
-            {faceData.boundingBox && (
-              <View>
-                <Divider style={{ marginVertical: SPACING_SMALL }} />
-                <Text style={styles.detailLabel}>{t('faceDataDetail.boundingBox')}:</Text>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>X:</Text>
-                  <Text style={styles.detailValue}>{faceData.boundingBox.x.toFixed(0)}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Y:</Text>
-                  <Text style={styles.detailValue}>{faceData.boundingBox.y.toFixed(0)}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Width:</Text>
-                  <Text style={styles.detailValue}>{faceData.boundingBox.width.toFixed(0)}</Text>
-                </View>
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>Height:</Text>
-                  <Text style={styles.detailValue}>{faceData.boundingBox.height.toFixed(0)}</Text>
-                </View>
-              </View>
-            )}
+            <View style={{
+              padding: SPACING_SMALL,
+              display: "flex",
+              flexDirection: "row",
+              gap: SPACING_MEDIUM
+            }}>
+
+              <Chip compact >
+                {faceData.memberName}
+              </Chip>
+
+              <Chip compact >
+                {faceData.familyName}
+              </Chip>
+              {
+                faceData.emotion && <Chip compact >
+                  {faceData.emotion}
+                </Chip>
+              }
+            </View>
           </Card.Content>
         </Card>
 

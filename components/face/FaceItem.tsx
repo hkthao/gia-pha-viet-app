@@ -78,15 +78,6 @@ const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
                 {item.familyName}
               </Chip>
             ):<></>}
-            {item.confidence ? (
-              <Chip
-                icon="face-recognition"
-                compact
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
-              >
-                {t('faceSearch.confidence')}: {item.confidence.toFixed(2)}
-              </Chip>
-            ):<></>}
             {(item.birthYear || item.deathYear) && (
               <Chip
                 icon="calendar"

@@ -8,8 +8,7 @@ import { faceService, familyMediaService } from '@/services'; // Import familyMe
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { File, Paths } from 'expo-file-system';
-import { Buffer } from 'buffer';
+import { createAndUploadFile } from '@/utils/fileUploadUtils';
 
 interface UseCreateFaceDataResult {
   processing: boolean;
@@ -92,7 +91,6 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       }
     }
   });
-
 
   const saveFaceDataMutation = useMutation({
     mutationFn: async (payload: CreateFaceDataRequestDto) => {
@@ -191,25 +189,14 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
             mediaType = mimePart.split(':')[1];
           }
         }
-        const file = new File(Paths.cache, fileName);
-        const bytes = Uint8Array.from(
-          Buffer.from(base64Image, 'base64')
-        );
-        file.create({
-          overwrite: true
-        });
-        file.write(bytes);
-
-        const uploadedOriginalImageUrl = await uploadImageMutation.mutateAsync({
-          file: {
-            uri: file.uri,
-            name: fileName,
-            type: mediaType,
-          },
+        const uploadedOriginalImageUrl = await createAndUploadFile({
+          base64Content: base64Image,
+          fileName: fileName,
+          mediaType: mediaType,
           familyId: currentFamilyId,
           folder: 'faces/original-images',
+          uploadMutation: uploadImageMutation,
         });
-        file.delete()
         finalImageUrl = uploadedOriginalImageUrl;
       }
 
@@ -227,25 +214,14 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
             }
           }
 
-          const file = new File(Paths.cache, thumbnailFileName);
-          file.create({
-            overwrite: true
-          });
-          const bytes = Uint8Array.from(
-            Buffer.from(face.thumbnail, 'base64')
-          );
-          file.write(bytes);
-
-          const uploadedThumbnailUrl = await uploadImageMutation.mutateAsync({
-            file: {
-              uri: file.uri, // Use the temporary file:// URI
-              name: thumbnailFileName,
-              type: thumbnailMediaType,
-            },
+          const uploadedThumbnailUrl = await createAndUploadFile({
+            base64Content: face.thumbnail,
+            fileName: thumbnailFileName,
+            mediaType: thumbnailMediaType,
             familyId: currentFamilyId,
             folder: 'faces/thumbnails',
+            uploadMutation: uploadImageMutation,
           });
-          file.delete()
 
           // 3. Prepare payload for faceService.create
           const payload: CreateFaceDataRequestDto = {

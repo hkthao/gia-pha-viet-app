@@ -1,17 +1,17 @@
 // gia-pha-viet-app/components/face/FaceSelectListItem.tsx
-import { View, StyleSheet, Image } from 'react-native';
-import { Button, Text, useTheme, IconButton, List } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { StyleSheet, Image, View } from 'react-native';
+import { useTheme, IconButton, List } from 'react-native-paper';
 import { DetectedFaceDto } from '@/types';
 import { SPACING_SMALL } from '@/constants/dimensions';
 
 interface FaceSelectListItemProps {
   face: DetectedFaceDto;
   onPress: (face: DetectedFaceDto) => void;
+  onDelete?: (face: DetectedFaceDto) => void; // New onDelete prop
   t: (key: string) => string; // Pass t function from useTranslation
 }
 
-const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, t }) => {
+const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, onDelete, t }) => {
   const theme = useTheme();
   const memberName = face.memberName || t('faceDataForm.unassigned');
 
@@ -22,8 +22,9 @@ const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, 
       borderRadius: theme.roundness,
       marginRight: SPACING_SMALL,
     },
-    listItemContent: {
-      flex: 1,
+    actionsContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     memberName: {
       color: face.memberId ? theme.colors.primary : theme.colors.error,
@@ -56,11 +57,20 @@ const FaceSelectListItem: React.FC<FaceSelectListItemProps> = ({ face, onPress, 
         />
       )}
       right={() => (
-        <IconButton
-          icon="account-edit" // Edit icon
-          onPress={() => onPress(face)}
-          iconColor={theme.colors.onSurface}
-        />
+        <View style={styles.actionsContainer}>
+          {onDelete && (
+            <IconButton
+              icon="delete"
+              onPress={() => onDelete(face)}
+              iconColor={theme.colors.error}
+            />
+          )}
+          <IconButton
+            icon="account-edit" // Edit icon
+            onPress={() => onPress(face)}
+            iconColor={theme.colors.onSurface}
+          />
+        </View>
       )}
       onPress={() => onPress(face)} // Allow pressing the whole item
       style={{ backgroundColor: theme.colors.surface, paddingVertical: 0 }}

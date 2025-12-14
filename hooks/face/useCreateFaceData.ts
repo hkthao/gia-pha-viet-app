@@ -23,6 +23,7 @@ interface UseCreateFaceDataResult {
   handleImagePick: () => void;
   handleCancel: () => void;
   handlePressFaceToSelectMember: (face: DetectedFaceDto) => void;
+  handleDeleteFace: (face: DetectedFaceDto) => void;
   handleSubmit: () => Promise<void>;
   calculateBoundingBox: (
     face: DetectedFaceDto,
@@ -152,6 +153,26 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     saveFaceDataMutation.mutate(payload);
   }, [currentFamilyId, image, detectedFacesWithMember, saveFaceDataMutation, t]);
 
+  const handleDeleteFace = useCallback((faceToDelete: DetectedFaceDto) => {
+    Alert.alert(
+      t('common.confirm'),
+      t('faceDataForm.confirmDeleteFace'), // New translation key needed
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: () => {
+            setDetectedFacesWithMember(prevFaces =>
+              prevFaces.filter(face => face.id !== faceToDelete.id)
+            );
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  }, [t]);
+
   const processing = detectionLoading || saveFaceDataMutation.isPending;
 
   return {
@@ -165,6 +186,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     handleImagePick,
     handleCancel,
     handlePressFaceToSelectMember,
+    handleDeleteFace, // Expose new handler
     handleSubmit,
     calculateBoundingBox,
     SelectMemberModalComponent,

@@ -23,6 +23,7 @@ export default function CreateFaceDataScreen() {
     handleImagePick,
     handleCancel,
     handlePressFaceToSelectMember,
+    handleDeleteFace, // NEW
     handleSubmit,
     calculateBoundingBox,
     SelectMemberModalComponent,
@@ -84,6 +85,7 @@ export default function CreateFaceDataScreen() {
         <Appbar.Content title={t('faceDataForm.createTitle')} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.content}>
+        
         <Button
           mode="contained"
           onPress={handleImagePick}
@@ -119,6 +121,7 @@ export default function CreateFaceDataScreen() {
                 <FaceSelectListItem
                   face={face}
                   onPress={() => handlePressFaceToSelectMember(face)}
+                  onDelete={() => handleDeleteFace(face)} // Pass handleDeleteFace
                   t={t}
                 />
                 {index < detectedFacesWithMember.length - 1 && <Divider />}
@@ -138,6 +141,13 @@ export default function CreateFaceDataScreen() {
           {t('common.save')}
         </Button>
       </ScrollView>
+
+      {(processing || saveMutationLoading) && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator animating size="large" color={theme.colors.primary} />
+          <Text style={{ color: theme.colors.onPrimary }}>{t('common.processing')}</Text>
+        </View>
+      )}
 
       <SelectMemberModalComponent />
     </View>

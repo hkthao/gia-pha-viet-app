@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Divider, List, Chip } from 'react-native-paper';
+import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Divider, List, Chip, Avatar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFaceDataDetails } from '@/hooks/face/useFaceDataDetails';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { useFamilyStore } from '@/stores/useFamilyStore';
+import { getAvatarSource } from '@/utils/imageUtils';
 
 export default function FaceDataDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -21,7 +22,6 @@ export default function FaceDataDetailsScreen() {
     faceData,
     loading,
     error,
-    handleEditFaceData,
     handleDeleteFaceData,
     deleteLoading,
   } = useFaceDataDetails(faceDataId as string);
@@ -125,14 +125,20 @@ export default function FaceDataDetailsScreen() {
               padding: SPACING_SMALL,
               display: "flex",
               flexDirection: "row",
-              gap: SPACING_MEDIUM
+              gap: SPACING_MEDIUM,
+              flexWrap: "wrap"
             }}>
 
-              <Chip compact >
+              <Chip compact
+                avatar={faceData.memberAvatarUrl ? <Avatar.Image size={24} source={getAvatarSource(faceData.memberAvatarUrl)} /> : <Avatar.Icon size={24} icon="account" />}
+
+              >
                 {faceData.memberName}
               </Chip>
 
-              <Chip compact >
+              <Chip compact
+                avatar={faceData.familyAvatarUrl ? <Avatar.Image size={24} source={getAvatarSource(faceData.familyAvatarUrl)} /> : <Avatar.Icon size={24} icon="account-group" />}
+              >
                 {faceData.familyName}
               </Chip>
               {
@@ -140,6 +146,15 @@ export default function FaceDataDetailsScreen() {
                   {faceData.emotion}
                 </Chip>
               }
+              {(faceData.birthYear || faceData.deathYear) && (
+                <Chip
+                  icon="calendar"
+                  compact
+                  style={{ backgroundColor: theme.colors.surfaceVariant }}
+                >
+                  ({faceData.birthYear || t('common.not_available')} - {faceData.deathYear || t('common.not_available')})
+                </Chip>
+              )}
             </View>
           </Card.Content>
         </Card>

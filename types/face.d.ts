@@ -28,6 +28,7 @@ export interface DetectedFaceDto {
   birthYear?: number;
   deathYear?: number;
   familyAvatarUrl?: string;
+  memberAvatarUrl?: string;
   status?: FaceStatus; // New status field
   emotion?: string;
   emotionConfidence?: number;

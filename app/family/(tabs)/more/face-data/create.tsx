@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native'; // Removed Image, Dimensions
-import { Appbar, useTheme, Text, Button } from 'react-native-paper';
+import { Appbar, useTheme, Text, Button, ActivityIndicator, Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
@@ -114,13 +114,15 @@ export default function CreateFaceDataScreen() {
             <Text variant="titleMedium" style={styles.facesListTitle}>
               {t('faceDataForm.detectedFaces')}
             </Text>
-            {detectedFacesWithMember.map((face) => (
-              <FaceSelectListItem
-                key={face.id}
-                face={face}
-                onPress={() => handlePressFaceToSelectMember(face)}
-                t={t}
-              />
+            {detectedFacesWithMember.map((face, index) => (
+              <React.Fragment key={face.id}>
+                <FaceSelectListItem
+                  face={face}
+                  onPress={() => handlePressFaceToSelectMember(face)}
+                  t={t}
+                />
+                {index < detectedFacesWithMember.length - 1 && <Divider />}
+              </React.Fragment>
             ))}
           </View>
         )}

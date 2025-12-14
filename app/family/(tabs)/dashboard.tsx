@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import { Text, useTheme, ActivityIndicator, Card, FAB } from 'react-native-paper';
+import { Text, useTheme, ActivityIndicator, Card, Appbar, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions';
+import { useRouter } from 'expo-router'; // Import useRouter
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { useFamilyListStore } from '@/stores/useFamilyListStore';
 import { PieChart, BarChart } from 'react-native-chart-kit';
@@ -15,6 +16,7 @@ import { useFamilyDetails } from '@/hooks/family/useFamilyDetails';
 export default function FamilyDashboardScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter(); // Initialize useRouter
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
 
   const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore();
@@ -27,8 +29,6 @@ export default function FamilyDashboardScreen() {
     handleEditFamily,
     handleDeleteFamily,
   } = useFamilyDetails(); // Use the hook to get edit/delete logic
-
-  const [fabOpen, setFabOpen] = useState(false); // State to manage FAB.Group open/closed status
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -101,10 +101,13 @@ export default function FamilyDashboardScreen() {
     barChartLabel: {
       color: theme.colors.onSurface,
     },
-    fabStyle: {
-      right: 0,
-      bottom: -25,
-      zIndex: 10,
+    deleteButton: {
+      marginBottom: SPACING_LARGE,
+      backgroundColor: theme.colors.error,
+      borderRadius: theme.roundness,
+    },
+    deleteButtonLabel: {
+      color: theme.colors.onError,
     },
   }), [theme]);
 
@@ -158,6 +161,14 @@ export default function FamilyDashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header>
+        {/* For a tab screen, usually a back action is not needed, but if there's a navigation stack above it, it would be router.back() */}
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={family.name || t('familyDetail.title')} />
+        {canEditOrDelete && (
+          <Appbar.Action icon="pencil" onPress={handleEditFamily} />
+        )}
+      </Appbar.Header>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <ProfileCard family={family} />
         <View style={styles.cardsContainer}>
@@ -244,29 +255,18 @@ export default function FamilyDashboardScreen() {
             </View>
           </Card.Content>
         </Card>
-      </ScrollView>
 
-      {canEditOrDelete && (
-        <FAB.Group
-          visible={true} // Always visible when conditions met
-          open={fabOpen} // Use state to control open/closed status
-          icon={fabOpen ? 'close' : 'pencil'} // Change icon based on open state
-          actions={[
-            {
-              icon: 'pencil',
-              label: t('common.edit'),
-              onPress: handleEditFamily,
-            },
-            {
-              icon: 'delete',
-              label: t('common.delete'),
-              onPress: handleDeleteFamily,
-            },
-          ]}
-          onStateChange={({ open }) => setFabOpen(open)} // Update state on state change
-          fabStyle={styles.fabStyle}
-        />
-      )}
+        {canEditOrDelete && (
+          <Button
+            mode="contained"
+            onPress={handleDeleteFamily}
+            style={styles.deleteButton}
+            labelStyle={styles.deleteButtonLabel}
+          >
+            {t('common.delete')}
+          </Button>
+        )}
+      </ScrollView>
     </View>
   );
 }

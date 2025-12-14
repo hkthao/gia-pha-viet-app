@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'; // Removed use
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from 'react-native-paper';
 import { familyService } from '@/services';
 import { useCurrentFamilyId } from './useCurrentFamilyId';
 import { FamilyDetailDto } from '@/types';
@@ -25,7 +24,6 @@ import { useApiMutation } from '@/hooks/common/useApiMutation'; // Added useApiM
  */
 export function useFamilyDetails() {
   const { t } = useTranslation();
-  const theme = useTheme();
   const router = useRouter();
   const queryClient = useQueryClient();
   const currentFamilyId = useCurrentFamilyId();

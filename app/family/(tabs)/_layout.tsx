@@ -48,11 +48,14 @@ export default function FamilyDetailLayout() {
   };
 
   const moreTabs = ['more', 'calendar', 'face-data', 'memories', 'timeline', 'privacy' ,'detect-relationship'];
-  const isMoreTab = moreTabs.includes(currentTab)
+  const tabsWithCustomHeader = ['dashboard']; // Tabs that will render their own custom header
+
+  const isMoreTab = moreTabs.includes(currentTab); // Reintroduce this line
+  const shouldHideLayoutHeader = isMoreTab || tabsWithCustomHeader.includes(currentTab);
 
   return (
     <View style={{ flex: 1 }}>
-      {!isMoreTab && (
+      {!shouldHideLayoutHeader && (
         <Appbar.Header>
           <Appbar.BackAction onPress={() => navigation.goBack()} />
           <Appbar.Content title={getTabTitle(currentTab)} />

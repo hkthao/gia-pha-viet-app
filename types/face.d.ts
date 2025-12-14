@@ -52,6 +52,7 @@ export interface CreateFaceDataRequestDto {
   imageUrl: string;
   faceId: string;
   boundingBox: BoundingBoxDto;
+  embedding?: number[];
   confidence: number;
   memberId?: string; // Optional, as it might not be assigned yet
   originalImageUri?: string; // For client-side tracking of original image source

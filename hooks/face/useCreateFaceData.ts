@@ -2,13 +2,14 @@ import { useState, useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto, FaceStatus } from '@/types';
 import { faceService, familyMediaService } from '@/services'; // Import familyMediaService
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { createAndUploadFile } from '@/utils/fileUploadUtils';
+import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 
 interface UseCreateFaceDataResult {
   processing: boolean;
@@ -37,6 +38,9 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
   const { t } = useTranslation();
   const router = useRouter();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+
+  const queryClient = useQueryClient();
+  const { showSnackbar } = useGlobalSnackbar();
 
   const [detectedFacesWithMember, setDetectedFacesWithMember] = useState<DetectedFaceDto[]>([]);
   const [selectedFaceForMemberMapping, setSelectedFaceForMemberMapping] = useState<DetectedFaceDto | null>(null);
@@ -102,12 +106,13 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       }
     },
     onSuccess: () => {
-      Alert.alert(t('common.success'), t('faceDataForm.saveSuccess'));
+      showSnackbar(t('faceDataForm.saveSuccess'), 'success');
+      queryClient.invalidateQueries({ queryKey: ['faces', 'search', currentFamilyId] });
       router.back();
     },
     onError: (err) => {
       console.error('Error saving face data:', err);
-      Alert.alert(t('common.error'), err.message);
+      showSnackbar(err.message, 'error');
     },
   });
 
@@ -164,11 +169,11 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
 
   const handleSubmit = useCallback(async () => {
     if (!currentFamilyId || !image || detectedFacesWithMember.length === 0) {
-      Alert.alert(t('common.error'), t('faceDataForm.noDataToSave'));
+      showSnackbar(t('faceDataForm.noDataToSave'), 'error');
       return;
     }
     if (detectedFacesWithMember.some(face => !face.memberId)) {
-      Alert.alert(t('common.error'), t('faceDataForm.unassignedFacesError'));
+      showSnackbar(t('faceDataForm.unassignedFacesError'), 'error');
       return;
     }
 
@@ -231,6 +236,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
             boundingBox: face.boundingBox,
             confidence: face.confidence,
             memberId: face.memberId!,
+            embedding: face.embedding,
             thumbnailUrl: uploadedThumbnailUrl, // Include uploaded thumbnail URL
           };
 
@@ -241,7 +247,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
 
     } catch (err: any) {
       console.error('Error during handleSubmit:', err);
-      Alert.alert(t('common.error'), err.message || t('faceDataForm.saveError'));
+      showSnackbar(err.message || t('faceDataForm.saveError'), 'error');
     } finally {
       setIsProcessing(false);
     }

@@ -20,7 +20,7 @@ i18nextInstance
   .init({
     resources,
     lng: 'vi', // Set default language to Vietnamese
-    fallbackLng: 'vi', // Fallback language if not found
+    fallbackLng: 'en', // Fallback language if not found
     debug: true, // Enable debug mode to see console logs for missing keys
 
     interpolation: {

@@ -14,7 +14,6 @@ export default function MoreOptionsScreen() {
     container: {
       flex: 1,
       paddingHorizontal: SPACING_MEDIUM,
-      paddingVertical: SPACING_MEDIUM / 2,
     },
     listSection: {
       marginTop: SPACING_MEDIUM,
@@ -38,7 +37,7 @@ export default function MoreOptionsScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background  }}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('more.title')} />

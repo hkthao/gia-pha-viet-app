@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 export default function MoreLayout() {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Stack
         screenOptions={{
           headerShown: false,

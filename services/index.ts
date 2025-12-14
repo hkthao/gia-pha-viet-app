@@ -10,7 +10,8 @@ import { ApiFaceService, IFaceService } from './face';
 import { ApiFamilyDictService, IFamilyDictService } from './familyDict';
 import { ApiDashboardService, IDashboardService } from './dashboard';
 import { ApiPrivacyService, IPrivacyService } from './privacy';
-import { ApiUserService, IUserService } from './user'; // Import new user service
+import { ApiUserService, IUserService } from './user';
+import { ApiFamilyMediaService, IFamilyMediaService } from './familyMedia'; // New Media Service
 
 
 import { apiClientWithAuth, publicApiClient } from './api';
@@ -25,7 +26,8 @@ export const faceService: IFaceService = new ApiFaceService(apiClientWithAuth);
 export const familyDictService: IFamilyDictService = new ApiFamilyDictService(apiClientWithAuth);
 export const dashboardService: IDashboardService = new ApiDashboardService(apiClientWithAuth);
 export const privacyService: IPrivacyService = new ApiPrivacyService(apiClientWithAuth);
-export const userService: IUserService = new ApiUserService(apiClientWithAuth); // Initialize new user service
+export const userService: IUserService = new ApiUserService(apiClientWithAuth);
+export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); // Initialize new media service
 
 
 // Re-export API clients for direct use if needed
@@ -42,6 +44,7 @@ export * from './familyDict';
 export * from './dashboard';
 export * from './api';
 export * from './privacy';
-export * from './user'; // Export new user service types
+export * from './user';
+export * from './familyMedia'; // Export new media service types
 
 

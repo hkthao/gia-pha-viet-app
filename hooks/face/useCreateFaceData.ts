@@ -1,16 +1,13 @@
-// gia-pha-viet-app/hooks/face/useCreateFaceData.ts
 import { useState, useCallback, useEffect } from 'react';
-import { Alert, Dimensions } from 'react-native';
+import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
-
-import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto, FaceStatus } from '@/types'; // Import FaceStatus
-import { faceService } from '@/services';
+import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto, FaceStatus } from '@/types';
+import { faceService, familyMediaService } from '@/services'; // Import familyMediaService
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useFamilyStore } from '@/stores/useFamilyStore';
-import { SPACING_MEDIUM } from '@/constants/dimensions';
 
 interface UseCreateFaceDataResult {
   processing: boolean;
@@ -42,6 +39,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
 
   const [detectedFacesWithMember, setDetectedFacesWithMember] = useState<DetectedFaceDto[]>([]);
   const [selectedFaceForMemberMapping, setSelectedFaceForMemberMapping] = useState<DetectedFaceDto | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false); // Changed to state variable
 
   const {
     image,
@@ -67,12 +65,33 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
         ...face,
         memberId: face.memberId || undefined, // Keep existing memberId if any
         memberName: face.memberName || undefined, // Keep existing memberName if any
-        status: face.status || (face.memberId ? FaceStatus.OriginalRecognized : FaceStatus.Unrecognized) // Use existing status or derive
+        status: face.status || (face.memberId ? FaceStatus.OriginalRecognized : FaceStatus.Unrecognized), // Use existing status or derive
+        originalImageUri: image, // Store the original image URI for potential upload
       })));
     } else {
       setDetectedFacesWithMember([]);
     }
-  }, [detectedFaces]);
+  }, [detectedFaces, image]); // Added image to dependencies
+
+  // Mutation for uploading images
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ file, fileName, mediaType, familyId, description, folder }: { file: string, fileName: string, mediaType: string, familyId: string, description?: string, folder?: string }) => {
+      const createResult = await familyMediaService.create({
+        familyId,
+        file,
+        fileName,
+        mediaType,
+        description,
+        folder,
+      });
+      if (createResult.isSuccess) {
+        return createResult.value!.filePath; // Return the URL
+      } else {
+        throw new Error(createResult.error?.message || t('faceDataForm.uploadImageError'));
+      }
+    }
+  });
+
 
   const saveFaceDataMutation = useMutation({
     mutationFn: async (payload: CreateFaceDataRequestDto) => {
@@ -150,19 +169,64 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       return;
     }
 
-    const payload: CreateFaceDataRequestDto = {
-      familyId: currentFamilyId,
-      imageUrl: image,
-      detectedFaces: detectedFacesWithMember.map(face => ({
-        faceId: face.id,
-        boundingBox: face.boundingBox,
-        confidence: face.confidence,
-        memberId: face.memberId!, // Assert non-null after check
-      })),
-    };
+    let finalImageUrl = image;
+    const facesToProcess = [...detectedFacesWithMember]; // Create a mutable copy
 
-    saveFaceDataMutation.mutate(payload);
-  }, [currentFamilyId, image, detectedFacesWithMember, saveFaceDataMutation, t]);
+    setIsProcessing(true); // Start processing for uploads and save
+    try {
+      // 1. Upload Original Image if it's a local URI
+      if (finalImageUrl && (finalImageUrl.startsWith('file://') || finalImageUrl.startsWith('data:'))) {
+        const fileName = finalImageUrl.split('/').pop() || `original_image_${Date.now()}.jpg`;
+        const mediaType = 'image/jpeg'; // Assuming JPEG for now, could be inferred from URI
+        
+        const uploadedOriginalImageUrl = await uploadImageMutation.mutateAsync({
+          file: finalImageUrl, // This is the base64 or local URI from ImagePicker
+          fileName: fileName,
+          mediaType: mediaType,
+          familyId: currentFamilyId,
+          folder: 'faces/original-images',
+        });
+        finalImageUrl = uploadedOriginalImageUrl;
+      }
+
+      // 2. Upload Newly Labeled Face Crops
+      for (const face of facesToProcess) {
+        if (face.status === FaceStatus.NewlyLabeled && face.thumbnail) {
+          const thumbnailFileName = `face_thumb_${face.id}.jpg`;
+          const thumbnailMediaType = 'image/jpeg'; // Assuming JPEG
+
+          const uploadedThumbnailUrl = await uploadImageMutation.mutateAsync({
+            file: face.thumbnail, // This is the base64 thumbnail
+            fileName: thumbnailFileName,
+            mediaType: thumbnailMediaType,
+            familyId: currentFamilyId,
+            folder: 'faces/thumbnails',
+          });
+          face.thumbnailUrl = uploadedThumbnailUrl; // Update thumbnailUrl for this face
+        }
+      }
+
+      // 3. Prepare payload for faceService.create
+      const payload: CreateFaceDataRequestDto = {
+        familyId: currentFamilyId,
+        imageUrl: finalImageUrl!, // Assert non-null after upload
+        detectedFaces: facesToProcess.map(face => ({
+          faceId: face.id,
+          boundingBox: face.boundingBox,
+          confidence: face.confidence,
+          memberId: face.memberId!,
+          thumbnailUrl: face.thumbnailUrl, // Include uploaded thumbnail URL
+        })),
+      };
+
+      await saveFaceDataMutation.mutateAsync(payload);
+    } catch (err: any) {
+      console.error('Error during handleSubmit:', err);
+      Alert.alert(t('common.error'), err.message || t('faceDataForm.saveError'));
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [currentFamilyId, image, detectedFacesWithMember, uploadImageMutation, saveFaceDataMutation, t]);
 
   const handleDeleteFace = useCallback((faceToDelete: DetectedFaceDto) => {
     Alert.alert(
@@ -184,7 +248,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     );
   }, [t]);
 
-  const processing = detectionLoading || saveFaceDataMutation.isPending;
+  const processing = isProcessing || detectionLoading || saveFaceDataMutation.isPending || uploadImageMutation.isPending;
 
   return {
     processing,
@@ -193,7 +257,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     image,
     imageDimensions,
     detectionLoading,
-    detectionError: detectionError || saveFaceDataMutation.error?.message || null,
+    detectionError: detectionError || saveFaceDataMutation.error?.message || uploadImageMutation.error?.message || null, // Include upload error
     handleImagePick,
     handleCancel,
     handlePressFaceToSelectMember,

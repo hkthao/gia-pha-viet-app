@@ -49,6 +49,8 @@ export interface FaceDataMappingDto {
   boundingBox: BoundingBoxDto;
   confidence: number;
   memberId?: string; // Optional, as it might not be assigned yet
+  originalImageUri?: string; // For client-side tracking of original image source
+  thumbnailUrl?: string; // URL for the uploaded face crop
 }
 
 export interface CreateFaceDataRequestDto {

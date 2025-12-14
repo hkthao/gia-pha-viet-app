@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useTheme, Text } from 'react-native-paper'; // Import Text from react-native-paper
+import { useTheme, Text, Appbar } from 'react-native-paper'; // Import Text and Appbar from react-native-paper
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router'; // Remove useRouter
+import { useLocalSearchParams, useRouter } from 'expo-router'; // Remove useRouter
 import { MemberForm } from '@/components/member';
 import { useCreateMember } from '@/hooks/member/useCreateMember';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
@@ -11,10 +11,16 @@ import { useFamilyStore } from '@/stores/useFamilyStore'; // To get current fami
 export default function CreateMemberScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter(); // Initialize useRouter
   const { createMember, isCreatingMember } = useCreateMember();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
   const { familyId: paramFamilyId } = useLocalSearchParams();
   const initialFamilyId = Array.isArray(paramFamilyId) ? paramFamilyId[0] : paramFamilyId || currentFamilyId;
+  
+  const handleCancel = useCallback(() => {
+    router.back();
+  }, [router]);
+
   const handleSubmit = useCallback(async (data: MemberFormData) => {
     await createMember(data);
   }, [createMember]);
@@ -38,6 +44,10 @@ export default function CreateMemberScreen() {
 
   return (
     <View style={styles.container}>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={handleCancel} />
+        <Appbar.Content title={t('memberForm.createTitle')} />
+      </Appbar.Header>
       <MemberForm
         onSubmit={handleSubmit}
         isSubmitting={isCreatingMember}

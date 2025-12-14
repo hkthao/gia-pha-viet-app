@@ -110,24 +110,22 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     router.back();
   }, [router]);
 
-  const handleMemberSelected = useCallback((member: MemberListDto) => {
-    if (selectedFaceForMemberMapping && member) {
+  const handleMemberSelected = useCallback((member: MemberListDto, faceIdBeingMapped: string) => {
+    if (member) {
       setDetectedFacesWithMember(prevFaces =>
         prevFaces.map(face =>
-          face.id === selectedFaceForMemberMapping.id
+          face.id === faceIdBeingMapped
             ? { ...face, memberId: member.id, memberName: member.fullName }
             : face
         )
       );
     }
     setSelectedFaceForMemberMapping(null); // Close modal
-  }, [selectedFaceForMemberMapping]);
+  }, []);
 
   const handlePressFaceToSelectMember = useCallback((face: DetectedFaceDto) => {
-    setSelectedFaceForMemberMapping(face);
-    // showMemberSelectModal expects a fieldName, but since we are mapping individual faces,
-    // we can pass the face.id or a unique identifier. The modal's hook handles member selection.
-    showMemberSelectModal(handleMemberSelected, face.id);
+    setSelectedFaceForMemberMapping(face); // Still set for potential UI indication or other use
+    showMemberSelectModal((member: MemberListDto, fieldName: string) => handleMemberSelected(member, fieldName), face.id); // Pass face.id as the fieldName
   }, [showMemberSelectModal, handleMemberSelected]);
 
   const handleSubmit = useCallback(async () => {

@@ -1,17 +1,18 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme } from 'react-native-paper'; // Import useTheme
+import { Chip, useTheme, FAB } from 'react-native-paper'; // Import FAB
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router'; // Import useRouter
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { DetectedFaceDto, SearchFacesQuery, PaginatedList } from '@/types';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-// import { useFaceSearchList } from '@/hooks/lists/useFaceSearchList'; // Removed
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import { faceService } from '@/services'; // Import faceService
 import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
 import FaceItem from '@/components/face/FaceItem'; // Import FaceItem
 import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Import usePermissionCheck
 
 // Optional: FaceFilterComponent if needed
 interface FaceFilterProps {
@@ -68,13 +69,24 @@ const getStyles = (theme: any) => StyleSheet.create({
     flex: 1,
     paddingHorizontal: SPACING_SMALL,
   },
+  fab: {
+    position: 'absolute',
+    margin: SPACING_MEDIUM,
+    right: 0,
+    bottom: 0,
+  },
 });
 
 export default function FamilyFaceDataScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
+  const router = useRouter(); // Initialize useRouter
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined); // Check permission
+  const [fabOpen, setFabOpen] = React.useState(false); // State to manage FAB.Group open/closed status
+
+  const onStateChange = ({ open }: { open: boolean }) => setFabOpen(open);
 
   // Define the query function for fetching face data
   const faceSearchQueryFn = useCallback(
@@ -104,8 +116,8 @@ export default function FamilyFaceDataScreen() {
   }), [currentFamilyId]);
 
   const renderFaceItem = useCallback(({ item }: { item: DetectedFaceDto }) => (
-    <FaceItem item={item} />
-  ), []);
+    <FaceItem item={item} onPress={() => router.push(`/family/(tabs)/more/face-data/${item.id}`)} />
+  ), [router]);
 
   return (
     <View style={styles.safeArea}>
@@ -122,6 +134,22 @@ export default function FamilyFaceDataScreen() {
         ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
         externalDependencies={[currentFamilyId]}
       />
+      {(canManageFamily || isAdmin) && (
+        <FAB.Group
+          visible={true} // Always visible when conditions met
+          open={fabOpen} // Use state to control open/closed status
+          icon={fabOpen ? 'close' : 'plus'} // Change icon based on open state
+          actions={[
+            {
+              icon: 'plus',
+              label: t('common.add'),
+              onPress: () => router.push(`/family/(tabs)/more/face-data/create`),
+            },
+          ]}
+          onStateChange={onStateChange} // Update state on state change
+          fabStyle={styles.fab}
+        />
+      )}
     </View>
   );
 }

@@ -25,6 +25,10 @@ export default function MoreLayout() {
         return t('more.privacy');
       case 'detect-relationship':
         return t('detectRelationship.title');
+      case 'face-data/create':
+        return t('faceDataForm.createTitle');
+      case 'face-data/[id]':
+        return t('faceDataDetail.title');
       default:
         return t('more.title'); // Fallback title
     }
@@ -58,6 +62,8 @@ export default function MoreLayout() {
         <Stack.Screen name="timeline" options={{ title: t('more.timeline') }} />
         <Stack.Screen name="privacy" options={{ title: t('more.privacy') }} />
         <Stack.Screen name="detect-relationship" options={{ title: t('detectRelationship.title') }} />
+        <Stack.Screen name="face-data/create" options={{ title: t('faceDataForm.createTitle') }} />
+        <Stack.Screen name="face-data/[id]" options={{ title: t('faceDataDetail.title') }} />
       </Stack>
     </View>
   );

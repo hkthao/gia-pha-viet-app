@@ -10,6 +10,7 @@ import { getAvatarSource } from '@/utils/imageUtils'; // Import getAvatarSource
 
 interface FaceItemProps {
   item: DetectedFaceDto;
+  onPress?: () => void; // Add optional onPress prop
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -36,7 +37,7 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-const FaceItem = ({ item }: FaceItemProps) => {
+const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -47,7 +48,9 @@ const FaceItem = ({ item }: FaceItemProps) => {
 
   // Navigate to member details if memberId is available
   const handlePress = () => {
-    if (item.memberId) {
+    if (onPress) { // If onPress prop is provided, use it
+      onPress();
+    } else if (item.memberId) {
       router.push(`/member/${item.memberId}`);
     }
     // Optionally navigate to a face-specific detail screen if it exists

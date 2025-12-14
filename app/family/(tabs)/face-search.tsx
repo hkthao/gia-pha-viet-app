@@ -23,7 +23,7 @@ export default function FamilyFaceSearchScreen() {
     pickImage,
     takePhoto,
     calculateBoundingBox,
-  } = useImageFaceDetection(currentFamilyId);
+  } = useImageFaceDetection(currentFamilyId, false); // Pass returnCrop as false
 
   const styles = StyleSheet.create({
     container: {

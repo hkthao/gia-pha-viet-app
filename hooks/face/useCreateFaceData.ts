@@ -53,7 +53,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     takePhoto,
     calculateBoundingBox,
     resetFaceDetection,
-  } = useImageFaceDetection(currentFamilyId);
+  } = useImageFaceDetection(currentFamilyId, true); // Pass returnCrop as true
 
   const {
     showMemberSelectModal,

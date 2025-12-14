@@ -37,7 +37,7 @@ export interface UseImageFaceDetectionResult {
   ) => BoundingBoxCalculation | null;
 }
 
-export function useImageFaceDetection(familyId: string | null): UseImageFaceDetectionResult {
+export function useImageFaceDetection(familyId: string | null, returnCrop: boolean = false): UseImageFaceDetectionResult {
   const { t } = useTranslation();
 
   const [image, setImage] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function useImageFaceDetection(familyId: string | null): UseImageFaceDete
         fileName: fileName,
         fileType: fileType,
         familyId: familyId,
-        returnCrop: false,
+        returnCrop: returnCrop, // Use the passed returnCrop value
       });
 
       if (result.isSuccess && result.value && result.value.detectedFaces) {

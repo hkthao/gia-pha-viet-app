@@ -142,13 +142,6 @@ export default function CreateFaceDataScreen() {
         </Button>
       </ScrollView>
 
-      {(processing || saveMutationLoading) && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator animating size="large" color={theme.colors.primary} />
-          <Text style={{ color: theme.colors.onPrimary }}>{t('common.processing')}</Text>
-        </View>
-      )}
-
       <SelectMemberModalComponent />
     </View>
   );

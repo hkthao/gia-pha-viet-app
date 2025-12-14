@@ -23,6 +23,7 @@ interface BoundingBoxCalculation {
 
 export interface UseImageFaceDetectionResult {
   image: string | null;
+  base64Image: string | null; // Add this line
   imageDimensions: ImageDimensions | null;
   detectedFaces: DetectedFaceDto[];
   loading: boolean;
@@ -41,6 +42,7 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
   const { t } = useTranslation();
 
   const [image, setImage] = useState<string | null>(null);
+  const [base64Image, setBase64Image] = useState<string | null>(null); // Add this line
   const [imageDimensions, setImageDimensions] = useState<ImageDimensions | null>(null);
   const [detectedFaces, setDetectedFaces] = useState<DetectedFaceDto[]>([]);
   // Removed local loading and error states, will use useMutation's states
@@ -106,14 +108,16 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
       }
     }
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedImage = result.assets[0];
       setImage(selectedImage.uri);
+      setBase64Image(selectedImage.base64 ?? null);
       setImageDimensions({ width: selectedImage.width, height: selectedImage.height });
       detectFacesMutation.mutate(selectedImage);
     }
@@ -137,10 +141,12 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      base64: true
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedImage = result.assets[0];
       setImage(selectedImage.uri);
+      setBase64Image(selectedImage.base64 ?? null);
       setImageDimensions({ width: selectedImage.width, height: selectedImage.height });
       detectFacesMutation.mutate(selectedImage);
     }
@@ -148,6 +154,7 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
 
   const clearImage = useCallback(() => {
     setImage(null);
+    setBase64Image(null); // Add this line
     setImageDimensions(null);
     setDetectedFaces([]);
     detectFacesMutation.reset(); // Reset mutation state (loading, error, data)
@@ -208,6 +215,7 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
 
   return {
     image,
+    base64Image, // Add this line
     imageDimensions,
     detectedFaces,
     loading: detectFacesMutation.isPending,

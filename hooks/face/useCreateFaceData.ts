@@ -8,6 +8,8 @@ import { faceService, familyMediaService } from '@/services'; // Import familyMe
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useFamilyStore } from '@/stores/useFamilyStore';
+import { File, Paths } from 'expo-file-system';
+import { Buffer } from 'buffer';
 
 interface UseCreateFaceDataResult {
   processing: boolean;
@@ -45,6 +47,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     image,
     imageDimensions,
     detectedFaces,
+    base64Image, // Add this line
     loading: detectionLoading,
     error: detectionError,
     pickImage,
@@ -75,12 +78,10 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
 
   // Mutation for uploading images
   const uploadImageMutation = useMutation({
-    mutationFn: async ({ file, fileName, mediaType, familyId, description, folder }: { file: string, fileName: string, mediaType: string, familyId: string, description?: string, folder?: string }) => {
+    mutationFn: async ({ file, familyId, description, folder }: { file: { uri: string; name: string; type: string; }, familyId: string, description?: string, folder?: string }) => {
       const createResult = await familyMediaService.create({
         familyId,
         file,
-        fileName,
-        mediaType,
         description,
         folder,
       });
@@ -117,14 +118,18 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       t('faceDataForm.selectImageSource'),
       '',
       [
-        { text: t('faceDataForm.takePhoto'), onPress: async () => {
-          resetFaceDetection();
-          await takePhoto();
-        } },
-        { text: t('faceDataForm.chooseFromLibrary'), onPress: async () => {
-          resetFaceDetection();
-          await pickImage();
-        } },
+        {
+          text: t('faceDataForm.takePhoto'), onPress: async () => {
+            resetFaceDetection();
+            await takePhoto();
+          }
+        },
+        {
+          text: t('faceDataForm.chooseFromLibrary'), onPress: async () => {
+            resetFaceDetection();
+            await pickImage();
+          }
+        },
         { text: t('common.cancel'), style: 'cancel' },
       ],
       { cancelable: true }
@@ -174,18 +179,37 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
 
     setIsProcessing(true); // Start processing for uploads and save
     try {
-      // 1. Upload Original Image if it's a local URI
-      if (finalImageUrl && (finalImageUrl.startsWith('file://') || finalImageUrl.startsWith('data:'))) {
-        const fileName = finalImageUrl.split('/').pop() || `original_image_${Date.now()}.jpg`;
-        const mediaType = 'image/jpeg'; // Assuming JPEG for now, could be inferred from URI
-        
+      // 1. Upload Original Image if an image is available
+      if (image && base64Image) { // Ensure an image and its base64 content exist
+        const fileName = image.startsWith('data:') ? `original_image_${Date.now()}.jpg` : image.split('/').pop() || `original_image_${Date.now()}.jpg`;
+        let mediaType = 'image/jpeg'; // Default to jpeg, try to infer from data URI if available
+
+        // If the original image URI is a data URI, infer mediaType from it
+        if (image.startsWith('data:')) {
+          const mimePart = image.split(';')[0];
+          if (mimePart.includes(':')) {
+            mediaType = mimePart.split(':')[1];
+          }
+        }
+        const file = new File(Paths.cache, fileName);
+        const bytes = Uint8Array.from(
+          Buffer.from(base64Image, 'base64')
+        );
+        file.create({
+          overwrite: true
+        });
+        file.write(bytes);
+
         const uploadedOriginalImageUrl = await uploadImageMutation.mutateAsync({
-          file: finalImageUrl, // This is the base64 or local URI from ImagePicker
-          fileName: fileName,
-          mediaType: mediaType,
+          file: {
+            uri: file.uri,
+            name: fileName,
+            type: mediaType,
+          },
           familyId: currentFamilyId,
           folder: 'faces/original-images',
         });
+        file.delete()
         finalImageUrl = uploadedOriginalImageUrl;
       }
 
@@ -193,15 +217,35 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       for (const face of facesToProcess) {
         if (face.status === FaceStatus.NewlyLabeled && face.thumbnail) {
           const thumbnailFileName = `face_thumb_${face.id}.jpg`;
-          const thumbnailMediaType = 'image/jpeg'; // Assuming JPEG
+          let thumbnailMediaType = 'image/jpeg'; // Assuming JPEG
+
+          // If face.thumbnail is a data URI, infer mediaType from it
+          if (face.thumbnail.startsWith('data:')) {
+            const mimePart = face.thumbnail.split(';')[0];
+            if (mimePart.includes(':')) {
+              thumbnailMediaType = mimePart.split(':')[1];
+            }
+          }
+
+          const file = new File(Paths.cache, thumbnailFileName);
+          file.create({
+            overwrite: true
+          });
+          const bytes = Uint8Array.from(
+            Buffer.from(face.thumbnail, 'base64')
+          );
+          file.write(bytes);
 
           const uploadedThumbnailUrl = await uploadImageMutation.mutateAsync({
-            file: face.thumbnail, // This is the base64 thumbnail
-            fileName: thumbnailFileName,
-            mediaType: thumbnailMediaType,
+            file: {
+              uri: file.uri, // Use the temporary file:// URI
+              name: thumbnailFileName,
+              type: thumbnailMediaType,
+            },
             familyId: currentFamilyId,
             folder: 'faces/thumbnails',
           });
+          await file.delete()
           face.thumbnailUrl = uploadedThumbnailUrl; // Update thumbnailUrl for this face
         }
       }
@@ -234,7 +278,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
       t('faceDataForm.confirmDeleteFace'), // New translation key needed
       [
         { text: t('common.cancel'), style: 'cancel' },
-        { 
+        {
           text: t('common.delete'),
           style: 'destructive',
           onPress: () => {

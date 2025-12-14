@@ -20,22 +20,18 @@ export class ApiFamilyMediaService extends GenericService<FamilyMediaDto, Family
   async create(request: CreateFamilyMediaRequest): Promise<Result<FamilyMediaDto>> {
     try {
       const formData = new FormData();
-      const byteCharacters = atob(request.file.split(',')[1]);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: request.mediaType || 'application/octet-stream' });
-
-      formData.append('file', blob, request.fileName);
+      // Append the image file
+      formData.append('file', {
+        uri: request.file.uri,
+        name: request.file.name,
+        type: request.file.type,
+      } as any); // Type assertion for FormData.append
 
       formData.append('familyId', request.familyId);
-      if (request.mediaType) formData.append('mediaType', request.mediaType);
       if (request.description) formData.append('description', request.description);
       if (request.folder) formData.append('folder', request.folder);
 
-      const response = await this.apiClient.post<FamilyMediaDto>(`${this.baseEndpoint}`, formData, {
+      const response = await this.apiClient.post<FamilyMediaDto>(`${this.baseEndpoint}/${request.familyId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -5,9 +5,11 @@ import { FamilyMediaDto, FamilyMediaSearchQuery } from '@/types/familyMedia.d'; 
 
 export interface CreateFamilyMediaRequest {
   familyId: string;
-  file: string; // The uploaded file as base64 string
-  fileName: string; // The name of the file
-  mediaType?: string; // e.g., "image/jpeg", "image/png"
+  file: {
+    uri: string;
+    name: string;
+    type: string;
+  };
   description?: string;
   folder?: string; // Folder within storage (e.g., "photos", "videos")
 }

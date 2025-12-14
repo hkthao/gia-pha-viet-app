@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native'; // Removed Image, Dimensions
-import { Appbar, useTheme, Text, Button, ActivityIndicator } from 'react-native-paper';
+import { View, StyleSheet, ScrollView } from 'react-native'; // Removed Image, Dimensions
+import { Appbar, useTheme, Text, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFamilyStore } from '@/stores/useFamilyStore';
 import FaceSelectListItem from '@/components/face/FaceSelectListItem';
@@ -12,9 +11,7 @@ import { useCreateFaceData } from '@/hooks/face/useCreateFaceData';
 export default function CreateFaceDataScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
   const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
-  const screenWidth = Dimensions.get('window').width;
 
   const {
     processing,
@@ -87,13 +84,6 @@ export default function CreateFaceDataScreen() {
         <Appbar.Content title={t('faceDataForm.createTitle')} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.content}>
-        {(processing || saveMutationLoading) && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator animating size="large" color={theme.colors.primary} />
-            <Text style={{ color: theme.colors.onPrimary }}>{t('common.processing')}</Text>
-          </View>
-        )}
-
         <Button
           mode="contained"
           onPress={handleImagePick}

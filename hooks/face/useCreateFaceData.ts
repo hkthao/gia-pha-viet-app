@@ -245,25 +245,24 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
             familyId: currentFamilyId,
             folder: 'faces/thumbnails',
           });
-          await file.delete()
-          face.thumbnailUrl = uploadedThumbnailUrl; // Update thumbnailUrl for this face
+          file.delete()
+
+          // 3. Prepare payload for faceService.create
+          const payload: CreateFaceDataRequestDto = {
+            familyId: currentFamilyId,
+            imageUrl: finalImageUrl!, // Assert non-null after upload
+            faceId: face.id,
+            boundingBox: face.boundingBox,
+            confidence: face.confidence,
+            memberId: face.memberId!,
+            thumbnailUrl: uploadedThumbnailUrl, // Include uploaded thumbnail URL
+          };
+
+          await saveFaceDataMutation.mutateAsync(payload);
         }
       }
 
-      // 3. Prepare payload for faceService.create
-      const payload: CreateFaceDataRequestDto = {
-        familyId: currentFamilyId,
-        imageUrl: finalImageUrl!, // Assert non-null after upload
-        detectedFaces: facesToProcess.map(face => ({
-          faceId: face.id,
-          boundingBox: face.boundingBox,
-          confidence: face.confidence,
-          memberId: face.memberId!,
-          thumbnailUrl: face.thumbnailUrl, // Include uploaded thumbnail URL
-        })),
-      };
 
-      await saveFaceDataMutation.mutateAsync(payload);
     } catch (err: any) {
       console.error('Error during handleSubmit:', err);
       Alert.alert(t('common.error'), err.message || t('faceDataForm.saveError'));

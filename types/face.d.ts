@@ -29,6 +29,9 @@ export interface DetectedFaceDto {
   deathYear?: number;
   familyAvatarUrl?: string;
   status?: FaceStatus; // New status field
+  emotion?: string;
+  emotionConfidence?: number;
+  faceId?: string;
 }
 
 export interface FaceDetectionResponseDto {
@@ -44,17 +47,13 @@ export interface SearchFacesQuery extends BaseSearchQuery {
   // Add other relevant search parameters for faces
 }
 
-export interface FaceDataMappingDto {
+export interface CreateFaceDataRequestDto {
+  familyId: string;
+  imageUrl: string;
   faceId: string;
   boundingBox: BoundingBoxDto;
   confidence: number;
   memberId?: string; // Optional, as it might not be assigned yet
   originalImageUri?: string; // For client-side tracking of original image source
   thumbnailUrl?: string; // URL for the uploaded face crop
-}
-
-export interface CreateFaceDataRequestDto {
-  familyId: string;
-  imageUrl: string;
-  detectedFaces: FaceDataMappingDto[];
 }

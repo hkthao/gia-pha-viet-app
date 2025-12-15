@@ -305,14 +305,12 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               <List.Item
                 title={t('memberDetail.firstName')}
                 left={() => <List.Icon icon="account" />}
                 right={() => <Chip compact={true}>{member.firstName || t('common.not_available')}</Chip>}
               />
               <Divider />
-
 
               <List.Item
                 title={t('memberDetail.nickname')}
@@ -321,14 +319,12 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               <List.Item
                 title={t('memberDetail.dateOfBirth')}
                 left={() => <List.Icon icon="calendar-account" />}
                 right={() => <Chip compact={true}>{member.dateOfBirth ? new Date(member.dateOfBirth).toLocaleDateString() : t('common.not_available')}</Chip>}
               />
               <Divider />
-
 
               <List.Item
                 title={t('memberDetail.dateOfDeath')}
@@ -337,7 +333,6 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               <List.Item
                 title={t('memberDetail.placeOfBirth')}
                 left={() => <List.Icon icon="map-marker" />}
@@ -345,14 +340,12 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               <List.Item
                 title={t('memberDetail.placeOfDeath')}
                 left={() => <List.Icon icon="map-marker-off" />}
                 right={() => <Chip compact={true}>{member.placeOfDeath || t('common.not_available')}</Chip>}
               />
               <Divider />
-
 
               <List.Item
                 title={t('memberDetail.email')}
@@ -385,7 +378,6 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               {/* Family Relationships */}
               <List.Subheader>{t('memberDetail.familyRelationships')}</List.Subheader>
 
@@ -396,14 +388,12 @@ export default function MemberDetailsScreen() {
               />
               <Divider />
 
-
               <List.Item
                 title={t('member.mother')}
                 left={() => <List.Icon icon="human-female-girl" />}
                 right={() => <Chip compact={true}>{member.motherFullName || t('common.not_available')}</Chip>}
               />
               <Divider />
-
 
               <List.Item
                 title={t('member.husband')}

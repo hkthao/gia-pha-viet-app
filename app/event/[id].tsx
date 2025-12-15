@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions';
-import { EventType, MemberListDto } from '@/types';
+import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE, SPACING_EXTRA_LARGE } from '@/constants/dimensions';
+import { CalendarType, EventType, MemberListDto, RepeatRule } from '@/types';
 import { getAvatarSource } from '@/utils/imageUtils';
 import { useEventDetails } from '@/hooks/event/useEventDetails'; // Import the new hook
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent'; // Import the new hook
@@ -50,6 +50,16 @@ export default function EventDetailsScreen() {
     [EventType.Marriage]: t('eventType.marriage'),
     [EventType.Anniversary]: t('eventType.anniversary'),
     [EventType.Other]: t('eventType.other'),
+  }), [t]);
+
+  const calendarTypeStringMap: Record<CalendarType, string> = useMemo(() => ({
+    [CalendarType.SOLAR]: t('eventForm.solarCalendar'),
+    [CalendarType.LUNAR]: t('eventForm.lunarCalendar'),
+  }), [t]);
+
+  const repeatRuleStringMap: Record<RepeatRule, string> = useMemo(() => ({
+    [RepeatRule.NONE]: t('eventForm.repeatAnnuallyNo'),
+    [RepeatRule.YEARLY]: t('eventForm.repeatAnnuallyYes'),
   }), [t]);
 
   const eventTypeIconMap: Record<EventType, string> = {
@@ -122,6 +132,7 @@ export default function EventDetailsScreen() {
     },
     deleteButton: {
       borderRadius: theme.roundness,
+      marginBottom: SPACING_EXTRA_LARGE,
     },
     deleteButtonLabel: {
     },
@@ -203,13 +214,39 @@ export default function EventDetailsScreen() {
               {event.description && <Text variant="bodyMedium" >{event.description}</Text>}
             </View>
 
-            <List.Section title={t('eventDetail.details')}>
+            <List.Section >
+              <List.Item
+                title={t('eventForm.eventCode')}
+                description={event.code}
+                left={() => <List.Icon icon="pound" />}
+              />
+              <Divider />
+
               <List.Item
                 title={t('eventDetail.eventType')}
                 description={eventTypeStringMap[event.type] || t('common.not_available')}
                 left={() => <List.Icon icon="tag" />}
               />
               <Divider />
+
+              <List.Item
+                title={t('eventForm.calendarType')}
+                description={calendarTypeStringMap[event.calendarType] || t('common.not_available')}
+                left={() => <List.Icon icon="calendar" />}
+              />
+              <Divider />
+
+              {event.repeatRule !== undefined && (
+                <>
+                  <List.Item
+                    title={t('eventForm.repeatRuleTitle')}
+                    description={repeatRuleStringMap[event.repeatRule] || t('common.not_available')}
+                    left={() => <List.Icon icon="repeat" />}
+                  />
+                  <Divider />
+                </>
+              )}
+
               <List.Item
                 title={t('eventDetail.startDate')}
                 description={formattedStartDate}
@@ -222,11 +259,50 @@ export default function EventDetailsScreen() {
                 left={() => <List.Icon icon="calendar-end" />}
               />
               <Divider />
+
+              {/* Lunar Date Details */}
+              {event.lunarDate && (
+                <>
+                  <List.Subheader>{t('eventForm.lunarDate')}</List.Subheader>
+                  {event.lunarDate.day !== undefined && (
+                    <>
+                      <List.Item
+                        title={t('eventForm.lunarDay')}
+                        description={event.lunarDate.day.toString()}
+                        left={() => <List.Icon icon="brightness-2" />}
+                      />
+                      <Divider />
+                    </>
+                  )}
+                  {event.lunarDate.month !== undefined && (
+                    <>
+                      <List.Item
+                        title={t('eventForm.lunarMonth')}
+                        description={event.lunarDate.month.toString()}
+                        left={() => <List.Icon icon="moon-waning-gibbous" />}
+                      />
+                      <Divider />
+                    </>
+                  )}
+                  {event.lunarDate.isLeapMonth !== undefined && (
+                    <>
+                      <List.Item
+                        title={t('eventForm.isLeapMonth')}
+                        description={event.lunarDate.isLeapMonth ? t('common.yes') : t('common.no')}
+                        left={() => <List.Icon icon="calendar-plus" />}
+                      />
+                      <Divider />
+                    </>
+                  )}
+                </>
+              )}
+
               <List.Item
                 title={t('eventDetail.location')}
                 description={event.location}
                 left={() => <List.Icon icon="map-marker" />}
               />
+              <Divider />
             </List.Section>
 
             {/* Related Members */}

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { StyleSheet, View, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { Appbar, useTheme, Text, IconButton, Divider, ActivityIndicator } from 'react-native-paper';
+import { Appbar, useTheme, Text, IconButton, Divider } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import { DayCell, EventListItem } from '@/components/event';
@@ -145,6 +145,7 @@ const FamilyCalendarScreen: React.FC = () => {
           onMonthChange={(month) => {
             setCurrentViewYear(month.year);
             setCurrentViewMonth(month.month);
+            clearFilter(); // Clear selected date and filtered events when month changes
           }}
           hideExtraDays={true}
           dayComponent={renderDay}

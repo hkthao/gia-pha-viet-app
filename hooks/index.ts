@@ -14,3 +14,4 @@ export * from './onboarding';
 export * from './member';
 export * from './user';
 export * from './calendar';
+export * from './event';

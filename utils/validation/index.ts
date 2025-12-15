@@ -1,2 +1,3 @@
 export { familyValidationSchema, FamilyFormData, setFamilyValidationI18n } from './familyValidationSchema';
 export { memberValidationSchema, MemberFormData, setMemberValidationI18n } from './memberValidationSchema';
+export { eventValidationSchema, EventFormData } from './eventValidationSchema';

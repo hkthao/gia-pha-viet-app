@@ -117,32 +117,20 @@ export default function EventDetailsScreen() {
 
   if (isError) {
     return (
-      <View style={{ flex: 1 }}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title={t('eventDetail.title')} />
-        </Appbar.Header>
-        <View style={styles.errorContainer}>
-          <Text variant="bodyMedium" style={styles.errorText}>
-            {t('common.error_occurred')}: {error?.message}
-          </Text>
-        </View>
+      <View style={styles.errorContainer}>
+        <Text variant="bodyMedium" style={styles.errorText}>
+          {t('common.error_occurred')}: {error?.message}
+        </Text>
       </View>
     );
   }
 
   if (!item) {
     return (
-      <View style={{ flex: 1 }}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title={t('eventDetail.title')} />
-        </Appbar.Header>
-        <View style={styles.errorContainer}>
-          <Text variant="bodyMedium" style={styles.errorText}>
-            {t('eventDetail.errors.dataNotAvailable')}
-          </Text>
-        </View>
+      <View style={styles.errorContainer}>
+        <Text variant="bodyMedium" style={styles.errorText}>
+          {t('eventDetail.errors.dataNotAvailable')}
+        </Text>
       </View>
     );
   }
@@ -152,11 +140,6 @@ export default function EventDetailsScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header style={styles.appbar}>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={item.name || t('eventDetail.title')} />
-        <Appbar.Action icon="pencil" onPress={() => router.push(`/event/edit/${eventId}`)} /> {/* Add Edit Button */}
-      </Appbar.Header>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Main Event Information Card */}
         <Card style={styles.card}>

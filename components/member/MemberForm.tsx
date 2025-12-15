@@ -45,7 +45,7 @@ export const MemberForm: React.FC<MemberFormProps> = ({ initialValues, onSubmit,
       }
     }
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1], // Square aspect ratio
       quality: 1,

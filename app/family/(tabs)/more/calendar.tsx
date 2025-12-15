@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
-import { Appbar, useTheme, Text, IconButton, Divider } from 'react-native-paper';
+import { Appbar, useTheme, Text, IconButton, Divider, ActivityIndicator } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
 import { DayCell, EventListItem } from '@/components/event';
@@ -16,12 +16,15 @@ const FamilyCalendarScreen: React.FC = () => {
     t,
     i18n,
     selectedDate,
-    filteredEvents, // Use filteredEvents
-    allEventsInCalendar, // Use allEventsInCalendar for overall events for rendering in the FlatList
-    mockData,
+    filteredEvents,
+    allEventsInCalendar,
+    processedCalendarData, // Use processedCalendarData
     handleDayPress,
     handleAddEvent,
-    clearFilter, // Import clearFilter
+    clearFilter,
+    isLoading, // Destructure isLoading
+    isError, // Destructure isError
+    error, // Destructure error
   } = useFamilyCalendar();
 
   const renderDay = (props: DayProps & { date?: DateData }) => {
@@ -30,7 +33,7 @@ const FamilyCalendarScreen: React.FC = () => {
     }
     const date = props.date;
     const dateString = date.dateString;
-    const dayData = mockData[dateString];
+    const dayData = processedCalendarData[dateString]; // Use processedCalendarData
     const isToday = date.dateString === new Date().toISOString().split('T')[0];
 
     return (
@@ -48,6 +51,64 @@ const FamilyCalendarScreen: React.FC = () => {
   const renderEventListItem = ({ item }: { item: any }) => (
     <EventListItem event={item} onPress={(eventId) => router.push(`/event/${eventId}`)} />
   );
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    calendar: {
+    },
+    eventListContainer: {
+      flex: 1,
+      paddingTop: SPACING_SMALL,
+    },
+    eventListTitle: {
+      fontWeight: 'bold',
+      paddingHorizontal: SPACING_SMALL,
+    },
+    eventListTitleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING_MEDIUM,
+      marginBottom: SPACING_MEDIUM,
+    },
+    clearFilterButton: {
+      margin: -8, // Adjust as needed for alignment
+    },
+    emptyListText: {
+      paddingHorizontal: SPACING_MEDIUM,
+      textAlign: 'center',
+      marginTop: SPACING_LARGE,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    errorContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: SPACING_MEDIUM,
+    },
+  }), [theme]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator animating size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text variant="titleMedium" style={{ color: theme.colors.error }}>{error?.message || t('common.error_occurred')}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -126,36 +187,5 @@ const FamilyCalendarScreen: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  calendar: {
-  },
-  eventListContainer: {
-    flex: 1,
-    paddingTop: SPACING_SMALL,
-  },
-  eventListTitle: {
-    fontWeight: 'bold',
-    paddingHorizontal: SPACING_SMALL,
-  },
-  eventListTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: SPACING_MEDIUM,
-    marginBottom: SPACING_MEDIUM,
-  },
-  clearFilterButton: {
-    margin: -8, // Adjust as needed for alignment
-  },
-  emptyListText: {
-    paddingHorizontal: SPACING_MEDIUM,
-    textAlign: 'center',
-    marginTop: SPACING_LARGE,
-  },
-});
 
 export default FamilyCalendarScreen;

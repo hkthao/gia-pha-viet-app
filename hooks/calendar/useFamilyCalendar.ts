@@ -1,43 +1,38 @@
 import { useState, useMemo, useCallback } from 'react';
-import { DateData, LocaleConfig } from 'react-native-calendars';
+import { LocaleConfig } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { EventType } from '@/types';
-
+import { EventDto, EventType, PaginatedList, SearchEventsQuery } from '@/types'; // Import EventDto and PaginatedList
+import { useQuery } from '@tanstack/react-query'; // Import useQuery and QueryKey
+import { eventService } from '@/services'; // Import eventService
+import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
+import dayjs from 'dayjs'; // Import dayjs for date manipulation
+import { Solar } from 'lunar-javascript';
 interface EventData {
   type: EventType;
   color?: string;
   name: string;
-  date: string;
+  date: string; // Solar date string (YYYY-MM-DD)
   lunarText?: string;
   id: string;
 }
-
 interface CalendarDayData {
   lunarText?: string;
   events?: Omit<EventData, 'date' | 'lunarText'>[];
 }
-
-interface MockCalendarData {
-  [key: string]: CalendarDayData;
+interface ProcessedCalendarData {
+  [dateString: string]: CalendarDayData;
 }
-
-// Giả lập dữ liệu sự kiện và lịch âm từ backend
-// Trong thực tế, dữ liệu này sẽ được lấy từ API
-const mockData: MockCalendarData = {
-  '2025-12-15': { lunarText: '14/11', events: [{ id: 'evt1', type: EventType.Anniversary, color: '#FFD700', name: 'Sinh nhật ông A' }] },
-  '2025-12-16': { lunarText: '15/11', events: [{ id: 'evt2', type: EventType.Death, color: '#8B0000', name: 'Giỗ bà B' }, { id: 'evt3', type: EventType.Other, color: '#0000FF', name: 'Họp mặt gia đình' }] },
-  '2025-12-25': { lunarText: '24/11', events: [{ id: 'evt4', type: EventType.Other, color: '#008000', name: 'Ngày lễ Giáng Sinh' }] },
-  '2026-01-01': { lunarText: '3/12', events: [{ id: 'evt5', type: EventType.Other, color: '#FFA500', name: 'Tết Dương Lịch' }] },
-  '2025-12-10': { lunarText: '9/11' }, // Ngày không có sự kiện
-};
-
+// Local type for calendar-specific event search query, making familyId mandatory
+interface CalendarSearchEventsQuery extends SearchEventsQuery {
+  familyId: string;
+}
 export const useFamilyCalendar = () => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const { currentFamilyId } = useFamilyStore();
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [filteredEvents, setFilteredEvents] = useState<EventData[]>([]);
-
   // Configure react-native-calendars locale based on i18n language
   useMemo(() => {
     if (i18n.language === 'vi') {
@@ -72,47 +67,83 @@ export const useFamilyCalendar = () => {
       LocaleConfig.defaultLocale = 'en';
     }
   }, [i18n.language]);
-
-  // Aggregate all events from mockData
+  const getLunarDate = useCallback((solarDateString: string) => {
+    const [year, month, day] = solarDateString.split('-').map(Number);
+    const solar = Solar.fromYmd(year, month, day);
+    const lunar = solar.getLunar();
+    if (lunar && lunar.lDay && lunar.lMonth) {
+      return `${lunar.lDay}/${lunar.lMonth}`;
+    }
+    return '';
+  }, []);
+  // Use react-query to fetch events for the current family
+  const { data: eventsData, isLoading, isError, error } = useQuery<PaginatedList<EventDto>, Error, EventDto[]>({
+    queryKey: ['familyEvents', currentFamilyId],
+    queryFn: async ({ queryKey }): Promise<PaginatedList<EventDto>> => { // Explicitly define queryFn return type
+      const [_key, familyId] = queryKey;
+      if (!familyId) {
+        throw new Error(t('calendar.errors.noFamilyId'));
+      }
+      const result = await eventService.search({ familyId: familyId } as CalendarSearchEventsQuery);
+      if (result.isSuccess && result.value) {
+        return result.value; // Return the full PaginatedList
+      }
+      throw new Error(result.error?.message || t('calendar.errors.fetchEvents'));
+    },
+    enabled: !!currentFamilyId,
+    select: (data) => data.items || [], // Extract items from PaginatedList
+  });
   const allEventsInCalendar: EventData[] = useMemo(() => {
-    const eventsList: EventData[] = [];
-    Object.keys(mockData).forEach(dateString => {
-      const dayData = mockData[dateString];
-      dayData.events?.forEach(event => {
-        eventsList.push({
-          ...event,
-          date: dateString,
-          lunarText: dayData.lunarText,
-        });
+    return (eventsData || []).map(event => ({
+      type: event.type,
+      color: event.color,
+      name: event.name,
+      date: dayjs(event.startDate).format('YYYY-MM-DD'), // Assuming startDate is solar date
+      lunarText: event.calendarType === 'lunar' && event.lunarDay && event.lunarMonth
+        ? `${event.lunarDay}/${event.lunarMonth}`
+        : getLunarDate(dayjs(event.startDate).format('YYYY-MM-DD')),
+      id: event.id,
+    }));
+  }, [eventsData, getLunarDate]);
+  const processedCalendarData: ProcessedCalendarData = useMemo(() => {
+    const data: ProcessedCalendarData = {};
+    allEventsInCalendar.forEach(event => {
+      const dateString = event.date;
+      if (!data[dateString]) {
+        data[dateString] = { lunarText: event.lunarText, events: [] };
+      }
+      data[dateString].events?.push({
+        id: event.id,
+        type: event.type,
+        color: event.color,
+        name: event.name,
       });
     });
-    // Sort events by date
-    return eventsList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [mockData]); // Re-calculate if mockData changes
-
+    return data;
+  }, [allEventsInCalendar]);
   const handleDayPress = useCallback((dateString: string) => {
     setSelectedDate(dateString);
     setFilteredEvents(allEventsInCalendar.filter(event => event.date === dateString));
   }, [allEventsInCalendar]);
-
   const handleAddEvent = useCallback((date: string) => {
     router.push(`/event/create?date=${date}`);
   }, [router]);
-
   const clearFilter = useCallback(() => {
     setSelectedDate('');
     setFilteredEvents([]); // Clear filtered events
   }, []);
-
   return {
     t,
     i18n,
     selectedDate,
     allEventsInCalendar,
     filteredEvents,
-    mockData, // Keep mockData available for renderDay
+    processedCalendarData, // Provide processed data for renderDay
     handleDayPress,
     handleAddEvent,
     clearFilter,
+    isLoading,
+    isError,
+    error,
   };
 };

@@ -1,6 +1,2 @@
-// apps/mobile/family_tree_rn/components/event/index.ts
-
-export { default as TimelineListItem } from './TimelineListItem';
-export { default as AgendaItem } from './AgendaItem';
-export { default as TimelineEventDetail } from './TimelineEventDetail';
-export { default as TimelineFilterComponent } from './TimelineFilter';
+export { default as DayCell } from './DayCell';
+export { default as EventBottomSheet } from './EventBottomSheet';

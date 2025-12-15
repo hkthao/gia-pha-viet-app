@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar } from 'react-native-paper';
+import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar, List } from 'react-native-paper'; // Add List
 import { useTranslation } from 'react-i18next';
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions'; // Add SPACING_LARGE
 import { eventService } from '@/services'; // Import eventService
 import { EventType, MemberListDto } from '@/types'; // Import EventType from admin types
 import { useQuery } from '@tanstack/react-query'; // Import useQuery
+import { getAvatarSource } from '@/utils/imageUtils'; // Add getAvatarSource
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -81,50 +82,32 @@ export default function EventDetailsScreen() {
       marginBottom: SPACING_MEDIUM,
       borderRadius: theme.roundness,
     },
-    cardContent: {
-      // Add specific styling for event details if needed
-    },
     profileCardContent: {
       flexDirection: 'column',
       alignItems: 'center',
       paddingBottom: SPACING_MEDIUM,
     },
-
     titleText: {
       marginBottom: SPACING_SMALL,
       textAlign: 'center',
     },
-    eventTypeText: {
-      marginBottom: SPACING_SMALL,
-      color: theme.colors.onSurfaceVariant,
-      textAlign: 'center',
+    // Removed old chipsContainer, chip styles
+    listSection: {
+      paddingHorizontal: SPACING_MEDIUM,
     },
-    dateText: {
-      marginBottom: SPACING_SMALL,
-      textAlign: 'center',
+    accordion: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.roundness,
     },
-    locationText: {
-      marginBottom: SPACING_SMALL,
-      color: theme.colors.onSurfaceVariant,
-      textAlign: 'center',
-    },
-    chipsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: SPACING_SMALL,
-      justifyContent: 'center', // Center chips
-      marginTop: SPACING_SMALL,
-      marginBottom: SPACING_SMALL,
-    },
-    chip: {
-      marginHorizontal: SPACING_SMALL / 2, // Add some horizontal margin for spacing
-    },
-    listItemTitle: {
+    accordionTitle: {
       fontWeight: 'bold',
+    },
+    accordionContentItem: {
+      paddingLeft: SPACING_LARGE,
     },
   }), [theme]);
 
-  if (isLoading) { // Changed 'loading' to 'isLoading'
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator animating size="large" color={theme.colors.primary} />
@@ -132,7 +115,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  if (isError) { // Changed 'error' to 'isError'
+  if (isError) {
     return (
       <View style={{ flex: 1 }}>
         <Appbar.Header>
@@ -141,7 +124,7 @@ export default function EventDetailsScreen() {
         </Appbar.Header>
         <View style={styles.errorContainer}>
           <Text variant="bodyMedium" style={styles.errorText}>
-            {t('common.error_occurred')}: {error?.message} {/* Display error.message */}
+            {t('common.error_occurred')}: {error?.message}
           </Text>
         </View>
       </View>
@@ -172,31 +155,100 @@ export default function EventDetailsScreen() {
       <Appbar.Header style={styles.appbar}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={item.name || t('eventDetail.title')} />
+        <Appbar.Action icon="pencil" onPress={() => router.push(`/event/edit/${eventId}`)} /> {/* Add Edit Button */}
       </Appbar.Header>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* First Card: Key Event Information */}
+        {/* Main Event Information Card */}
         <Card style={styles.card}>
           <Card.Content style={styles.profileCardContent}>
             <Avatar.Icon icon={item.type !== undefined ? eventTypeIconMap[item.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary}  />
             <Text variant="headlineSmall" style={styles.titleText}>{item.name || t('common.not_available')}</Text>
-            <Text variant="bodyMedium" >{item.description || t('common.not_available')}</Text>
-            <View style={styles.chipsContainer}>
-              {item && item.type !== undefined && (
-                <Chip icon="tag" compact={true} style={styles.chip}>
-                  {eventTypeStringMap[item.type] || t('common.not_available')}
-                </Chip>
-              )}
-              <Chip icon="calendar-start" compact={true} style={styles.chip}>{formattedStartDate}</Chip>
-              {item.endDate && <Chip icon="calendar-end" compact={true} style={styles.chip}>{formattedEndDate}</Chip>}
-              {item.location && (
-                <Chip icon="map-marker" compact={true} style={styles.chip}>{item.location}</Chip>
-              )}
-
-              {item.relatedMembers?.map((member: MemberListDto, index: number) => (
-                <Chip key={index} compact={true} icon="account-outline">{member.fullName}</Chip>
-              ))}
-            </View>
+            {item.description && <Text variant="bodyMedium" >{item.description}</Text>}
           </Card.Content>
+
+          <List.Section title={t('eventDetail.details')} style={styles.listSection}>
+            {item && item.type !== undefined && (
+              <List.Item
+                title={t('eventDetail.eventType')}
+                description={eventTypeStringMap[item.type] || t('common.not_available')}
+                left={() => <List.Icon icon="tag" />}
+              />
+            )}
+            <List.Item
+              title={t('eventDetail.startDate')}
+              description={formattedStartDate}
+              left={() => <List.Icon icon="calendar-start" />}
+            />
+            {item.endDate && (
+              <List.Item
+                title={t('eventDetail.endDate')}
+                description={formattedEndDate}
+                left={() => <List.Icon icon="calendar-end" />}
+              />
+            )}
+            {item.location && (
+              <List.Item
+                title={t('eventDetail.location')}
+                description={item.location}
+                left={() => <List.Icon icon="map-marker" />}
+              />
+            )}
+          </List.Section>
+        </Card>
+
+        {/* Related Members Card */}
+        {item.relatedMembers && item.relatedMembers.length > 0 && (
+          <Card style={styles.card}>
+            <List.Section title={t('eventDetail.relatedMembers')} style={styles.listSection}>
+              {item.relatedMembers.map((member: MemberListDto) => (
+                <List.Item
+                  key={member.id}
+                  title={member.fullName}
+                  left={() => <Avatar.Image size={40} source={getAvatarSource(member.avatarUrl)} />}
+                  onPress={() => router.push(`/member/${member.id}`)} // Navigate to member details
+                />
+              ))}
+            </List.Section>
+          </Card>
+        )}
+
+        {/* Auditable Information Card */}
+        <Card style={styles.card}>
+          <List.Accordion
+            title={t('eventDetail.auditableInfo')}
+            left={() => <List.Icon icon="information-outline" />}
+            style={styles.accordion}
+            titleStyle={styles.accordionTitle}
+          >
+            {item.created && (
+              <List.Item
+                title={t('common.created')}
+                description={new Date(item.created).toLocaleString()}
+                style={styles.accordionContentItem}
+              />
+            )}
+            {item.createdBy && (
+              <List.Item
+                title={t('common.createdBy')}
+                description={item.createdBy}
+                style={styles.accordionContentItem}
+              />
+            )}
+            {item.lastModified && (
+              <List.Item
+                title={t('common.lastModified')}
+                description={new Date(item.lastModified).toLocaleString()}
+                style={styles.accordionContentItem}
+              />
+            )}
+            {item.lastModifiedBy && (
+              <List.Item
+                title={t('common.lastModifiedBy')}
+                description={item.lastModifiedBy}
+                style={styles.accordionContentItem}
+              />
+            )}
+          </List.Accordion>
         </Card>
       </ScrollView>
     </View>

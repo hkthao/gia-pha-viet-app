@@ -5,18 +5,21 @@ import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day'; // Import DayProps from its specific path
 import { DayCell, EventBottomSheet, EventListItem } from '@/components/event'; // Added EventListItem
 import { useRouter } from 'expo-router'; // Import useRouter
+import { EventType } from '@/types'; // Import EventType
 
 interface EventData {
-  type: string;
+  type: EventType;
   color?: string;
   name: string;
   date: string; // Thêm trường date (solarDate)
   lunarText?: string; // Thêm trường lunarText
+  id: string; // Add event ID
 }
 
 interface CalendarDayData {
   lunarText?: string;
-  events?: Omit<EventData, 'date' | 'lunarText'>[]; // events trong mockData không cần date và lunarText
+  // events trong mockData bây giờ sẽ chứa id
+  events?: Omit<EventData, 'date' | 'lunarText'>[];
 }
 
 interface MockCalendarData {
@@ -26,10 +29,10 @@ interface MockCalendarData {
 // Giả lập dữ liệu sự kiện và lịch âm từ backend
 // Trong thực tế, dữ liệu này sẽ được lấy từ API
 const mockData: MockCalendarData = {
-  '2025-12-15': { lunarText: '14/11', events: [{ type: 'BIRTHDAY', color: '#FFD700', name: 'Sinh nhật ông A' }] },
-  '2025-12-16': { lunarText: '15/11', events: [{ type: 'DEATH_ANNIVERSARY', color: '#8B0000', name: 'Giỗ bà B' }, { type: 'MEETING', color: '#0000FF', name: 'Họp mặt gia đình' }] },
-  '2025-12-25': { lunarText: '24/11', events: [{ type: 'HOLIDAY', color: '#008000', name: 'Ngày lễ Giáng Sinh' }] },
-  '2026-01-01': { lunarText: '3/12', events: [{ type: 'NEW_YEAR', color: '#FFA500', name: 'Tết Dương Lịch' }] },
+  '2025-12-15': { lunarText: '14/11', events: [{ id: 'evt1', type: EventType.Anniversary, color: '#FFD700', name: 'Sinh nhật ông A' }] },
+  '2025-12-16': { lunarText: '15/11', events: [{ id: 'evt2', type: EventType.Death, color: '#8B0000', name: 'Giỗ bà B' }, { id: 'evt3', type: EventType.Other, color: '#0000FF', name: 'Họp mặt gia đình' }] },
+  '2025-12-25': { lunarText: '24/11', events: [{ id: 'evt4', type: EventType.Other, color: '#008000', name: 'Ngày lễ Giáng Sinh' }] },
+  '2026-01-01': { lunarText: '3/12', events: [{ id: 'evt5', type: EventType.Other, color: '#FFA500', name: 'Tết Dương Lịch' }] },
   '2025-12-10': { lunarText: '9/11' }, // Ngày không có sự kiện
 };
 
@@ -96,7 +99,7 @@ const CalendarScreen: React.FC = () => {
   };
 
   const renderEventListItem = ({ item }: { item: EventData }) => (
-    <EventListItem event={item} />
+    <EventListItem event={item} onPress={(eventId) => router.push(`/event/${eventId}`)} />
   );
 
   return (

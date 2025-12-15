@@ -1,21 +1,24 @@
-import React, { useMemo } from 'react'; // Add useMemo
+import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { Text, useTheme, TouchableRipple } from 'react-native-paper'; // Import TouchableRipple
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions'; // Import necessary constants
+import { EventType } from '@/types'; // Import EventType
 
 interface EventListItemProps {
   event: {
     name: string;
     date: string; // YYYY-MM-DD
     lunarText?: string;
-    type: string;
+    type: EventType; // Changed from string to EventType
     color?: string;
+    id: string; // Event ID needed for navigation
   };
+  onPress?: (eventId: string) => void; // Add onPress prop
 }
 
-const EventListItem: React.FC<EventListItemProps> = ({ event }) => {
-  const theme = useTheme(); // Move theme hook inside component
+const EventListItem: React.FC<EventListItemProps> = ({ event, onPress }) => { // Destructure onPress
+  const theme = useTheme();
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -47,22 +50,27 @@ const EventListItem: React.FC<EventListItemProps> = ({ event }) => {
   }), [theme]);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]}>
-      <View style={[styles.eventIndicator, { backgroundColor: event.color || theme.colors.primary }]} />
-      <View style={styles.detailsContainer}>
-        <Text style={[styles.eventName, { color: theme.colors.onSurface }]}>
-          {event.name}
-        </Text>
-        <Text style={[styles.eventDate, { color: theme.colors.onSurfaceVariant }]}>
-          {event.date} {event.lunarText ? `(${event.lunarText} âm lịch)` : ''}
-        </Text>
-      </View>
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={24}
-        color={theme.colors.onSurfaceVariant}
-      />
-    </View>
+    <TouchableRipple
+      onPress={() => onPress && event.id && onPress(event.id)} // Pass event.id
+      style={[styles.container, { backgroundColor: theme.colors.surfaceVariant }]} // Apply styles to TouchableRipple
+    >
+      <>
+        <View style={[styles.eventIndicator, { backgroundColor: event.color || theme.colors.primary }]} />
+        <View style={styles.detailsContainer}>
+          <Text style={[styles.eventName, { color: theme.colors.onSurface }]}>
+            {event.name}
+          </Text>
+          <Text style={[styles.eventDate, { color: theme.colors.onSurfaceVariant }]}>
+            {event.date} {event.lunarText ? `(${event.lunarText} âm lịch)` : ''}
+          </Text>
+        </View>
+        <MaterialCommunityIcons
+          name="chevron-right"
+          size={24}
+          color={theme.colors.onSurfaceVariant}
+        />
+      </>
+    </TouchableRipple>
   );
 };
 

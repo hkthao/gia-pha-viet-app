@@ -1,13 +1,15 @@
-import React, { useMemo } from 'react'; // Import useMemo
 import { View, StyleSheet } from 'react-native';
 import { Surface, Text, useTheme, TouchableRipple } from 'react-native-paper';
+import { EventType } from '@/types'; // Import EventType
+
+import { useMemo } from 'react'; // Import useMemo
 
 interface DayCellProps {
   solarDate: string; // YYYY-MM-DD
   solarDay: number;
   lunarText?: string; // "12/8"
   events?: {
-    type: string;
+    type: EventType; // Changed from string to EventType
     color?: string;
   }[];
   isToday?: boolean;

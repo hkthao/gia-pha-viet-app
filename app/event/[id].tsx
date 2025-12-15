@@ -1,13 +1,14 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { useMemo, useCallback } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, useTheme, Card, ActivityIndicator, Chip, Avatar, List } from 'react-native-paper'; // Add List
+import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions'; // Add SPACING_LARGE
-import { eventService } from '@/services'; // Import eventService
-import { EventType, MemberListDto } from '@/types'; // Import EventType from admin types
-import { useQuery } from '@tanstack/react-query'; // Import useQuery
-import { getAvatarSource } from '@/utils/imageUtils'; // Add getAvatarSource
+import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions';
+import { EventType, MemberListDto } from '@/types';
+import { getAvatarSource } from '@/utils/imageUtils';
+import { useEventDetails } from '@/hooks/event/useEventDetails'; // Import the new hook
+import { useDeleteEvent } from '@/hooks/event/useDeleteEvent'; // Import the new hook
+import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Import usePermissionCheck
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -17,26 +18,31 @@ export default function EventDetailsScreen() {
 
   const eventId = Array.isArray(id) ? id[0] : id;
 
-  const {
-    data: item,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ['event', eventId],
-    queryFn: async () => {
-      if (!eventId) {
-        throw new Error(t('eventDetail.errors.noEventId'));
-      }
-      const result = await eventService.getById(eventId);
-      if (result.isSuccess) {
-        return result.value;
-      } else {
-        throw new Error(result.error?.message || t('eventDetail.errors.fetchError'));
-      }
-    },
-    enabled: !!eventId, // Only run query if eventId is available
-  });
+  const { event, isLoading, error } = useEventDetails(eventId);
+  const { deleteEvent, isDeleting } = useDeleteEvent();
+  const { canManageFamily, isAdmin } = usePermissionCheck(event?.familyId);
+
+  const handleDelete = useCallback(() => {
+    if (event?.id) {
+      Alert.alert(
+        t('eventDetail.deleteConfirmTitle'),
+        t('eventDetail.deleteConfirmMessage', { eventName: event.name }),
+        [
+          {
+            text: t('common.cancel'),
+            style: 'cancel',
+            onPress: () => { }, // Do nothing on cancel
+          },
+          {
+            text: t('common.delete'),
+            style: 'destructive',
+            onPress: () => deleteEvent(event.id), // Trigger delete mutation
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  }, [event, t, deleteEvent]);
 
   const eventTypeStringMap: Record<EventType, string> = useMemo(() => ({
     [EventType.Birth]: t('eventType.birth'),
@@ -58,8 +64,6 @@ export default function EventDetailsScreen() {
     container: {
       flex: 1,
     },
-    appbar: {
-    },
     content: {
       padding: SPACING_MEDIUM,
     },
@@ -69,10 +73,9 @@ export default function EventDetailsScreen() {
       alignItems: 'center',
     },
     errorContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
       padding: SPACING_MEDIUM,
+      backgroundColor: theme.colors.errorContainer,
+      marginBottom: SPACING_MEDIUM,
     },
     errorText: {
       color: theme.colors.onErrorContainer,
@@ -82,10 +85,50 @@ export default function EventDetailsScreen() {
       marginBottom: SPACING_MEDIUM,
       borderRadius: theme.roundness,
     },
-    profileCardContent: {
+    cardContent: {
       flexDirection: 'column',
       alignItems: 'center',
-      paddingBottom: SPACING_MEDIUM,
+      paddingVertical: SPACING_LARGE,
+    },
+    avatar: {
+      marginBottom: SPACING_MEDIUM,
+    },
+    detailsContainer: {
+      alignItems: 'center',
+      width: '100%',
+    },
+    detailRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: SPACING_SMALL / 2,
+      width: '100%',
+    },
+    detailLabel: {
+      fontWeight: 'bold',
+      marginRight: SPACING_SMALL / 2,
+      flexShrink: 0,
+    },
+    detailValue: {
+      flex: 1,
+      textAlign: 'right',
+    },
+    chipsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: SPACING_SMALL,
+      gap: SPACING_SMALL,
+      justifyContent: 'center',
+    },
+    chip: {
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+    },
+    deleteButton: {
+      marginTop: SPACING_SMALL,
+      marginBottom: SPACING_LARGE,
+      borderRadius: theme.roundness,
+    },
+    deleteButtonLabel: {
     },
     titleText: {
       marginBottom: SPACING_SMALL,
@@ -93,7 +136,7 @@ export default function EventDetailsScreen() {
     },
     // Removed old chipsContainer, chip styles
     listSection: {
-      paddingHorizontal: SPACING_MEDIUM,
+      // Remove horizontal padding from here, it's better applied directly to Card.Content if needed
     },
     accordion: {
       backgroundColor: theme.colors.surface,
@@ -115,45 +158,63 @@ export default function EventDetailsScreen() {
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text variant="bodyMedium" style={styles.errorText}>
-          {t('common.error_occurred')}: {error?.message}
-        </Text>
+      <View style={{ flex: 1 }}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title={t('eventDetail.title')} />
+        </Appbar.Header>
+        <View style={styles.errorContainer}>
+          <Text variant="bodyMedium" style={styles.errorText}>
+            {t('common.error_occurred')}: {error.message}
+          </Text>
+        </View>
       </View>
     );
   }
 
-  if (!item) {
+  if (!event) {
     return (
-      <View style={styles.errorContainer}>
-        <Text variant="bodyMedium" style={styles.errorText}>
-          {t('eventDetail.errors.dataNotAvailable')}
-        </Text>
+      <View style={{ flex: 1 }}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title={t('eventDetail.title')} />
+        </Appbar.Header>
+        <View style={styles.errorContainer}>
+          <Text variant="bodyMedium" style={styles.errorText}>
+            {t('eventDetail.errors.dataNotAvailable')}
+          </Text>
+        </View>
       </View>
     );
   }
 
-  const formattedStartDate = item.startDate ? new Date(item.startDate).toLocaleDateString() : t('common.not_available');
-  const formattedEndDate = item.endDate ? new Date(item.endDate).toLocaleDateString() : t('common.not_available');
+  const formattedStartDate = event.startDate ? new Date(event.startDate).toLocaleDateString() : t('common.not_available');
+  const formattedEndDate = event.endDate ? new Date(event.endDate).toLocaleDateString() : t('common.not_available');
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Main Event Information Card */}
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title={event.name || t('eventDetail.title')} />
+        {(canManageFamily || isAdmin) && (
+          <Appbar.Action icon="pencil" onPress={() => router.push(`/event/${event.id}/edit`)} />
+        )}
+      </Appbar.Header>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={styles.card}>
-          <Card.Content style={styles.profileCardContent}>
-            <Avatar.Icon icon={item.type !== undefined ? eventTypeIconMap[item.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary}  />
-            <Text variant="headlineSmall" style={styles.titleText}>{item.name || t('common.not_available')}</Text>
-            {item.description && <Text variant="bodyMedium" >{item.description}</Text>}
+          <Card.Content style={styles.cardContent}>
+            <Avatar.Icon icon={event.type !== undefined ? eventTypeIconMap[event.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary} style={styles.avatar} />
+            <Text variant="headlineSmall" style={styles.titleText}>{event.name || t('common.not_available')}</Text>
+            {event.description && <Text variant="bodyMedium" >{event.description}</Text>}
           </Card.Content>
 
-          <List.Section title={t('eventDetail.details')} style={styles.listSection}>
-            {item && item.type !== undefined && (
+          <List.Section title={t('eventDetail.details')}>
+            {event && event.type !== undefined && (
               <List.Item
                 title={t('eventDetail.eventType')}
-                description={eventTypeStringMap[item.type] || t('common.not_available')}
+                description={eventTypeStringMap[event.type] || t('common.not_available')}
                 left={() => <List.Icon icon="tag" />}
               />
             )}
@@ -162,77 +223,86 @@ export default function EventDetailsScreen() {
               description={formattedStartDate}
               left={() => <List.Icon icon="calendar-start" />}
             />
-            {item.endDate && (
+            {event.endDate && (
               <List.Item
                 title={t('eventDetail.endDate')}
                 description={formattedEndDate}
                 left={() => <List.Icon icon="calendar-end" />}
               />
             )}
-            {item.location && (
+            {event.location && (
               <List.Item
                 title={t('eventDetail.location')}
-                description={item.location}
+                description={event.location}
                 left={() => <List.Icon icon="map-marker" />}
               />
             )}
           </List.Section>
-        </Card>
 
-        {/* Related Members Card */}
-        {item.relatedMembers && item.relatedMembers.length > 0 && (
-          <Card style={styles.card}>
-            <List.Section title={t('eventDetail.relatedMembers')} style={styles.listSection}>
-              {item.relatedMembers.map((member: MemberListDto) => (
+          {/* Related Members */}
+          {event.relatedMembers && event.relatedMembers.length > 0 && (
+            <List.Section title={t('eventDetail.relatedMembers')}>
+              {event.relatedMembers.map((member: MemberListDto) => (
                 <List.Item
                   key={member.id}
                   title={member.fullName}
                   left={() => <Avatar.Image size={40} source={getAvatarSource(member.avatarUrl)} />}
-                  onPress={() => router.push(`/member/${member.id}`)} // Navigate to member details
+                  onPress={() => router.push(`/member/${member.id}`)}
                 />
               ))}
             </List.Section>
-          </Card>
-        )}
+          )}
 
-        {/* Auditable Information Card */}
-        <Card style={styles.card}>
+          {/* Auditable Information */}
           <List.Accordion
             title={t('eventDetail.auditableInfo')}
             left={() => <List.Icon icon="information-outline" />}
             style={styles.accordion}
             titleStyle={styles.accordionTitle}
           >
-            {item.created && (
+            {event.created && (
               <List.Item
                 title={t('common.created')}
-                description={new Date(item.created).toLocaleString()}
+                description={new Date(event.created).toLocaleString()}
                 style={styles.accordionContentItem}
               />
             )}
-            {item.createdBy && (
+            {event.createdBy && (
               <List.Item
                 title={t('common.createdBy')}
-                description={item.createdBy}
+                description={event.createdBy}
                 style={styles.accordionContentItem}
               />
             )}
-            {item.lastModified && (
+            {event.lastModified && (
               <List.Item
                 title={t('common.lastModified')}
-                description={new Date(item.lastModified).toLocaleString()}
+                description={new Date(event.lastModified).toLocaleString()}
                 style={styles.accordionContentItem}
               />
             )}
-            {item.lastModifiedBy && (
+            {event.lastModifiedBy && (
               <List.Item
                 title={t('common.lastModifiedBy')}
-                description={item.lastModifiedBy}
+                description={event.lastModifiedBy}
                 style={styles.accordionContentItem}
               />
             )}
           </List.Accordion>
         </Card>
+
+        {(canManageFamily || isAdmin) && (
+          <Button
+            mode="contained"
+            onPress={handleDelete}
+            style={styles.deleteButton}
+            labelStyle={styles.deleteButtonLabel}
+            loading={isDeleting}
+            disabled={isDeleting}
+          >
+            {t('common.delete')}
+          </Button>
+        )}
       </ScrollView>
     </View>
   );

@@ -2,7 +2,6 @@
 
 import { BaseAuditableDto, BaseSearchQuery } from './common';
 import { MemberListDto } from './member';
-import { EventFormCalendarType, EventFormRepeatRule } from '@/utils/validation/eventValidationSchema';
 
 export enum EventType {
   Birth = 0,
@@ -10,6 +9,22 @@ export enum EventType {
   Death = 2,
   Anniversary = 3,
   Other = 4
+}
+
+export enum CalendarType {
+  SOLAR = 1,
+  LUNAR = 2,
+}
+
+export enum RepeatRule {
+  YEARLY = 1,
+  NONE = 0,
+}
+
+export interface LunarDateDto {
+  day?: int;
+  month?: int;
+  isLeapMonth?: boolean;
 }
 
 export interface EventDto extends BaseAuditableDto {
@@ -22,14 +37,11 @@ export interface EventDto extends BaseAuditableDto {
   location?: string;
   type: EventType;
   relatedMembers: MemberListDto[];
-  // Additional fields from the form that might be stored on the backend but not in the original EventDto
   code: string; // Made required
   color?: string;
-  calendarType: EventFormCalendarType; // Made required
-  lunarDay?: number;
-  lunarMonth?: number;
-  isLeapMonth?: boolean;
-  repeatRule: EventFormRepeatRule; // Made required
+  calendarType: CalendarType; // Made required
+  lunarDate?: LunarDateDto;
+  repeatRule: RepeatRule; // Made required
 }
 
 export interface CreateEventRequestDto {
@@ -41,11 +53,9 @@ export interface CreateEventRequestDto {
   solarDate?: string; // ISO string format
   location?: string;
   type: EventType;
-  repeatRule: EventFormRepeatRule;
-  calendarType: EventFormCalendarType;
-  lunarDay?: number;
-  lunarMonth?: number;
-  isLeapMonth?: boolean;
+  repeatRule: RepeatRule;
+  calendarType: CalendarType;
+  lunarDate?: LunarDateDto;
 }
 
 export interface UpdateEventRequestDto extends Partial<CreateEventRequestDto> {
@@ -60,7 +70,7 @@ export interface GetEventsQuery {
   relatedMemberId?: string;
 }
 
-export interface SearchEventsQuery extends BaseSearchQuery  {
+export interface SearchEventsQuery extends BaseSearchQuery {
   familyId?: string;
   startDate?: string;
   endDate?: string;

@@ -31,9 +31,11 @@ export const useCreateEvent = () => {
         type: eventData.type,
         repeatRule: eventData.repeatRule,
         calendarType: eventData.calendarType,
-        lunarDay: eventData.lunarDay,
-        lunarMonth: eventData.lunarMonth,
-        isLeapMonth: eventData.isLeapMonth,
+        lunarDate: (eventData.lunarDay && eventData.lunarMonth) ? {
+          day: eventData.lunarDay,
+          month: eventData.lunarMonth,
+          isLeapMonth: eventData.isLeapMonth,
+        } : undefined,
       };
 
       return await eventService.create(createRequest);

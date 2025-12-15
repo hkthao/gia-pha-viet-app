@@ -2,12 +2,12 @@ import { useState, useMemo, useCallback } from 'react';
 import { LocaleConfig } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { EventDto, EventType, PaginatedList, SearchEventsQuery } from '@/types'; // Import EventDto and PaginatedList
+import { CalendarType, EventDto, EventType, PaginatedList, SearchEventsQuery } from '@/types'; // Import EventDto and PaginatedList
 import { useQuery } from '@tanstack/react-query'; // Import useQuery and QueryKey
 import { eventService } from '@/services'; // Import eventService
 import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
 import dayjs from 'dayjs'; // Import dayjs for date manipulation
-import { Solar } from 'lunar-javascript';
+import { Solar, Lunar } from 'lunar-javascript';
 interface EventData {
   type: EventType;
   color?: string;
@@ -27,7 +27,7 @@ interface ProcessedCalendarData {
 interface CalendarSearchEventsQuery extends SearchEventsQuery {
   familyId: string;
 }
-export const useFamilyCalendar = () => {
+export const useFamilyCalendar = (currentViewYear: number) => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { currentFamilyId } = useFamilyStore();
@@ -77,16 +77,25 @@ export const useFamilyCalendar = () => {
     return '';
   }, []);
   // Use react-query to fetch events for the current family
-  const { data: eventsData, isLoading, isError, error } = useQuery<PaginatedList<EventDto>, Error, EventDto[]>({
-    queryKey: ['familyEvents', currentFamilyId],
+  const { data: eventsData, isLoading, isError, error, refetch } = useQuery<PaginatedList<EventDto>, Error, EventDto[]>({
+    queryKey: ['familyEvents', currentFamilyId, currentViewYear],
     queryFn: async ({ queryKey }): Promise<PaginatedList<EventDto>> => { // Explicitly define queryFn return type
-      const [_key, familyId] = queryKey;
+      const [_key, familyId, year] = queryKey;
       if (!familyId) {
         throw new Error(t('calendar.errors.noFamilyId'));
       }
       const result = await eventService.search({ familyId: familyId } as CalendarSearchEventsQuery);
       if (result.isSuccess && result.value) {
-        return result.value; // Return the full PaginatedList
+        result.value.items = result.value.items.map(event => {
+          // Transform lunar events to solar dates
+          if (event.calendarType === CalendarType.LUNAR && event.lunarDate?.month && event.lunarDate?.day) {
+            const lunarDate = Lunar.fromYmd(year as number, event.lunarDate.month, event.lunarDate.day);
+            const solarDate = lunarDate.getSolar();
+            event.startDate = dayjs(`${solarDate.getYear()}-${solarDate.getMonth()}-${solarDate.getDay()}`).format('YYYY-MM-DD');
+          }
+          return event;
+        });
+        return result.value; // Return the full PaginatedList with transformed dates
       }
       throw new Error(result.error?.message || t('calendar.errors.fetchEvents'));
     },
@@ -99,8 +108,8 @@ export const useFamilyCalendar = () => {
       color: event.color,
       name: event.name,
       date: dayjs(event.startDate).format('YYYY-MM-DD'), // Assuming startDate is solar date
-      lunarText: event.calendarType === 'lunar' && event.lunarDay && event.lunarMonth
-        ? `${event.lunarDay}/${event.lunarMonth}`
+      lunarText: event.calendarType === CalendarType.LUNAR && event.lunarDate?.day && event.lunarDate?.month
+        ? `${event.lunarDate.day}/${event.lunarDate.month}`
         : getLunarDate(dayjs(event.startDate).format('YYYY-MM-DD')),
       id: event.id,
     }));
@@ -145,5 +154,6 @@ export const useFamilyCalendar = () => {
     isLoading,
     isError,
     error,
+    refetch,
   };
 };

@@ -14,10 +14,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form'; // Corrected import
 import { yupResolver } from '@hookform/resolvers/yup';
-import { EventFormData, eventValidationSchema, EventFormCalendarType, EventFormRepeatRule } from '@/utils/validation/eventValidationSchema';
+import { EventFormData, eventValidationSchema } from '@/utils/validation/eventValidationSchema';
 import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { DateInput } from '@/components/common';
-import { EventType } from '@/types'; // Assuming EventType is defined here
+import { EventType, CalendarType, RepeatRule } from '@/types'; // Assuming EventType is defined here
 import * as yup from 'yup'; // Import yup for schema casting
 
 interface EventFormProps {
@@ -143,8 +143,8 @@ export const EventForm: React.FC<EventFormProps> = ({
       solarDate: undefined, // Renamed from startDate, removed endDate
       location: '',
       type: EventType.Other,
-      repeatRule: EventFormRepeatRule.NONE, // Changed from repeatAnnually
-      calendarType: EventFormCalendarType.SOLAR, // Changed from isLunarDate
+      repeatRule: RepeatRule.NONE, // Changed from repeatAnnually
+      calendarType: CalendarType.SOLAR, // Changed from isLunarDate
       lunarDay: undefined,
       lunarMonth: undefined,
       isLeapMonth: false,
@@ -285,8 +285,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                   title={t('eventForm.solarCalendar')}
                   description={t('eventForm.solarCalendarDescription')}
                   left={() => <List.Icon icon="white-balance-sunny" />}
-                  right={() => <RadioButton value={EventFormCalendarType.SOLAR} status={value === EventFormCalendarType.SOLAR ? 'checked' : 'unchecked'} />}
-                  onPress={() => onChange(EventFormCalendarType.SOLAR)}
+                  right={() => <RadioButton value={CalendarType.SOLAR.toString()} status={value === CalendarType.SOLAR ? 'checked' : 'unchecked'} />}
+                  onPress={() => onChange(CalendarType.SOLAR)}
                   style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
                 />
                 <Divider />
@@ -294,8 +294,8 @@ export const EventForm: React.FC<EventFormProps> = ({
                   title={t('eventForm.lunarCalendar')}
                   description={t('eventForm.lunarCalendarDescription')}
                   left={() => <List.Icon icon="moon-waning-gibbous" />}
-                  right={() => <RadioButton value={EventFormCalendarType.LUNAR} status={value === EventFormCalendarType.LUNAR ? 'checked' : 'unchecked'} />}
-                  onPress={() => onChange(EventFormCalendarType.LUNAR)}
+                  right={() => <RadioButton value={CalendarType.LUNAR.toString()} status={value === CalendarType.LUNAR ? 'checked' : 'unchecked'} />}
+                  onPress={() => onChange(CalendarType.LUNAR)}
                   style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
                 />
               </View>
@@ -303,7 +303,7 @@ export const EventForm: React.FC<EventFormProps> = ({
           />
         </List.Section>
         {/* Input cho Dương lịch */}
-        {watch('calendarType') === EventFormCalendarType.SOLAR && ( // Conditional on calendarType
+        {watch('calendarType') === CalendarType.SOLAR && ( // Conditional on calendarType
           <>
             <Divider style={{ marginBottom: SPACING_MEDIUM }} />
             <Controller
@@ -323,7 +323,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         )}
 
         {/* Input cho Âm lịch */}
-        {watch('calendarType') === EventFormCalendarType.LUNAR && ( // Conditional on calendarType
+        {watch('calendarType') === CalendarType.LUNAR && ( // Conditional on calendarType
           <>
             <Divider style={{ marginBottom: SPACING_MEDIUM }} />
             <View style={styles.lunarInputRow}>
@@ -401,15 +401,15 @@ export const EventForm: React.FC<EventFormProps> = ({
           render={({ field: { onChange, value } }) => (
             <List.Item
               title={t('eventForm.repeatAnnually')}
-              description={value === EventFormRepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
+              description={value === RepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
               left={() => <List.Icon icon="repeat" />}
               right={() => (
                 <Switch
-                  value={value === EventFormRepeatRule.YEARLY}
-                  onValueChange={(newValue) => onChange(newValue ? EventFormRepeatRule.YEARLY : EventFormRepeatRule.NONE)}
+                  value={value === RepeatRule.YEARLY}
+                  onValueChange={(newValue) => onChange(newValue ? RepeatRule.YEARLY : RepeatRule.NONE)}
                 />
               )}
-              onPress={() => onChange(value === EventFormRepeatRule.YEARLY ? EventFormRepeatRule.NONE : EventFormRepeatRule.YEARLY)}
+              onPress={() => onChange(value === RepeatRule.YEARLY ? RepeatRule.NONE : RepeatRule.YEARLY)}
               style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
             />
           )}

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, View, FlatList } from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import { StyleSheet, View, FlatList, RefreshControl } from 'react-native';
 import { Appbar, useTheme, Text, IconButton, Divider, ActivityIndicator } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
@@ -7,14 +7,15 @@ import { DayCell, EventListItem } from '@/components/event';
 import { useRouter } from 'expo-router';
 import { useFamilyCalendar } from '@/hooks/calendar/useFamilyCalendar'; // Import the new hook
 import { SPACING_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import dayjs from 'dayjs';
 
 const FamilyCalendarScreen: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
+  const [currentViewYear, setCurrentViewYear] = useState(dayjs().year());
 
   const {
     t,
-    i18n,
     selectedDate,
     filteredEvents,
     allEventsInCalendar,
@@ -25,7 +26,16 @@ const FamilyCalendarScreen: React.FC = () => {
     isLoading, // Destructure isLoading
     isError, // Destructure isError
     error, // Destructure error
-  } = useFamilyCalendar();
+    refetch, // Destructure refetch for pull-to-refresh
+  } = useFamilyCalendar(currentViewYear);
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  }, [refetch]);
 
   const renderDay = (props: DayProps & { date?: DateData }) => {
     if (!props.date) {
@@ -126,6 +136,11 @@ const FamilyCalendarScreen: React.FC = () => {
         monthFormat={'MMMM yyyy'}
         hideArrows={false}
         onDayPress={(day) => handleDayPress(day.dateString)}
+        onMonthChange={(month) => {
+          // month object has year, month, day properties
+          // We only care about the year for lunar transformations
+          setCurrentViewYear(month.year);
+        }}
         hideExtraDays={true}
         dayComponent={renderDay}
         theme={{
@@ -180,6 +195,14 @@ const FamilyCalendarScreen: React.FC = () => {
             <Text style={[styles.emptyListText, { color: theme.colors.onSurfaceVariant }]}>
               {selectedDate ? t('calendar.noEventsForSelectedDate') : t('calendar.noEvents')}
             </Text>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary]} // Customize refresh indicator color
+              tintColor={theme.colors.primary} // For iOS
+            />
           }
         />
       </View>

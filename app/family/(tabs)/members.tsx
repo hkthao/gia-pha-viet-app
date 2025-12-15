@@ -90,12 +90,6 @@ const getStyles = (theme: any) => StyleSheet.create({
     flex: 1,
     padding: SPACING_SMALL,
   },
-  fab: {
-    position: 'absolute',
-    margin: SPACING_MEDIUM,
-    right: 0,
-    bottom: 0,
-  },
 });
 
 export default function FamilyMembersScreen() {
@@ -142,6 +136,12 @@ export default function FamilyMembersScreen() {
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('familyDetail.tab.members')} />
+        {canManageFamily && currentFamilyId && (
+          <Appbar.Action
+            icon="plus"
+            onPress={() => router.push(`/member/create?familyId=${currentFamilyId}`)}
+          />
+        )}
       </Appbar.Header>
       <View style={{ flex: 1 }}>
         <PaginatedSearchListV2<MemberListDto, SearchMembersQuery>
@@ -157,13 +157,6 @@ export default function FamilyMembersScreen() {
           ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
           externalDependencies={[currentFamilyId]} // Pass currentFamilyId as external dependency
         />
-        {canManageFamily && currentFamilyId && (
-          <FAB
-            style={styles.fab}
-            icon="plus"
-            onPress={() => router.push(`/member/create?familyId=${currentFamilyId}`)}
-          />
-        )}
       </View>
     </View>
   );

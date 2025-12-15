@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme, FAB, Appbar } from 'react-native-paper'; // Import FAB
+import { Chip, useTheme, Appbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router'; // Import useRouter
 
@@ -69,12 +69,6 @@ const getStyles = (theme: any) => StyleSheet.create({
     flex: 1,
     paddingHorizontal: SPACING_SMALL,
   },
-  fab: {
-    position: 'absolute',
-    margin: SPACING_MEDIUM,
-    right: 0,
-    bottom: 0,
-  },
 });
 
 export default function FamilyFaceDataScreen() {
@@ -124,6 +118,12 @@ export default function FamilyFaceDataScreen() {
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('more.faceData')} />
+        {(canManageFamily || isAdmin) && (
+          <Appbar.Action
+            icon="plus"
+            onPress={() => router.push(`/family/(tabs)/more/face-data/create`)}
+          />
+        )}
       </Appbar.Header>
       <View style={styles.safeArea}>
         <PaginatedSearchListV2<DetectedFaceDto, SearchFacesQuery>
@@ -139,13 +139,6 @@ export default function FamilyFaceDataScreen() {
           ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />}
           externalDependencies={[currentFamilyId]}
         />
-        {(canManageFamily || isAdmin) && (
-          <FAB
-            style={styles.fab}
-            icon="plus"
-            onPress={() => router.push(`/family/(tabs)/more/face-data/create`)}
-          />
-        )}
       </View>
     </View>
   );

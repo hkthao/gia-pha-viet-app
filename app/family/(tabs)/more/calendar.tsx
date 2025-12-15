@@ -52,6 +52,7 @@ const FamilyCalendarScreen: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
+        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t('calendar.title')} titleStyle={{ color: theme.colors.onSurface }} />
         <Appbar.Action
           icon="plus"

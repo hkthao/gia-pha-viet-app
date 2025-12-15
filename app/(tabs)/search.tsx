@@ -1,8 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Appbar, FAB } from 'react-native-paper';
+import { Appbar } from 'react-native-paper';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
+import { SPACING_SMALL } from '@/constants/dimensions';
 import { FamilyListDto, SearchFamiliesQuery, PaginatedList } from '@/types';
 import { familyService } from '@/services'; // Import familyService
 import { useRouter } from 'expo-router'; // Import useRouter
@@ -10,6 +10,7 @@ import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
 import { FamilyItem } from '@/components'; // Import FamilyItem
 import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList for PaginatedSearchListV2
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth
 
 // Extracted styles and render item logic, previously from useFamilySearchList
 const getStyles = () => StyleSheet.create({
@@ -26,6 +27,7 @@ export default function SearchScreen() {
   const router = useRouter(); // Initialize useRouter
   const styles = useMemo(() => getStyles(), []);
   const { t } = useTranslation(); // Initialize useTranslation
+  const { isLoggedIn } = useAuth(); // Get isLoggedIn status
 
 
   // Define the query function for fetching family data
@@ -55,19 +57,15 @@ export default function SearchScreen() {
     []
   );
 
-  const fabStyles = useMemo(() => StyleSheet.create({
-    fab: {
-      position: 'absolute',
-      margin: SPACING_MEDIUM,
-      right: 0,
-      bottom: 0,
-    },
-  }), []);
+
 
   return (
     <View style={styles.safeArea}>
       <Appbar.Header>
         <Appbar.Content title={t('search.title')} />
+        {isLoggedIn && (
+          <Appbar.Action icon="plus" onPress={() => router.push('/family/create')} />
+        )}
       </Appbar.Header>
       <PaginatedSearchListV2<FamilyListDto, SearchFamiliesQuery>
         queryKey={getFamilySearchQueryKey}
@@ -79,11 +77,6 @@ export default function SearchScreen() {
         containerStyle={styles.container}
         // No explicit error prop for V2, it's handled internally
         ListEmptyComponent={<DefaultEmptyList styles={styles} t={t} />} // Pass DefaultEmptyList for V2
-      />
-      <FAB
-        style={fabStyles.fab}
-        icon="plus"
-        onPress={() => router.push('/family/create')}
       />
     </View>
   );

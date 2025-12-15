@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { StyleSheet, View, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, View, FlatList, RefreshControl, ScrollView } from 'react-native';
 import { Appbar, useTheme, Text, IconButton, Divider, ActivityIndicator } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
@@ -69,7 +69,6 @@ const FamilyCalendarScreen: React.FC = () => {
     calendar: {
     },
     eventListContainer: {
-      flex: 1,
       paddingTop: SPACING_SMALL,
     },
     eventListTitle: {
@@ -132,80 +131,84 @@ const FamilyCalendarScreen: React.FC = () => {
         />
       </Appbar.Header>
 
-      <Calendar
-        monthFormat={'MMMM yyyy'}
-        hideArrows={false}
-        onDayPress={(day) => handleDayPress(day.dateString)}
-        onMonthChange={(month) => {
-          // month object has year, month, day properties
-          // We only care about the year for lunar transformations
-          setCurrentViewYear(month.year);
-        }}
-        hideExtraDays={true}
-        dayComponent={renderDay}
-        theme={{
-          backgroundColor: theme.colors.background,
-          calendarBackground: theme.colors.background,
-          textSectionTitleColor: theme.colors.onSurface,
-          selectedDayBackgroundColor: theme.colors.primary,
-          selectedDayTextColor: theme.colors.onPrimary,
-          todayTextColor: theme.colors.primary,
-          dayTextColor: theme.colors.onSurface,
-          textDisabledColor: theme.colors.onSurfaceDisabled,
-          dotColor: theme.colors.primary,
-          selectedDotColor: theme.colors.onPrimary,
-          arrowColor: theme.colors.primary,
-          monthTextColor: theme.colors.onSurface,
-          textDayFontFamily: 'Roboto',
-          textMonthFontFamily: 'Roboto',
-          textDayHeaderFontFamily: 'Roboto',
-          textDayFontSize: 14,
-          textMonthFontSize: 16,
-          textDayHeaderFontSize: 14,
-        }}
-        style={styles.calendar}
-      />
-
-
-      <View style={styles.eventListContainer}>
-
-        <Divider style={{
-          margin: SPACING_MEDIUM,
-        }} />
-
-        <View style={styles.eventListTitleContainer}>
-          <Text variant="titleMedium" style={styles.eventListTitle}>
-            {selectedDate ? `${t('calendar.eventsFor')} ${selectedDate}` : t('calendar.allEvents')}
-          </Text>
-          {selectedDate && (
-            <IconButton
-              icon="filter-remove-outline"
-              onPress={clearFilter}
-              iconColor={theme.colors.onSurfaceVariant}
-              size={20}
-              style={styles.clearFilterButton}
-            />
-          )}
-        </View>
-        <FlatList
-          data={selectedDate ? filteredEvents : allEventsInCalendar} // Use filteredEvents if a date is selected, otherwise show allEventsInCalendar
-          renderItem={renderEventListItem}
-          keyExtractor={(item, index) => item.date + item.name + index}
-          ListEmptyComponent={
-            <Text style={[styles.emptyListText, { color: theme.colors.onSurfaceVariant }]}>
-              {selectedDate ? t('calendar.noEventsForSelectedDate') : t('calendar.noEvents')}
-            </Text>
-          }
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={onRefresh}
-              colors={[theme.colors.primary]} // Customize refresh indicator color
-              tintColor={theme.colors.primary} // For iOS
-            />
-          }
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={[theme.colors.primary]} // Customize refresh indicator color
+            tintColor={theme.colors.primary} // For iOS
+          />
+        }
+      >
+        <Calendar
+          monthFormat={'MMMM yyyy'}
+          hideArrows={false}
+          onDayPress={(day) => handleDayPress(day.dateString)}
+          onMonthChange={(month) => {
+            // month object has year, month, day properties
+            // We only care about the year for lunar transformations
+            setCurrentViewYear(month.year);
+          }}
+          hideExtraDays={true}
+          dayComponent={renderDay}
+          theme={{
+            backgroundColor: theme.colors.background,
+            calendarBackground: theme.colors.background,
+            textSectionTitleColor: theme.colors.onSurface,
+            selectedDayBackgroundColor: theme.colors.primary,
+            selectedDayTextColor: theme.colors.onPrimary,
+            todayTextColor: theme.colors.primary,
+            dayTextColor: theme.colors.onSurface,
+            textDisabledColor: theme.colors.onSurfaceDisabled,
+            dotColor: theme.colors.primary,
+            selectedDotColor: theme.colors.onPrimary,
+            arrowColor: theme.colors.primary,
+            monthTextColor: theme.colors.onSurface,
+            textDayFontFamily: 'Roboto',
+            textMonthFontFamily: 'Roboto',
+            textDayHeaderFontFamily: 'Roboto',
+            textDayFontSize: 14,
+            textMonthFontSize: 16,
+            textDayHeaderFontSize: 14,
+          }}
+          style={styles.calendar}
         />
-      </View>
+
+        <View style={styles.eventListContainer}>
+
+          <Divider style={{
+            margin: SPACING_MEDIUM,
+          }} />
+
+          <View style={styles.eventListTitleContainer}>
+            <Text variant="titleMedium" style={styles.eventListTitle}>
+              {selectedDate ? `${t('calendar.eventsFor')} ${selectedDate}` : t('calendar.allEvents')}
+            </Text>
+            {selectedDate && (
+              <IconButton
+                icon="filter-remove-outline"
+                onPress={clearFilter}
+                iconColor={theme.colors.onSurfaceVariant}
+                size={20}
+                style={styles.clearFilterButton}
+              />
+            )}
+          </View>
+          <FlatList
+            data={selectedDate ? filteredEvents : allEventsInCalendar} // Use filteredEvents if a date is selected, otherwise show allEventsInCalendar
+            renderItem={renderEventListItem}
+            keyExtractor={(item, index) => item.date + item.name + index}
+            ListEmptyComponent={
+              <Text style={[styles.emptyListText, { color: theme.colors.onSurfaceVariant }]}>
+                {selectedDate ? t('calendar.noEventsForSelectedDate') : t('calendar.noEvents')}
+              </Text>
+            }
+            scrollEnabled={false}
+          />
+        </View>
+      </ScrollView>
 
     </View>
   );

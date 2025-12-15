@@ -37,7 +37,7 @@ const getStyles = (theme: MD3Theme) =>
     scrollContent: {
       padding: SPACING_MEDIUM,
     },
-    container:{
+    container: {
       marginBottom: SPACING_EXTRA_LARGE,
     },
     input: {
@@ -100,9 +100,9 @@ const getStyles = (theme: MD3Theme) =>
       padding: SPACING_SMALL,
     },
     colorChip: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 32,
+      height: 32,
+      borderRadius: "50%",
       margin: SPACING_SMALL / 2,
       justifyContent: 'center',
       alignItems: 'center',
@@ -226,27 +226,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               left={<TextInput.Icon icon="file-document-outline" />}
             />)}
         />
-        {errors.description && <Text style={styles.errorText}>{t(errors.description.message!, { fieldName: t('eventForm.description') })}</Text>}
-        <Controller
-          control={control}
-          name="description"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label={t('eventForm.description')}
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              mode="outlined"
-              multiline
-              numberOfLines={3}
-              style={styles.input}
-              theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-              error={!!errors.description}
-              testID="eventDescriptionInput"
-              left={<TextInput.Icon icon="file-document-outline" />}
-            />)}
-        />
-        {errors.description && <Text style={styles.errorText}>{t(errors.description.message!, { fieldName: t('eventForm.description') })}</Text>}
+
 
         {/* Địa điểm */}
         <Controller
@@ -435,21 +415,21 @@ export const EventForm: React.FC<EventFormProps> = ({
           )}
         />
 
+        <Divider style={{marginBottom: SPACING_MEDIUM}} />
+
         {/* Màu hiển thị */}
-        <View>
-          <View style={styles.colorPickerContainer}>
-            {BASIC_COLORS.map((colorHex) => (
-              <TouchableOpacity
-                key={colorHex}
-                style={[
-                  styles.colorChip,
-                  { backgroundColor: colorHex },
-                  watch('color') === colorHex && styles.selectedColorChip,
-                ]}
-                onPress={() => setValue('color', colorHex, { shouldValidate: true })}
-              />
-            ))}
-          </View>
+        <View style={styles.colorPickerContainer}>
+          {BASIC_COLORS.map((colorHex) => (
+            <TouchableOpacity
+              key={colorHex}
+              style={[
+                styles.colorChip,
+                { backgroundColor: colorHex },
+                watch('color') === colorHex && styles.selectedColorChip,
+              ]}
+              onPress={() => setValue('color', colorHex, { shouldValidate: true })}
+            />
+          ))}
         </View>
         {errors.color && <Text style={styles.errorText}>{t(errors.color.message!, { fieldName: t('eventForm.color') })}</Text>}
 

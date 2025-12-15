@@ -57,6 +57,7 @@
   "eventDetail.title": "Event Details",
   "eventDetail.auditableInfo": "Auditable Information",
   "eventForm.eventName": "Event Name",
+  "eventForm.description": "Description",
   "eventForm.location": "Location",
   "eventForm.eventType": "Event Type",
   "eventForm.calendarType": "Calendar Type",
@@ -452,7 +453,7 @@
   "validation.invalidUuid": "Invalid ID.",
   "validation.invalidPhone": "Invalid phone number.",
   "validation.invalidEmail": "Invalid email address.",
-  "validation.invalidNumber": "{{fieldName}} must be a valid number."
+  "validation.invalidNumber": "{{fieldName}} must be a valid number.",
   "validation.min": "{{fieldName}} must be at least {{min}}.",
   "validation.endDateBeforeStartDate": "End date cannot be before start date.",
   "memberForm.errors.noMemberId": "No Member ID.",

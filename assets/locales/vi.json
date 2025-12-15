@@ -62,6 +62,7 @@
   "eventDetail.title": "Chi tiết sự kiện",
   "eventDetail.auditableInfo": "Thông tin kiểm toán",
   "eventForm.eventName": "Tên sự kiện",
+  "eventForm.description": "Mô tả",
   "eventForm.location": "Địa điểm",
   "eventForm.eventType": "Loại sự kiện",
   "eventForm.calendarType": "Loại lịch",

@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import {
   TextInput,
   Button,
@@ -218,10 +218,14 @@ export const EventForm: React.FC<EventFormProps> = ({
           <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
             <View style={styles.radioGroup}>
               {eventTypeOptions.map((option) => (
-                <View key={option.value} style={styles.radioItem}>
-                  <RadioButton value={option.value} />
+                <TouchableOpacity
+                  key={option.value}
+                  onPress={() => onChange(parseInt(option.value, 10))}
+                  style={styles.radioItem}
+                >
+                  <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
                   <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
-                </View>
+                </TouchableOpacity>
               ))}
             </View>
           </RadioButton.Group>

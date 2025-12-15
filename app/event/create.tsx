@@ -16,7 +16,7 @@ export default function CreateEventScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const initialValues: Partial<EventFormData> = {
-    startDate: typeof initialDateParam === 'string' ? new Date(initialDateParam) : new Date(),
+    solarDate: typeof initialDateParam === 'string' ? new Date(initialDateParam) : new Date(),
   };
 
   const handleCreateEvent = useCallback(async (data: EventFormData) => {

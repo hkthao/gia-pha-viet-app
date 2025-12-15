@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { eventService } from '@/services';
 import { useTranslation } from 'react-i18next';
 import { EventDto } from '@/types';
-import { EventFormData } from '@/utils/validation/eventValidationSchema';
+import { EventFormData, EventFormCalendarType, EventFormRepeatRule } from '@/utils/validation/eventValidationSchema';
 
 export const useEventDetails = (eventId: string | undefined) => {
   const { t } = useTranslation();
@@ -28,13 +28,14 @@ export const useEventDetails = (eventId: string | undefined) => {
     select: (data): EventFormData => ({
       // Map EventDto to EventFormData
       name: data.name || '',
+      code: '', // Assuming EventDto doesn't have code, defaulting for form
+      color: '', // Assuming EventDto doesn't have color, defaulting for form
       description: data.description || '',
-      startDate: new Date(data.startDate),
-      endDate: data.endDate ? new Date(data.endDate) : undefined,
+      solarDate: data.startDate ? new Date(data.startDate) : undefined, // Renamed from startDate
       location: data.location || '',
       type: data.type,
-      repeatAnnually: false, // Assuming this is not stored in EventDto or needs to be derived
-      isLunarDate: false, // Assuming this is not stored in EventDto or needs to be derived
+      repeatRule: EventFormRepeatRule.NONE, // Default for now, or derive from EventDto if possible
+      calendarType: EventFormCalendarType.SOLAR, // Default for now, or derive from EventDto if possible
       lunarDay: undefined,
       lunarMonth: undefined,
       isLeapMonth: false,

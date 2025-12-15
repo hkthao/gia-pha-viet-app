@@ -86,9 +86,6 @@ export default function EventDetailsScreen() {
       borderRadius: theme.roundness,
     },
     cardContent: {
-      flexDirection: 'column',
-      alignItems: 'center',
-      paddingVertical: SPACING_LARGE,
     },
     avatar: {
       marginBottom: SPACING_MEDIUM,
@@ -124,8 +121,6 @@ export default function EventDetailsScreen() {
       backgroundColor: 'transparent',
     },
     deleteButton: {
-      marginTop: SPACING_SMALL,
-      marginBottom: SPACING_LARGE,
       borderRadius: theme.roundness,
     },
     deleteButtonLabel: {
@@ -144,9 +139,6 @@ export default function EventDetailsScreen() {
     },
     accordionTitle: {
       fontWeight: 'bold',
-    },
-    accordionContentItem: {
-      paddingLeft: SPACING_LARGE,
     },
   }), [theme]);
 
@@ -204,91 +196,56 @@ export default function EventDetailsScreen() {
       </Appbar.Header>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={styles.card}>
-          <Card.Content style={styles.cardContent}>
-            <Avatar.Icon icon={event.type !== undefined ? eventTypeIconMap[event.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary} style={styles.avatar} />
-            <Text variant="headlineSmall" style={styles.titleText}>{event.name || t('common.not_available')}</Text>
-            {event.description && <Text variant="bodyMedium" >{event.description}</Text>}
-          </Card.Content>
+          <Card.Content >
+            <View style={styles.detailsContainer}>
+              <Avatar.Icon icon={event.type !== undefined ? eventTypeIconMap[event.type] : 'calendar-month'} size={80} color={theme.colors.onPrimary} style={styles.avatar} />
+              <Text variant="headlineSmall" style={styles.titleText}>{event.name || t('common.not_available')}</Text>
+              {event.description && <Text variant="bodyMedium" >{event.description}</Text>}
+            </View>
 
-          <List.Section title={t('eventDetail.details')}>
-            {event && event.type !== undefined && (
+            <List.Section title={t('eventDetail.details')}>
               <List.Item
                 title={t('eventDetail.eventType')}
                 description={eventTypeStringMap[event.type] || t('common.not_available')}
                 left={() => <List.Icon icon="tag" />}
               />
-            )}
-            <List.Item
-              title={t('eventDetail.startDate')}
-              description={formattedStartDate}
-              left={() => <List.Icon icon="calendar-start" />}
-            />
-            {event.endDate && (
+              <Divider />
+              <List.Item
+                title={t('eventDetail.startDate')}
+                description={formattedStartDate}
+                left={() => <List.Icon icon="calendar-start" />}
+              />
+              <Divider />
               <List.Item
                 title={t('eventDetail.endDate')}
                 description={formattedEndDate}
                 left={() => <List.Icon icon="calendar-end" />}
               />
-            )}
-            {event.location && (
+              <Divider />
               <List.Item
                 title={t('eventDetail.location')}
                 description={event.location}
                 left={() => <List.Icon icon="map-marker" />}
               />
-            )}
-          </List.Section>
-
-          {/* Related Members */}
-          {event.relatedMembers && event.relatedMembers.length > 0 && (
-            <List.Section title={t('eventDetail.relatedMembers')}>
-              {event.relatedMembers.map((member: MemberListDto) => (
-                <List.Item
-                  key={member.id}
-                  title={member.fullName}
-                  left={() => <Avatar.Image size={40} source={getAvatarSource(member.avatarUrl)} />}
-                  onPress={() => router.push(`/member/${member.id}`)}
-                />
-              ))}
             </List.Section>
-          )}
 
-          {/* Auditable Information */}
-          <List.Accordion
-            title={t('eventDetail.auditableInfo')}
-            left={() => <List.Icon icon="information-outline" />}
-            style={styles.accordion}
-            titleStyle={styles.accordionTitle}
-          >
-            {event.created && (
-              <List.Item
-                title={t('common.created')}
-                description={new Date(event.created).toLocaleString()}
-                style={styles.accordionContentItem}
-              />
+            {/* Related Members */}
+            {event.relatedMembers && event.relatedMembers.length > 0 && (
+              <List.Section title={t('eventDetail.relatedMembers')}>
+                {event.relatedMembers.map((member: MemberListDto) => (
+                  <>
+                    <List.Item
+                      key={member.id}
+                      title={member.fullName}
+                      left={() => <Avatar.Image size={40} source={getAvatarSource(member.avatarUrl)} />}
+                      onPress={() => router.push(`/member/${member.id}`)}
+                    />
+                  </>
+                ))}
+              </List.Section>
             )}
-            {event.createdBy && (
-              <List.Item
-                title={t('common.createdBy')}
-                description={event.createdBy}
-                style={styles.accordionContentItem}
-              />
-            )}
-            {event.lastModified && (
-              <List.Item
-                title={t('common.lastModified')}
-                description={new Date(event.lastModified).toLocaleString()}
-                style={styles.accordionContentItem}
-              />
-            )}
-            {event.lastModifiedBy && (
-              <List.Item
-                title={t('common.lastModifiedBy')}
-                description={event.lastModifiedBy}
-                style={styles.accordionContentItem}
-              />
-            )}
-          </List.Accordion>
+
+          </Card.Content>
         </Card>
 
         {(canManageFamily || isAdmin) && (

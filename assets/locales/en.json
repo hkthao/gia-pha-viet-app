@@ -43,6 +43,7 @@
   "donate.buyMeACoffee": "Buy Me A Coffee",
   "donate.momo": "MoMo",
   "eventDetail.date": "Date",
+  "eventDetail.details": "Details",
   "eventDetail.description": "Description",
   "eventDetail.endDate": "End Date",
   "eventDetail.errors.dataNotAvailable": "Event data not available",

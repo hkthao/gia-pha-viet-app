@@ -27,16 +27,7 @@ export default function EventStackLayout() {
       <Stack.Screen
         name="[id]"
         options={{
-          headerShown: true, // Show header for this screen
-          header: ({ navigation, route }) => (
-            <Appbar.Header style={{ backgroundColor: theme.colors.surface }}>
-              <Appbar.BackAction onPress={() => navigation.goBack()} color={theme.colors.onSurface} />
-              <Appbar.Content title={(route.params as { name?: string })?.name || t('eventDetail.title')} titleStyle={{ color: theme.colors.onSurface }} />
-              {(route.params as { id?: string })?.id && ( // Check if id exists to show edit button
-                <Appbar.Action icon="pencil" onPress={() => router.push(`/event/${(route.params as { id: string })?.id}/edit`)} color={theme.colors.onSurface} />
-              )}
-            </Appbar.Header>
-          ),
+          headerShown: false, // Hide header for this screen
         }}
       />
       <Stack.Screen name="[id]/edit" options={{ title: t('eventForm.editTitle') }} />

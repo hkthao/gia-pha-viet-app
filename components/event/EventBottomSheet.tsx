@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react'; // Add useMemo
+import React, { useMemo } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Portal, Modal, Text, Button, Divider, useTheme } from 'react-native-paper';
+import { EventType } from '@/types'; // Import EventType
 
 interface EventBottomSheetProps {
   visible: boolean;
@@ -8,9 +9,10 @@ interface EventBottomSheetProps {
   solarDate: string; // YYYY-MM-DD
   lunarText?: string; // "12/8"
   events?: {
-    type: string;
+    type: EventType; // Changed from string to EventType
     color?: string;
     name: string; // Tên sự kiện
+    id: string; // Add event ID from the hook
   }[];
   onAddEvent?: (date: string) => void;
 }

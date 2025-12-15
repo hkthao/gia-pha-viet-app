@@ -2,17 +2,17 @@ import { useQuery } from '@tanstack/react-query';
 import { eventService } from '@/services';
 import { useTranslation } from 'react-i18next';
 import { EventDto } from '@/types';
-import { EventFormData, EventFormCalendarType, EventFormRepeatRule } from '@/utils/validation/eventValidationSchema';
+// Removed unused EventFormData imports
 
 export const useEventDetails = (eventId: string | undefined) => {
   const { t } = useTranslation();
 
   const {
-    data: event,
+    data: event, // 'event' will now be of type EventDto directly
     isLoading,
     isError,
     error,
-  } = useQuery<EventDto, Error, EventFormData>({
+  } = useQuery<EventDto, Error>({ // No TData generic for EventFormData
     queryKey: ['event', eventId],
     queryFn: async () => {
       if (!eventId) {
@@ -25,21 +25,7 @@ export const useEventDetails = (eventId: string | undefined) => {
       throw new Error(result.error?.message || t('eventForm.errors.fetchError'));
     },
     enabled: !!eventId, // Only run query if eventId is available
-    select: (data): EventFormData => ({
-      // Map EventDto to EventFormData
-      name: data.name || '',
-      code: '', // Assuming EventDto doesn't have code, defaulting for form
-      color: '', // Assuming EventDto doesn't have color, defaulting for form
-      description: data.description || '',
-      solarDate: data.startDate ? new Date(data.startDate) : undefined, // Renamed from startDate
-      location: data.location || '',
-      type: data.type,
-      repeatRule: EventFormRepeatRule.NONE, // Default for now, or derive from EventDto if possible
-      calendarType: EventFormCalendarType.SOLAR, // Default for now, or derive from EventDto if possible
-      lunarDay: undefined,
-      lunarMonth: undefined,
-      isLeapMonth: false,
-    }),
+    // Removed select function, as we want to return EventDto directly
   });
 
   return { event, isLoading, isError, error };

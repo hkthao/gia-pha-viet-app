@@ -1,7 +1,7 @@
 // apps/mobile/family_tree_rn/services/event/api.event.service.ts
 
 import { ApiClientMethods } from '@/types';
-import { Result, ApiError, EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery } from '@/types';
+import { Result, ApiError, EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery, CreateEventRequestDto, UpdateEventRequestDto } from '@/types';
 import { IEventService } from '@/services/event/event.service.interface';
 
 export class ApiEventService implements IEventService {
@@ -35,7 +35,7 @@ export class ApiEventService implements IEventService {
     }
   }
 
-  async create(entity: Partial<EventDto>): Promise<Result<EventDto>> {
+  async create(entity: CreateEventRequestDto): Promise<Result<EventDto>> {
     try {
       const response = await this.api.post<EventDto>('/event', entity);
       return { isSuccess: true, value: response };
@@ -48,7 +48,7 @@ export class ApiEventService implements IEventService {
     }
   }
 
-  async update(id: string, entity: Partial<EventDto>): Promise<Result<EventDto>> {
+  async update(id: string, entity: UpdateEventRequestDto): Promise<Result<EventDto>> {
     try {
       const response = await this.api.put<EventDto>(`/event/${id}`, entity);
       return { isSuccess: true, value: response };

@@ -1,38 +1,26 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { EventForm } from '@/components/event';
 import { EventFormData } from '@/utils/validation/eventValidationSchema';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar'; // Assuming useSnackbar exists
+import { useCreateEvent } from '@/hooks/event/useCreateEvent';
 
 export default function CreateEventScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
   const { date: initialDateParam } = useLocalSearchParams();
-  const { showSnackbar } = useGlobalSnackbar();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutate: createEvent, isPending: isSubmitting } = useCreateEvent();
 
   const initialValues: Partial<EventFormData> = {
     solarDate: typeof initialDateParam === 'string' ? new Date(initialDateParam) : new Date(),
   };
 
   const handleCreateEvent = useCallback(async (data: EventFormData) => {
-    setIsSubmitting(true);
-    console.log('Creating event with data:', data);
-    // Simulate API call
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        showSnackbar(t('eventForm.createSuccess'), 'success');
-        router.back();
-        resolve();
-      }, 1500);
-    }).finally(() => {
-      setIsSubmitting(false);
-    });
-  }, [router, showSnackbar, t]);
+    createEvent(data);
+  }, [createEvent]);
 
   const handleCancel = useCallback(() => {
     router.back();

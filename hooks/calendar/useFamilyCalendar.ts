@@ -27,7 +27,7 @@ interface ProcessedCalendarData {
 interface CalendarSearchEventsQuery extends SearchEventsQuery {
   familyId: string;
 }
-export const useFamilyCalendar = (currentViewYear: number) => {
+export const useFamilyCalendar = (currentViewYear: number, startDate: string, endDate: string) => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { currentFamilyId } = useFamilyStore();
@@ -78,13 +78,17 @@ export const useFamilyCalendar = (currentViewYear: number) => {
   }, []);
   // Use react-query to fetch events for the current family
   const { data: eventsData, isLoading, isError, error, refetch } = useQuery<PaginatedList<EventDto>, Error, EventDto[]>({
-    queryKey: ['familyEvents', currentFamilyId, currentViewYear],
+    queryKey: ['familyEvents', currentFamilyId, currentViewYear, startDate, endDate],
     queryFn: async ({ queryKey }): Promise<PaginatedList<EventDto>> => { // Explicitly define queryFn return type
-      const [_key, familyId, year] = queryKey;
+      const [_key, familyId, year, queryStartDate, queryEndDate] = queryKey;
       if (!familyId) {
         throw new Error(t('calendar.errors.noFamilyId'));
       }
-      const result = await eventService.search({ familyId: familyId } as CalendarSearchEventsQuery);
+      const result = await eventService.search({
+        familyId: familyId,
+        startDate: queryStartDate as string,
+        endDate: queryEndDate as string,
+      } as CalendarSearchEventsQuery);
       if (result.isSuccess && result.value) {
         result.value.items = result.value.items.map(event => {
           // Transform lunar events to solar dates
@@ -99,7 +103,7 @@ export const useFamilyCalendar = (currentViewYear: number) => {
       }
       throw new Error(result.error?.message || t('calendar.errors.fetchEvents'));
     },
-    enabled: !!currentFamilyId,
+    enabled: !!currentFamilyId && !!startDate && !!endDate,
     select: (data) => data.items || [], // Extract items from PaginatedList
   });
   const allEventsInCalendar: EventData[] = useMemo(() => {

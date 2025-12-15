@@ -13,6 +13,10 @@ const FamilyCalendarScreen: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
   const [currentViewYear, setCurrentViewYear] = useState(dayjs().year());
+  const [currentViewMonth, setCurrentViewMonth] = useState(dayjs().month() + 1); // dayjs months are 0-indexed
+
+  const startDate = useMemo(() => dayjs().year(currentViewYear).month(currentViewMonth - 1).startOf('month').format('YYYY-MM-DD'), [currentViewYear, currentViewMonth]);
+  const endDate = useMemo(() => dayjs().year(currentViewYear).month(currentViewMonth - 1).endOf('month').format('YYYY-MM-DD'), [currentViewYear, currentViewMonth]);
 
   const {
     t,
@@ -27,7 +31,7 @@ const FamilyCalendarScreen: React.FC = () => {
     isError, // Destructure isError
     error, // Destructure error
     refetch, // Destructure refetch for pull-to-refresh
-  } = useFamilyCalendar(currentViewYear);
+  } = useFamilyCalendar(currentViewYear, startDate, endDate);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -147,9 +151,8 @@ const FamilyCalendarScreen: React.FC = () => {
           hideArrows={false}
           onDayPress={(day) => handleDayPress(day.dateString)}
           onMonthChange={(month) => {
-            // month object has year, month, day properties
-            // We only care about the year for lunar transformations
             setCurrentViewYear(month.year);
+            setCurrentViewMonth(month.month);
           }}
           hideExtraDays={true}
           dayComponent={renderDay}

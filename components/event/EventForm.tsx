@@ -17,7 +17,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { EventFormData, eventValidationSchema, EventFormCalendarType, EventFormRepeatRule } from '@/utils/validation/eventValidationSchema';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { DateInput, LunarDayInput, LunarMonthInput } from '@/components/common';
+import { DateInput } from '@/components/common';
 import { EventType } from '@/types'; // Assuming EventType is defined here
 import * as yup from 'yup'; // Import yup for schema casting
 
@@ -80,6 +80,17 @@ const getStyles = (theme: MD3Theme) =>
       color: theme.colors.error,
       marginBottom: SPACING_SMALL,
       marginLeft: SPACING_MEDIUM,
+    },
+    lunarInputRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: SPACING_MEDIUM,
+    },
+    lunarInput: {
+      flex: 1,
+    },
+    lunarInputSpacer: {
+      width: SPACING_MEDIUM,
     },
   });
 
@@ -156,26 +167,6 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
-      {/* Tên sự kiện */}
-      <Controller
-        control={control}
-        name="name"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            label={t('eventForm.eventName')}
-            value={value}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            mode="outlined"
-            style={styles.input}
-            theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-            error={!!errors.name}
-            testID="eventNameInput"
-            left={<TextInput.Icon icon="format-title" />}
-          />)}
-      />
-      {errors.name && <Text style={styles.errorText}>{t(errors.name.message!, { fieldName: t('eventForm.eventName') })}</Text>}
-
       {/* Mã sự kiện */}
       <Controller
         control={control}
@@ -196,6 +187,26 @@ export const EventForm: React.FC<EventFormProps> = ({
           />)}
       />
       {errors.code && <Text style={styles.errorText}>{t(errors.code.message!, { fieldName: t('eventForm.eventCode') })}</Text>}
+
+      {/* Tên sự kiện */}
+      <Controller
+        control={control}
+        name="name"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <TextInput
+            label={t('eventForm.eventName')}
+            value={value}
+            onBlur={onBlur}
+            onChangeText={onChange}
+            mode="outlined"
+            style={styles.input}
+            theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+            error={!!errors.name}
+            testID="eventNameInput"
+            left={<TextInput.Icon icon="format-title" />}
+          />)}
+      />
+      {errors.name && <Text style={styles.errorText}>{t(errors.name.message!, { fieldName: t('eventForm.eventName') })}</Text>}
 
       {/* Màu hiển thị */}
       <Controller
@@ -333,36 +344,47 @@ export const EventForm: React.FC<EventFormProps> = ({
       {/* Input cho Âm lịch */}
       {watch('calendarType') === EventFormCalendarType.LUNAR && ( // Conditional on calendarType
         <>
-          <Controller
-            control={control}
-            name="lunarDay"
-            render={({ field: { onChange, value } }) => (
-              <LunarDayInput
-                label={t('eventForm.lunarDay')}
-                value={value}
-                onChange={onChange}
-                error={!!errors.lunarDay}
-                helperText={errors.lunarDay ? t(errors.lunarDay.message!, { fieldName: t('eventForm.lunarDay') }) : undefined}
-              />
-            )}
-          />
+          <View style={styles.lunarInputRow}>
+            <Controller
+              control={control}
+              name="lunarDay"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label={t('eventForm.lunarDay')}
+                  value={value?.toString()} // Convert number to string for TextInput
+                  onBlur={onBlur}
+                  onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
+                  mode="outlined"
+                  keyboardType="numeric"
+                  style={styles.lunarInput}
+                  theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                  error={!!errors.lunarDay}
+                  testID="lunarDayInput"
+                />
+              )}
+            />
+            <View style={styles.lunarInputSpacer} />
+            <Controller
+              control={control}
+              name="lunarMonth"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  label={t('eventForm.lunarMonth')}
+                  value={value?.toString()} // Convert number to string for TextInput
+                  onBlur={onBlur}
+                  onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
+                  mode="outlined"
+                  keyboardType="numeric"
+                  style={styles.lunarInput}
+                  theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                  error={!!errors.lunarMonth}
+                  testID="lunarMonthInput"
+                />
+              )}
+            />
+          </View>
           {errors.lunarDay && <Text style={styles.errorText}>{t(errors.lunarDay.message!, { fieldName: t('eventForm.lunarDay') })}</Text>}
-          <Divider style={{ marginVertical: SPACING_MEDIUM }} />
-
-          <Controller
-            control={control}
-            name="lunarMonth"
-            render={({ field: { onChange, value } }) => (
-              <LunarMonthInput
-                label={t('eventForm.lunarMonth')}
-                value={value}
-                onChange={onChange}
-                error={!!errors.lunarMonth}
-                helperText={errors.lunarMonth ? t(errors.lunarMonth.message!, { fieldName: t('eventForm.lunarMonth') }) : undefined}
-              />
-            )}
-          />
-          <Divider style={{ marginVertical: SPACING_MEDIUM }} />
+          {errors.lunarMonth && <Text style={styles.errorText}>{t(errors.lunarMonth.message!, { fieldName: t('eventForm.lunarMonth') })}</Text>}
 
           <Controller
             control={control}
@@ -385,95 +407,28 @@ export const EventForm: React.FC<EventFormProps> = ({
           />          </>
       )}
 
-      {/* Lặp hàng năm */}
-      <List.Section title={t('eventForm.repeatRuleTitle')} style={{ marginTop: SPACING_MEDIUM }}>
-        <Controller
-          control={control}
-          name="repeatRule"
-          render={({ field: { onChange, value } }) => (
-            <List.Item
-              title={t('eventForm.repeatAnnually')}
-              description={value === EventFormRepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
-              left={() => <List.Icon icon="repeat" />}
-              right={() => (
-                <Switch
-                  value={value === EventFormRepeatRule.YEARLY}
-                  onValueChange={(newValue) => onChange(newValue ? EventFormRepeatRule.YEARLY : EventFormRepeatRule.NONE)}
-                />
-              )}
-              onPress={() => onChange(value === EventFormRepeatRule.YEARLY ? EventFormRepeatRule.NONE : EventFormRepeatRule.YEARLY)}
-              style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
-            />
-          )}
-        />
-      </List.Section>
-      <Divider style={{ marginVertical: SPACING_MEDIUM }} />
+      <Divider />
 
-      {/* Preview */}
-      <View style={styles.previewContainer}>
-        <Text style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>{t('eventForm.preview')}</Text>
-        <List.Section>
+      {/* Lặp hàng năm */}
+      <Controller
+        control={control}
+        name="repeatRule"
+        render={({ field: { onChange, value } }) => (
           <List.Item
-            title={name || t('eventForm.noName')}
-            left={() => <List.Icon icon={eventTypeIconMap[type] || 'information-outline'} />}
-            style={styles.previewItem}
-            titleStyle={{ color: theme.colors.onSurface }}
+            title={t('eventForm.repeatAnnually')}
+            description={value === EventFormRepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
+            left={() => <List.Icon icon="repeat" />}
+            right={() => (
+              <Switch
+                value={value === EventFormRepeatRule.YEARLY}
+                onValueChange={(newValue) => onChange(newValue ? EventFormRepeatRule.YEARLY : EventFormRepeatRule.NONE)}
+              />
+            )}
+            onPress={() => onChange(value === EventFormRepeatRule.YEARLY ? EventFormRepeatRule.NONE : EventFormRepeatRule.YEARLY)}
+            style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
           />
-          {code && (
-            <List.Item
-              title={code}
-              left={() => <List.Icon icon="identifier" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          )}
-          {color && (
-            <List.Item
-              title={color}
-              left={() => <List.Icon icon="palette" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          )}
-          {description && (
-            <List.Item
-              title={description}
-              left={() => <List.Icon icon="text" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          )}
-          {location && (
-            <List.Item
-              title={location}
-              left={() => <List.Icon icon="map-marker" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          )}
-          {isLunarDate ? (
-            <List.Item
-              title={`${lunarDay || '--'}/${lunarMonth || '--'} ${isLeapMonth ? `(${t('eventForm.isLeapMonth')})` : ''} (${t('eventForm.lunarCalendar')})`}
-              left={() => <List.Icon icon="moon-waning-gibbous" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          ) : (
-            <List.Item
-              title={`${solarDate ? solarDate.toLocaleDateString() : '--'} (${t('eventForm.solarCalendar')})`}
-              left={() => <List.Icon icon="calendar" />}
-              style={styles.previewItem}
-              titleStyle={{ color: theme.colors.onSurface }}
-            />
-          )}
-          <List.Item
-            title={repeatRule === EventFormRepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
-            left={() => <List.Icon icon={repeatRule === EventFormRepeatRule.YEARLY ? 'repeat' : 'repeat-off'} />}
-            style={styles.previewItem}
-            titleStyle={{ color: theme.colors.onSurface }}
-          />
-        </List.Section>
-      </View>
+        )}
+      />
 
       <Button
         mode="contained"

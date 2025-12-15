@@ -36,9 +36,7 @@ export const useFamilyCalendar = () => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [showBottomSheet, setShowBottomSheet] = useState<boolean>(false);
-  const [selectedDayEvents, setSelectedDayEvents] = useState<EventData[]>([]);
-  const [selectedDayLunarText, setSelectedDayLunarText] = useState<string | undefined>(undefined);
+  const [filteredEvents, setFilteredEvents] = useState<EventData[]>([]);
 
   // Configure react-native-calendars locale based on i18n language
   useMemo(() => {
@@ -76,7 +74,7 @@ export const useFamilyCalendar = () => {
   }, [i18n.language]);
 
   // Aggregate all events from mockData
-  const allEvents: EventData[] = useMemo(() => {
+  const allEventsInCalendar: EventData[] = useMemo(() => {
     const eventsList: EventData[] = [];
     Object.keys(mockData).forEach(dateString => {
       const dayData = mockData[dateString];
@@ -94,27 +92,27 @@ export const useFamilyCalendar = () => {
 
   const handleDayPress = useCallback((dateString: string) => {
     setSelectedDate(dateString);
-    setSelectedDayEvents(allEvents.filter(event => event.date === dateString));
-    setSelectedDayLunarText(mockData[dateString]?.lunarText);
-    setShowBottomSheet(true);
-  }, [allEvents]);
+    setFilteredEvents(allEventsInCalendar.filter(event => event.date === dateString));
+  }, [allEventsInCalendar]);
 
   const handleAddEvent = useCallback((date: string) => {
-    setShowBottomSheet(false);
     router.push(`/event/create?date=${date}`);
   }, [router]);
+
+  const clearFilter = useCallback(() => {
+    setSelectedDate('');
+    setFilteredEvents([]); // Clear filtered events
+  }, []);
 
   return {
     t,
     i18n,
     selectedDate,
-    showBottomSheet,
-    setShowBottomSheet,
-    selectedDayEvents,
-    selectedDayLunarText,
-    allEvents,
+    allEventsInCalendar,
+    filteredEvents,
     mockData, // Keep mockData available for renderDay
     handleDayPress,
     handleAddEvent,
+    clearFilter,
   };
 };

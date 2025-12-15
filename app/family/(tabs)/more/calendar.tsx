@@ -1,28 +1,27 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
-import { Appbar, useTheme, Text } from 'react-native-paper';
+import { Appbar, useTheme, Text, IconButton, Divider } from 'react-native-paper';
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day';
-import { DayCell, EventBottomSheet, EventListItem } from '@/components/event';
+import { DayCell, EventListItem } from '@/components/event';
 import { useRouter } from 'expo-router';
 import { useFamilyCalendar } from '@/hooks/calendar/useFamilyCalendar'; // Import the new hook
+import { SPACING_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 
 const FamilyCalendarScreen: React.FC = () => {
   const theme = useTheme();
   const router = useRouter();
-  
+
   const {
     t,
     i18n,
     selectedDate,
-    showBottomSheet,
-    setShowBottomSheet,
-    selectedDayEvents,
-    selectedDayLunarText,
-    allEvents,
+    filteredEvents, // Use filteredEvents
+    allEventsInCalendar, // Use allEventsInCalendar for overall events for rendering in the FlatList
     mockData,
     handleDayPress,
     handleAddEvent,
+    clearFilter, // Import clearFilter
   } = useFamilyCalendar();
 
   const renderDay = (props: DayProps & { date?: DateData }) => {
@@ -90,30 +89,39 @@ const FamilyCalendarScreen: React.FC = () => {
         style={styles.calendar}
       />
 
+
       <View style={styles.eventListContainer}>
-        <Text variant="titleMedium" style={styles.eventListTitle}>
-          {t('calendar.allEvents')}
-        </Text>
+
+        <Divider style={{
+          margin: SPACING_MEDIUM,
+        }} />
+
+        <View style={styles.eventListTitleContainer}>
+          <Text variant="titleMedium" style={styles.eventListTitle}>
+            {selectedDate ? `${t('calendar.eventsFor')} ${selectedDate}` : t('calendar.allEvents')}
+          </Text>
+          {selectedDate && (
+            <IconButton
+              icon="filter-remove-outline"
+              onPress={clearFilter}
+              iconColor={theme.colors.onSurfaceVariant}
+              size={20}
+              style={styles.clearFilterButton}
+            />
+          )}
+        </View>
         <FlatList
-          data={allEvents}
+          data={selectedDate ? filteredEvents : allEventsInCalendar} // Use filteredEvents if a date is selected, otherwise show allEventsInCalendar
           renderItem={renderEventListItem}
           keyExtractor={(item, index) => item.date + item.name + index}
           ListEmptyComponent={
             <Text style={[styles.emptyListText, { color: theme.colors.onSurfaceVariant }]}>
-              {t('calendar.noEvents')}
+              {selectedDate ? t('calendar.noEventsForSelectedDate') : t('calendar.noEvents')}
             </Text>
           }
         />
       </View>
 
-      <EventBottomSheet
-        visible={showBottomSheet}
-        onDismiss={() => setShowBottomSheet(false)}
-        solarDate={selectedDate}
-        lunarText={selectedDayLunarText}
-        events={selectedDayEvents}
-        onAddEvent={handleAddEvent}
-      />
     </View>
   );
 };
@@ -123,22 +131,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   calendar: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   eventListContainer: {
     flex: 1,
-    paddingTop: 8,
+    paddingTop: SPACING_SMALL,
   },
   eventListTitle: {
-    paddingHorizontal: 16,
-    marginBottom: 8,
     fontWeight: 'bold',
+    paddingHorizontal: SPACING_SMALL,
+  },
+  eventListTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING_MEDIUM,
+    marginBottom: SPACING_MEDIUM,
+  },
+  clearFilterButton: {
+    margin: -8, // Adjust as needed for alignment
   },
   emptyListText: {
-    paddingHorizontal: 16,
+    paddingHorizontal: SPACING_MEDIUM,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: SPACING_LARGE,
   },
 });
 

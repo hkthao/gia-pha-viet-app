@@ -33,8 +33,7 @@ export const eventValidationSchema = yup.object().shape({
     .min(3, 'validation.minLength'),
   code: yup // New field validation
     .string()
-    .required('validation.required')
-    .min(3, 'validation.minLength'),
+    .optional(),
   color: yup.string().optional(), // New field validation
   description: yup.string().optional(),
   solarDate: yup // Renamed from startDate

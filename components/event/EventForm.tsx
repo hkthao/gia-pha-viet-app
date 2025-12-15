@@ -164,8 +164,8 @@ export const EventForm: React.FC<EventFormProps> = ({
             theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
             error={!!errors.name}
             testID="eventNameInput"
-          />
-        )}
+            left={<TextInput.Icon icon="format-title" />}
+          />)}
       />
       {errors.name && <Text style={styles.errorText}>{t(errors.name.message!, { fieldName: t('eventForm.eventName') })}</Text>}
 
@@ -186,8 +186,8 @@ export const EventForm: React.FC<EventFormProps> = ({
             theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
             error={!!errors.description}
             testID="eventDescriptionInput"
-          />
-        )}
+            left={<TextInput.Icon icon="file-document-outline" />}
+          />)}
       />
       {errors.description && <Text style={styles.errorText}>{t(errors.description.message!, { fieldName: t('eventForm.description') })}</Text>}
 
@@ -206,8 +206,8 @@ export const EventForm: React.FC<EventFormProps> = ({
             theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
             error={!!errors.location}
             testID="eventLocationInput"
-          />
-        )}
+            left={<TextInput.Icon icon="map-marker" />}
+          />)}
       />
       {errors.location && <Text style={styles.errorText}>{t(errors.location.message!, { fieldName: t('eventForm.location') })}</Text>}
 
@@ -221,9 +221,8 @@ export const EventForm: React.FC<EventFormProps> = ({
             value={value.toString()} // SegmentedButtons expects string value
             onValueChange={(val) => onChange(parseInt(val, 10))} // Convert back to number
             buttons={eventTypeOptions}
-            style={styles.segmentedButtons}
-          />
-        )}
+            style={[styles.segmentedButtons, { borderRadius: theme.roundness }]}
+          />)}
       />
       {errors.type && <Text style={styles.errorText}>{t(errors.type.message!, { fieldName: t('eventForm.eventType') })}</Text>}
 
@@ -239,12 +238,18 @@ export const EventForm: React.FC<EventFormProps> = ({
             value={value ? 'lunar' : 'solar'}
             onValueChange={(val) => onChange(val === 'lunar')}
             buttons={[
-              { label: t('eventForm.solarCalendar'), value: 'solar' },
-              { label: t('eventForm.lunarCalendar'), value: 'lunar' },
+              {
+                label: t('eventForm.solarCalendar'), value: 'solar', style: {
+                  borderRadius: theme.roundness
+                }
+              },
+              {
+                label: t('eventForm.lunarCalendar'), value: 'lunar', style: {
+                  borderRadius: theme.roundness
+                }
+              },
             ]}
-            style={styles.segmentedButtons}
-          />
-        )}
+          />)}
       />
 
       {/* Input cho Dương lịch */}

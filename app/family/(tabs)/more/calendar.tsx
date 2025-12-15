@@ -107,14 +107,6 @@ const FamilyCalendarScreen: React.FC = () => {
     },
   }), [theme]);
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator animating size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
-
   if (isError) {
     return (
       <View style={styles.errorContainer}>

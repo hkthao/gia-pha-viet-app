@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // Added useMemo
 import { View, StyleSheet, Platform, ScrollView } from 'react-native';
 import { Appbar, useTheme, Text, RadioButton, TextInput, Button, Checkbox, Divider } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -64,6 +64,64 @@ const EventFormScreen: React.FC = () => {
       );
     }
   };
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    scrollContent: {
+      padding: 20,
+    },
+    input: {
+      marginBottom: 15,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginBottom: 10,
+      marginTop: 10,
+    },
+    radioGroup: {
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      marginBottom: 15,
+    },
+    radioItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginRight: 20,
+    },
+    divider: {
+      marginVertical: 20,
+    },
+    datePickerButton: {
+      marginBottom: 15,
+      justifyContent: 'center',
+      paddingVertical: 8,
+    },
+    lunarInputGroup: {
+      flexDirection: 'row',
+      marginBottom: 15,
+    },
+    lunarInput: {
+      flex: 1,
+    },
+    checkboxItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    previewContainer: {
+      borderWidth: 1,
+      borderRadius: theme.roundness,
+      padding: 15,
+      marginBottom: 20,
+      // borderColor will be set by theme
+    },
+    saveButton: {
+      marginTop: 20,
+    },
+  }), [theme]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -180,63 +238,5 @@ const EventFormScreen: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: 20,
-  },
-  input: {
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginBottom: 15,
-  },
-  radioItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 20,
-  },
-  divider: {
-    marginVertical: 20,
-  },
-  datePickerButton: {
-    marginBottom: 15,
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  lunarInputGroup: {
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  lunarInput: {
-    flex: 1,
-  },
-  checkboxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  previewContainer: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
-    // borderColor will be set by theme
-  },
-  saveButton: {
-    marginTop: 20,
-  },
-});
 
 export default EventFormScreen;

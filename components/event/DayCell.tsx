@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react'; // Import useMemo
 import { View, StyleSheet } from 'react-native';
 import { Surface, Text, useTheme, TouchableRipple } from 'react-native-paper';
 
@@ -23,6 +24,54 @@ const DayCell: React.FC<DayCellProps> = ({
 }) => {
   const theme = useTheme();
   const hasEvents = events && events.length > 0;
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      minWidth: 50, // Đảm bảo diện tích chạm tối thiểu
+      minHeight: 50, // Đảm bảo diện tích chạm tối thiểu
+      aspectRatio: 1, // Hình vuông
+      borderRadius: theme.roundness,
+      padding: 1,
+      elevation: 1, // Shadow cho Android
+      shadowOffset: { width: 0, height: 1 }, // Shadow cho iOS
+      shadowOpacity: 0.2,
+      shadowRadius: 1.41,
+    },
+    ripple: {
+      flex: 1, // Đảm bảo ripple lấp đầy Surface
+      borderRadius: theme.roundness, // Khớp với border radius của Surface
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center', // Canh giữa theo chiều dọc
+      alignItems: 'center',    // Canh giữa theo chiều ngang
+      padding: 4,
+    },
+    solarDay: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    lunarText: {
+      position: 'absolute',
+      fontSize: 10,
+      opacity: 0.7,
+      bottom: 2,
+      width: "100%",
+      textAlign:"center"
+    },
+    eventIndicatorContainer: {
+      position: 'absolute', // Position absolutely within the content
+      top: 2, // Small offset from bottom
+      right: 2, // Small offset from right
+      flexDirection: 'row', // Hiển thị các chấm sự kiện theo chiều ngang
+    },
+    eventDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      marginHorizontal: 1, // Khoảng cách giữa các chấm
+    },
+  }), [theme]); // Depend on theme
 
   // Lấy màu sắc từ theme hoặc sử dụng màu mặc định
   const surfaceBackgroundColor = isToday
@@ -78,52 +127,5 @@ const DayCell: React.FC<DayCellProps> = ({
     </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    minWidth: 44, // Đảm bảo diện tích chạm tối thiểu
-    minHeight: 44, // Đảm bảo diện tích chạm tối thiểu
-    aspectRatio: 1, // Hình vuông
-    // justify-content và align-items được chuyển vào content
-    // padding và margin được giữ ở container
-    // margin: 1, // Bỏ margin ở đây, để Calendar quản lý khoảng cách
-    borderRadius: 4,
-    elevation: 1, // Shadow cho Android
-    shadowOffset: { width: 0, height: 1 }, // Shadow cho iOS
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-  },
-  ripple: {
-    flex: 1, // Đảm bảo ripple lấp đầy Surface
-    borderRadius: 4, // Khớp với border radius của Surface
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center', // Canh giữa theo chiều dọc
-    alignItems: 'center',    // Canh giữa theo chiều ngang
-    padding: 4,
-  },
-  solarDay: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  lunarText: {
-    fontSize: 10,
-    opacity: 0.7,
-  },
-  eventIndicatorContainer: {
-    position: 'absolute', // Position absolutely within the content
-    bottom: 2, // Small offset from bottom
-    right: 2, // Small offset from right
-    flexDirection: 'row', // Hiển thị các chấm sự kiện theo chiều ngang
-    // Removed marginTop: 'auto' and alignSelf: 'flex-end'
-  },
-  eventDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginHorizontal: 1, // Khoảng cách giữa các chấm
-  },
-});
 
 export default DayCell;

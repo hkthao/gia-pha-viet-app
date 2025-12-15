@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import React, { useState, useMemo } from 'react'; // Added useMemo
+import { StyleSheet, View, FlatList } from 'react-native'; // Added FlatList
+import { Appbar, useTheme, Text } from 'react-native-paper'; // Added Text
 import { Calendar, DateData } from 'react-native-calendars';
 import { DayProps } from 'react-native-calendars/src/calendar/day'; // Import DayProps from its specific path
-import { DayCell, EventBottomSheet } from '@/components/event'; // Import DayCell and EventBottomSheet
+import { DayCell, EventBottomSheet, EventListItem } from '@/components/event'; // Added EventListItem
 import { useRouter } from 'expo-router'; // Import useRouter
 
 interface EventData {
   type: string;
   color?: string;
   name: string;
+  date: string; // Thêm trường date (solarDate)
+  lunarText?: string; // Thêm trường lunarText
 }
 
 interface CalendarDayData {
   lunarText?: string;
-  events?: EventData[];
+  events?: Omit<EventData, 'date' | 'lunarText'>[]; // events trong mockData không cần date và lunarText
 }
 
 interface MockCalendarData {
@@ -39,10 +41,28 @@ const CalendarScreen: React.FC = () => {
   const [selectedDayEvents, setSelectedDayEvents] = useState<any[]>([]);
   const [selectedDayLunarText, setSelectedDayLunarText] = useState<string | undefined>(undefined);
 
+  // Aggregate all events from mockData
+  const allEvents: EventData[] = useMemo(() => {
+    const eventsList: EventData[] = [];
+    Object.keys(mockData).forEach(dateString => {
+      const dayData = mockData[dateString];
+      dayData.events?.forEach(event => {
+        eventsList.push({
+          ...event,
+          date: dateString,
+          lunarText: dayData.lunarText,
+        });
+      });
+    });
+    // Sort events by date
+    return eventsList.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [mockData]); // Re-calculate if mockData changes
+
   const handleDayPress = (dateString: string) => {
     setSelectedDate(dateString);
-    setSelectedDayEvents(mockData[dateString]?.events || []);
-    setSelectedDayLunarText(mockData[dateString]?.lunarText);
+    // Filter events for the selected day from the aggregated list
+    setSelectedDayEvents(allEvents.filter(event => event.date === dateString));
+    setSelectedDayLunarText(mockData[dateString]?.lunarText); // Still get lunar text from mockData
     setShowBottomSheet(true);
   };
 
@@ -74,6 +94,10 @@ const CalendarScreen: React.FC = () => {
       />
     );
   };
+
+  const renderEventListItem = ({ item }: { item: EventData }) => (
+    <EventListItem event={item} />
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -123,6 +147,23 @@ const CalendarScreen: React.FC = () => {
         style={styles.calendar}
       />
 
+      {/* FlatList để hiển thị danh sách tất cả sự kiện */}
+      <View style={styles.eventListContainer}>
+        <Text variant="titleMedium" style={styles.eventListTitle}>
+          Tất cả Sự kiện
+        </Text>
+        <FlatList
+          data={allEvents}
+          renderItem={renderEventListItem}
+          keyExtractor={(item, index) => item.date + item.name + index} // Unique key
+          ListEmptyComponent={
+            <Text style={[styles.emptyListText, { color: theme.colors.onSurfaceVariant }]}>
+              Không có sự kiện nào.
+            </Text>
+          }
+        />
+      </View>
+
       <EventBottomSheet
         visible={showBottomSheet}
         onDismiss={() => setShowBottomSheet(false)}
@@ -142,6 +183,20 @@ const styles = StyleSheet.create({
   calendar: {
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+  },
+  eventListContainer: {
+    flex: 1, // Take remaining space
+    paddingTop: 8,
+  },
+  eventListTitle: {
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  emptyListText: {
+    paddingHorizontal: 16,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

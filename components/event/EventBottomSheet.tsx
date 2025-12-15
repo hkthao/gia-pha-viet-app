@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react'; // Add useMemo
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Portal, Modal, Text, Button, Divider, useTheme } from 'react-native-paper';
 
@@ -24,6 +24,53 @@ const EventBottomSheet: React.FC<EventBottomSheetProps> = ({
   onAddEvent,
 }) => {
   const theme = useTheme();
+
+  const styles = useMemo(() => StyleSheet.create({
+    modalContainer: {
+      margin: 20,
+      borderRadius: theme.roundness, // Use theme.roundness
+      padding: 20,
+      maxHeight: '80%',
+    },
+    header: {
+      marginBottom: 15,
+      alignItems: 'center',
+    },
+    solarDateText: {
+      fontSize: 24,
+      fontWeight: 'bold',
+    },
+    lunarText: {
+      fontSize: 14,
+      opacity: 0.7,
+      marginTop: 5,
+    },
+    divider: {
+      width: '100%',
+      marginVertical: 10,
+    },
+    eventList: {
+      flexGrow: 1,
+      marginBottom: 15,
+    },
+    eventItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    eventIndicator: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      marginRight: 10,
+    },
+    addButton: {
+      marginTop: 10,
+    },
+    addButtonLabel: {
+      fontSize: 16,
+    },
+  }), [theme]); // Depend on theme
 
   return (
     <Portal>
@@ -69,52 +116,5 @@ const EventBottomSheet: React.FC<EventBottomSheetProps> = ({
     </Portal>
   );
 };
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    margin: 20,
-    borderRadius: 8,
-    padding: 20,
-    maxHeight: '80%',
-  },
-  header: {
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  solarDateText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  lunarText: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginTop: 5,
-  },
-  divider: {
-    width: '100%',
-    marginVertical: 10,
-  },
-  eventList: {
-    flexGrow: 1,
-    marginBottom: 15,
-  },
-  eventItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  eventIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  addButton: {
-    marginTop: 10,
-  },
-  addButtonLabel: {
-    fontSize: 16,
-  },
-});
 
 export default EventBottomSheet;

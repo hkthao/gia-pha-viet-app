@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme, ActivityIndicator, Text } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -20,6 +20,20 @@ export default function EditEventScreen() {
   const eventId = Array.isArray(id) ? id[0] : id;
 
   const { event, isLoading, isError, error } = useEventDetails(eventId);
+
+  const initialValues = useMemo(() => {
+    if (!event) return undefined;
+
+    console.log('Original event.startDate:', event.startDate);
+    const solarDateObject = event.startDate ? new Date(event.startDate) : undefined;
+    console.log('Parsed solarDateObject:', solarDateObject);
+
+    const transformedValues: EventFormData = {
+      ...event,
+      solarDate: solarDateObject,
+    };
+    return transformedValues;
+  }, [event]);
 
   const handleUpdateEvent = useCallback(async (data: EventFormData) => {
     setIsSubmitting(true);
@@ -88,7 +102,7 @@ export default function EditEventScreen() {
         <Appbar.BackAction onPress={handleCancel} color={theme.colors.onSurface} />
         <Appbar.Content title={t('eventForm.editTitle')} titleStyle={{ color: theme.colors.onSurface }} />
       </Appbar.Header>
-      <EventForm initialValues={event} onSubmit={handleUpdateEvent} isSubmitting={isSubmitting} />
+      <EventForm initialValues={initialValues} onSubmit={handleUpdateEvent} isSubmitting={isSubmitting} />
     </View>
   );
 }

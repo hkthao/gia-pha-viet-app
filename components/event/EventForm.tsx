@@ -280,12 +280,12 @@ export const EventForm: React.FC<EventFormProps> = ({
             control={control}
             name="calendarType"
             render={({ field: { onChange, value } }) => (
-              <View> {/* Wrap in View for layout */}
+              <View>
                 <List.Item
                   title={t('eventForm.solarCalendar')}
                   description={t('eventForm.solarCalendarDescription')}
                   left={() => <List.Icon icon="white-balance-sunny" />}
-                  right={() => <RadioButton value={CalendarType.SOLAR.toString()} status={value === CalendarType.SOLAR ? 'checked' : 'unchecked'} />}
+                  right={() => <RadioButton value={CalendarType.SOLAR.toString()} status={(value as CalendarType) === CalendarType.SOLAR ? 'checked' : 'unchecked'} />}
                   onPress={() => onChange(CalendarType.SOLAR)}
                   style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
                 />
@@ -294,7 +294,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   title={t('eventForm.lunarCalendar')}
                   description={t('eventForm.lunarCalendarDescription')}
                   left={() => <List.Icon icon="moon-waning-gibbous" />}
-                  right={() => <RadioButton value={CalendarType.LUNAR.toString()} status={value === CalendarType.LUNAR ? 'checked' : 'unchecked'} />}
+                  right={() => <RadioButton value={CalendarType.LUNAR.toString()} status={(value as CalendarType) === CalendarType.LUNAR ? 'checked' : 'unchecked'} />}
                   onPress={() => onChange(CalendarType.LUNAR)}
                   style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
                 />
@@ -342,6 +342,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
                     error={!!errors.lunarDay}
                     testID="lunarDayInput"
+                    left={<TextInput.Icon icon="brightness-2" />}
                   />
                 )}
               />
@@ -361,6 +362,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
                     error={!!errors.lunarMonth}
                     testID="lunarMonthInput"
+                    left={<TextInput.Icon icon="moon-waning-gibbous" />}
                   />
                 )}
               />

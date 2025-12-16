@@ -1,12 +1,12 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react'; // Removed useState
 import { View, StyleSheet } from 'react-native';
 import { Appbar, useTheme, ActivityIndicator, Text } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { EventForm } from '@/components/event';
 import { EventFormData } from '@/utils/validation/eventValidationSchema';
-import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
-import { useEventDetails } from '@/hooks/event'; // Import the new hook
+import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar'; // Keep this for now if any other snackbar is used
+import { useEventDetails, useUpdateEvent } from '@/hooks/event'; // Import useUpdateEvent
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import dayjs from 'dayjs'; // Import dayjs
 
@@ -14,13 +14,13 @@ export default function EditEventScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { showSnackbar } = useGlobalSnackbar();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showSnackbar } = useGlobalSnackbar(); // Keep this for now
 
   const { id } = useLocalSearchParams();
   const eventId = Array.isArray(id) ? id[0] : id;
 
   const { event, isLoading, isError, error } = useEventDetails(eventId);
+  const { mutate: updateEvent, isPending: isSubmitting } = useUpdateEvent();
 
   const initialValues = useMemo(() => {
     if (!event) return undefined;
@@ -28,24 +28,16 @@ export default function EditEventScreen() {
     const transformedValues: EventFormData = {
       ...event,
       solarDate: solarDateObject,
+      lunarDay: event.lunarDate?.day || '',
+      lunarMonth: event.lunarDate?.month || '',
+      isLeapMonth: event.lunarDate?.isLeapMonth || false,
     };
     return transformedValues;
   }, [event]);
 
   const handleUpdateEvent = useCallback(async (data: EventFormData) => {
-    setIsSubmitting(true);
-    console.log('Updating event with data:', data);
-    // Simulate API call
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        showSnackbar(t('eventForm.updateSuccess'), 'success');
-        router.back();
-        resolve();
-      }, 1500);
-    }).finally(() => {
-      setIsSubmitting(false);
-    });
-  }, [router, showSnackbar, t]);
+    await updateEvent({ id: eventId as string, formData: data });
+  }, [updateEvent, eventId]);
 
   const handleCancel = useCallback(() => {
     router.back();

@@ -193,7 +193,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  const formattedLunarDate = event.solarDate ? new Date(event.solarDate).toLocaleDateString() : t('common.not_available');
+  const formattedSolarDate = event.solarDate ? new Date(event.solarDate).toLocaleDateString() : t('common.not_available');
 
   return (
     <View style={styles.container}>
@@ -247,8 +247,8 @@ export default function EventDetailsScreen() {
               )}
 
               <List.Item
-                title={t('eventDetail.lunarDate')}
-                description={formattedLunarDate}
+                title={t('eventDetail.startDate')}
+                description={formattedSolarDate}
                 left={() => <List.Icon icon="calendar-start" />}
               />
               <Divider />

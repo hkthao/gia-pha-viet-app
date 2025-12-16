@@ -8,6 +8,7 @@ import { EventFormData } from '@/utils/validation/eventValidationSchema';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { useEventDetails } from '@/hooks/event'; // Import the new hook
 import { SPACING_MEDIUM } from '@/constants/dimensions';
+import dayjs from 'dayjs'; // Import dayjs
 
 export default function EditEventScreen() {
   const theme = useTheme();
@@ -25,7 +26,7 @@ export default function EditEventScreen() {
     if (!event) return undefined;
 
     console.log('Original event.startDate:', event.startDate);
-    const solarDateObject = event.startDate ? new Date(event.startDate) : undefined;
+    const solarDateObject = event.startDate ? dayjs(event.startDate).toDate() : undefined;
     console.log('Parsed solarDateObject:', solarDateObject);
 
     const transformedValues: EventFormData = {

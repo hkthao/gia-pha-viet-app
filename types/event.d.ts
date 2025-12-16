@@ -76,6 +76,10 @@ export interface SearchEventsQuery extends BaseSearchQuery {
   endDate?: string;
   type?: EventType;
   relatedMemberId?: string;
+  lunarStartDay?: number;
+  lunarStartMonth?: number;
+  lunarEndDay?: number;
+  lunarEndMonth?: number;
 }
 
 export interface GetUpcomingEventsQuery {

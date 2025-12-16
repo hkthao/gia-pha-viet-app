@@ -33,6 +33,7 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
   const { currentFamilyId } = useFamilyStore();
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [filteredEvents, setFilteredEvents] = useState<EventData[]>([]);
+
   // Configure react-native-calendars locale based on i18n language
   useMemo(() => {
     if (i18n.language === 'vi') {
@@ -84,11 +85,31 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
       if (!familyId) {
         throw new Error(t('calendar.errors.noFamilyId'));
       }
-      const result = await eventService.search({
+      const startSolar = Solar.fromYmd(dayjs(startDate).year(), dayjs(startDate).month() + 1, dayjs(startDate).date());
+      const endSolar = Solar.fromYmd(dayjs(endDate).year(), dayjs(endDate).month() + 1, dayjs(endDate).date());
+      const startLunar = startSolar.getLunar();
+      const endLunar = endSolar.getLunar();
+      const lunarStartDay = 1;
+      const lunarStartMonth = startLunar.getMonth();
+      let lunarEndDay = endLunar.getDay();
+      const lunarEndMonth = endLunar.getMonth();
+      if (lunarEndMonth > lunarStartMonth) {
+        lunarEndDay = 30;
+      }
+
+      const query = {
         familyId: familyId,
         startDate: queryStartDate as string,
         endDate: queryEndDate as string,
-      } as CalendarSearchEventsQuery);
+        lunarStartDay: lunarStartDay,
+        lunarStartMonth: lunarStartMonth,
+        lunarEndDay: lunarEndDay,
+        lunarEndMonth: lunarEndMonth,
+      } as CalendarSearchEventsQuery;
+
+      console.log(query);
+
+      const result = await eventService.search(query);
       if (result.isSuccess && result.value) {
         result.value.items = result.value.items.map(event => {
           // Transform lunar events to solar dates

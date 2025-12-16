@@ -27,7 +27,6 @@ const FamilyCalendarScreen: React.FC = () => {
     handleDayPress,
     handleAddEvent,
     clearFilter,
-    isLoading, // Destructure isLoading
     isError, // Destructure isError
     error, // Destructure error
     refetch, // Destructure refetch for pull-to-refresh

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, List, Divider, Button } from 'react-native-paper';
@@ -9,18 +9,26 @@ import { getAvatarSource } from '@/utils/imageUtils';
 import { useEventDetails } from '@/hooks/event/useEventDetails'; // Import the new hook
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent'; // Import the new hook
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Import usePermissionCheck
+import { useIsFocused } from '@react-navigation/native'; // Import useIsFocused
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
+  const isFocused = useIsFocused();
 
   const eventId = Array.isArray(id) ? id[0] : id;
 
-  const { event, isLoading, error } = useEventDetails(eventId);
+  const { event, isLoading, error, refetch } = useEventDetails(eventId);
   const { deleteEvent, isDeleting } = useDeleteEvent();
   const { canManageFamily, isAdmin } = usePermissionCheck(event?.familyId);
+
+  useEffect(() => {
+    if (isFocused) {
+      refetch(); // Refetch data when the screen comes into focus
+    }
+  }, [isFocused, refetch]);
 
   const handleDelete = useCallback(() => {
     if (event?.id) {

@@ -9,21 +9,27 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { eventQueryKeys } from './useEventsQuery'; // Import query keys
 import { useRouter } from 'expo-router'; // Import useRouter
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
 
 export const useUpdateEvent = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const { showSnackbar } = useGlobalSnackbar();
   const router = useRouter();
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
-  return useMutation<EventDto, string, { id: string; formData: EventFormData }>({
+  return useMutation<EventDto | null, string, { id: string; formData: EventFormData }>({
     mutationFn: async ({ id, formData }: { id: string; formData: EventFormData }) => {
       if (!id) {
         throw new Error(t('eventForm.errors.noEventId'));
       }
+      if (!currentFamilyId) {
+        throw new Error(t('eventForm.errors.noFamilyId')); // Assuming a translation key for this
+      }
 
       const updateRequest: UpdateEventRequestDto = {
         id: id,
+        familyId: currentFamilyId,
         name: formData.name,
         code: formData.code,
         color: formData.color,
@@ -41,15 +47,17 @@ export const useUpdateEvent = () => {
       };
 
       const result = await eventService.update(id, updateRequest);
-      if (result.isSuccess && result.value) {
-        return result.value;
+      if (result.isSuccess) {
+        return result.value ?? null;
       }
-      throw new Error(parseError(result.error));
+      throw parseError(result.error);
     },
     onSuccess: (data) => {
       showSnackbar(t('eventForm.updateSuccess'), 'success');
       queryClient.invalidateQueries({ queryKey: eventQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: eventQueryKeys.detail(data.id) });
+      if (data) { // Only invalidate detail query if data is not null
+        queryClient.invalidateQueries({ queryKey: eventQueryKeys.detail(data.id) });
+      }
       router.back();
     },
     onError: (error) => {

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { eventService } from '@/services';
 import { useTranslation } from 'react-i18next';
 import { EventDto } from '@/types';
+import { eventQueryKeys } from './useEventsQuery'; // Import eventQueryKeys
 
 export const useEventDetails = (eventIdParam: string | string[] | undefined) => {
   const { t } = useTranslation();
@@ -9,7 +10,7 @@ export const useEventDetails = (eventIdParam: string | string[] | undefined) => 
   const eventId = Array.isArray(eventIdParam) ? eventIdParam[0] : eventIdParam;
 
   const queryResult = useQuery<EventDto, Error, EventDto>({
-    queryKey: ['event', eventId],
+    queryKey: eventQueryKeys.detail(eventId as string),
     queryFn: async (): Promise<EventDto> => {
       if (!eventId) {
         throw new Error(t('eventDetail.errors.noEventId'));

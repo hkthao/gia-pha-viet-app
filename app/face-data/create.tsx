@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native'; // Removed Image, D
 import { Appbar, useTheme, Text, Button, ActivityIndicator, Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import FaceSelectListItem from '@/components/face/FaceSelectListItem';
 import { FaceBoundingBoxes } from '@/components/face'; // Import FaceBoundingBoxes
 import { useCreateFaceData } from '@/hooks/face/useCreateFaceData';
@@ -11,7 +11,7 @@ import { useCreateFaceData } from '@/hooks/face/useCreateFaceData';
 export default function CreateFaceDataScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   const {
     processing,

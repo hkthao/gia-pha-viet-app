@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 import { MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { memberService } from '@/services';
 import type { QueryKey } from '@tanstack/react-query';
 import { SPACING_SMALL } from '@/constants/dimensions';
@@ -23,7 +23,7 @@ export const useMemberSelectModal = <TFieldName extends string>({
 }: UseMemberSelectModalProps<TFieldName>) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   const memberSearchQueryFn = useCallback(
     async ({ pageParam = 1, filters }: { pageParam?: number; queryKey: QueryKey; filters: SearchMembersQuery }): Promise<PaginatedList<MemberListDto>> => {

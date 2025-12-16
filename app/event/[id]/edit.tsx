@@ -24,11 +24,7 @@ export default function EditEventScreen() {
 
   const initialValues = useMemo(() => {
     if (!event) return undefined;
-
-    console.log('Original event.startDate:', event.startDate);
-    const solarDateObject = event.startDate ? dayjs(event.startDate).toDate() : undefined;
-    console.log('Parsed solarDateObject:', solarDateObject);
-
+    const solarDateObject = event.solarDate ? dayjs(event.solarDate).toDate() : undefined;
     const transformedValues: EventFormData = {
       ...event,
       solarDate: solarDateObject,

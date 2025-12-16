@@ -5,14 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { useRouter } from 'expo-router';
 import { CreateEventRequestDto } from '@/types'; // Import CreateEventRequestDto
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const { showSnackbar } = useGlobalSnackbar();
   const router = useRouter();
-  const { currentFamilyId } = useFamilyStore();
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   return useMutation({
     mutationFn: async (eventData: EventFormData) => {

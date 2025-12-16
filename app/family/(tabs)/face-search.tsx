@@ -4,7 +4,7 @@ import { Text, useTheme, Button, Appbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useRouter } from 'expo-router';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { FaceBoundingBoxes } from '@/components/face'; // Import FaceBoundingBoxes
 
@@ -12,7 +12,7 @@ export default function FamilyFaceSearchScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   const {
     image,

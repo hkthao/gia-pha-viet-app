@@ -6,14 +6,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router'; // Remove useRout
 import { MemberForm } from '@/components/member';
 import { useCreateMember } from '@/hooks/member/useCreateMember';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // To get current family ID
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // To get current family ID
 
 export default function CreateMemberScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter(); // Initialize useRouter
   const { createMember, isCreatingMember } = useCreateMember();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
   const { familyId: paramFamilyId } = useLocalSearchParams();
   const initialFamilyId = Array.isArray(paramFamilyId) ? paramFamilyId[0] : paramFamilyId || currentFamilyId;
   

@@ -32,8 +32,7 @@ export interface EventDto extends BaseAuditableDto {
   familyId: string;
   name: string; // Changed to required
   description?: string;
-  startDate: string; // This is the solar date
-  endDate?: string;
+  solarDate?: Date; // This is the solar date
   location?: string;
   type: EventType;
   relatedMembers: MemberListDto[];

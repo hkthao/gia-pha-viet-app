@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query'; // Keep useQueryClient for invalidation
 import { useApiMutation } from '@/hooks/common/useApiMutation'; // Import the new hook
-import { useFamilyListStore } from '@/stores/useFamilyListStore';
 import { familyService } from '@/services';
 import { convertNullToUndefined } from '@/utils/typeUtils';
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
@@ -17,7 +16,6 @@ export const useCreateFamily = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const searchFamilyList = useFamilyListStore(state => state.search);
 
   const { mutate, isPending, isError } = useApiMutation<FamilyDetailDto, Error, FamilyFormData>(
     async (data: FamilyFormData) => {
@@ -53,7 +51,6 @@ export const useCreateFamily = () => {
       onSuccess: () => {
         // Invalidate and refetch the family list to show the newly created family
         queryClient.invalidateQueries({ queryKey: ['familyList'] });
-        searchFamilyList({ page: 1, itemsPerPage: 10, searchQuery: '' }, true); // Refresh family list
         router.replace('/(tabs)/search');
       },
     }

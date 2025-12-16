@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { CalendarType, EventDto, EventType, PaginatedList, SearchEventsQuery } from '@/types'; // Import EventDto and PaginatedList
 import { useQuery } from '@tanstack/react-query'; // Import useQuery and QueryKey
 import { eventService } from '@/services'; // Import eventService
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
 import dayjs from 'dayjs'; // Import dayjs for date manipulation
 import { Solar, Lunar } from 'lunar-javascript';
 interface EventData {
@@ -30,7 +30,7 @@ interface CalendarSearchEventsQuery extends SearchEventsQuery {
 export const useFamilyCalendar = (currentViewYear: number, startDate: string, endDate: string) => {
   const router = useRouter();
   const { t, i18n } = useTranslation();
-  const { currentFamilyId } = useFamilyStore();
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [filteredEvents, setFilteredEvents] = useState<EventData[]>([]);
 
@@ -107,8 +107,6 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
         lunarEndMonth: lunarEndMonth,
       } as CalendarSearchEventsQuery;
 
-      console.log(query);
-
       const result = await eventService.search(query);
       if (result.isSuccess && result.value) {
         result.value.items = result.value.items.map(event => {
@@ -116,7 +114,7 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
           if (event.calendarType === CalendarType.LUNAR && event.lunarDate?.month && event.lunarDate?.day) {
             const lunarDate = Lunar.fromYmd(year as number, event.lunarDate.month, event.lunarDate.day);
             const solarDate = lunarDate.getSolar();
-            event.startDate = dayjs(`${solarDate.getYear()}-${solarDate.getMonth()}-${solarDate.getDay()}`).format('YYYY-MM-DD');
+            event.solarDate = dayjs(`${solarDate.getYear()}-${solarDate.getMonth()}-${solarDate.getDay()}`).toDate();
           }
           return event;
         });
@@ -132,10 +130,10 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
       type: event.type,
       color: event.color,
       name: event.name,
-      date: dayjs(event.startDate).format('YYYY-MM-DD'), // Assuming startDate is solar date
+      date: dayjs(event.solarDate).format('YYYY-MM-DD'), // Assuming startDate is solar date
       lunarText: event.calendarType === CalendarType.LUNAR && event.lunarDate?.day && event.lunarDate?.month
         ? `${event.lunarDate.day}/${event.lunarDate.month}`
-        : getLunarDate(dayjs(event.startDate).format('YYYY-MM-DD')),
+        : getLunarDate(dayjs(event.solarDate).format('YYYY-MM-DD')),
       id: event.id,
     }));
   }, [eventsData, getLunarDate]);

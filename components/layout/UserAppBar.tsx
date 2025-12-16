@@ -6,13 +6,13 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useFonts } from 'expo-font';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import user profile store
+import { useGetCurrentUserProfileQuery } from '@/hooks/user/useUserProfileQueries'; // Import user profile query
 
 export default function UserAppBar() {
   const router = useRouter();
   const { t } = useTranslation();
   const { isLoggedIn } = useAuth(); // Use the real useAuth hook
-  const { userProfile } = useUserProfileStore();
+  const { data: userProfile } = useGetCurrentUserProfileQuery();
   const theme = useTheme();
 
   const [fontsLoaded] = useFonts({

@@ -4,19 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { Appbar, Text, Button, useTheme } from 'react-native-paper';
 import { useAuth } from '@/hooks/auth/useAuth';
-import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
+import { useGetCurrentUserProfileQuery, userProfileQueryKeys } from '@/hooks/user/useUserProfileQueries'; // Import useGetCurrentUserProfileQuery and userProfileQueryKeys
 import { SPACING_LARGE, SPACING_MEDIUM } from '@/constants/dimensions';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { login } = useAuth();
-  const { fetchUserProfile } = useUserProfileStore(); // Destructure fetchUserProfile
+  const { refetch: refetchUserProfile } = useGetCurrentUserProfileQuery({ queryKey: userProfileQueryKeys.current(), enabled: false });
   const theme = useTheme();
   const handleLogin = async () => {
     const success = await login();
     if (success) {
-      await fetchUserProfile(); // Fetch user profile after successful login
+      await refetchUserProfile(); // Fetch user profile after successful login
       router.replace('/(tabs)');
     }
   };

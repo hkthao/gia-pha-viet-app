@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { useEffect, useState, useMemo } from 'react';
 import { useThemeContext } from '@/context/ThemeContext'; // Import useThemeContext
 import FamilyAvatar from '@/assets/images/familyAvatar.png'; // Import the default avatar image
-import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import user profile store
+import { useGetCurrentUserProfileQuery } from '@/hooks/user/useUserProfileQueries'; // Import user profile query
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -15,7 +15,7 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const { themePreference, setThemePreference } = useThemeContext(); // Use theme context
 
-  const { userProfile: fetchedUserProfile, loading: loadingProfile, error: errorProfile, fetchUserProfile, clearUserProfile } = useUserProfileStore();
+  const { data: fetchedUserProfile, isLoading: loadingProfile, error: errorProfile, refetch: refetchUserProfile } = useGetCurrentUserProfileQuery();
 
   // State for appearance settings
   const [isDarkMode, setIsDarkMode] = useState(themePreference === 'dark'); // Initialize from context
@@ -26,11 +26,9 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      fetchUserProfile();
-    } else {
-      clearUserProfile();
+      refetchUserProfile();
     }
-  }, [isLoggedIn, fetchUserProfile, clearUserProfile]);
+  }, [isLoggedIn, refetchUserProfile]);
 
   const handleThemeToggle = () => {
     const newTheme = isDarkMode ? 'light' : 'dark';

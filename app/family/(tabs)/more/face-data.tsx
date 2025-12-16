@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router'; // Import useRouter
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { DetectedFaceDto, SearchFacesQuery, PaginatedList } from '@/types';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { faceService } from '@/services'; // Import faceService
 import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
 import FaceItem from '@/components/face/FaceItem'; // Import FaceItem
@@ -76,7 +76,7 @@ export default function FamilyFaceDataScreen() {
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
   const router = useRouter(); // Initialize useRouter
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
   const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined); // Check permission
   // const [fabOpen, setFabOpen] = React.useState(false); // State to manage FAB.Group open/closed status
 
@@ -110,7 +110,7 @@ export default function FamilyFaceDataScreen() {
   }), [currentFamilyId]);
 
   const renderFaceItem = useCallback(({ item }: { item: DetectedFaceDto }) => (
-    <FaceItem item={item} onPress={() => router.push(`/family/(tabs)/more/face-data/${item.id}`)} />
+    <FaceItem item={item} onPress={() => router.push({ pathname: "/face-data/[id]", params: { id: item.id } })} />
   ), [router]);
 
   return (
@@ -121,7 +121,7 @@ export default function FamilyFaceDataScreen() {
         {(canManageFamily || isAdmin) && (
           <Appbar.Action
             icon="plus"
-            onPress={() => router.push(`/family/(tabs)/more/face-data/create`)}
+            onPress={() => router.push("/face-data/create")}
           />
         )}
       </Appbar.Header>

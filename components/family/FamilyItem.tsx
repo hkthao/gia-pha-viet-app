@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
 
 import DefaultFamilyAvatar from '@/assets/images/familyAvatar.png';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
@@ -49,7 +49,7 @@ const FamilyItem = ({ item }: FamilyItemProps) => { // Removed onSelect from des
   const theme = useTheme();
   const router = useRouter();
   const styles = getStyles(theme);
-  const setCurrentFamilyId = useFamilyStore((s) => s.setCurrentFamilyId); // Move inside component
+  const setCurrentFamilyId = useCurrentFamilyStore((s) => s.setCurrentFamilyId); // Move inside component
 
   return (
     <Card style={[styles.familyCard, { borderRadius: theme.roundness }]} onPress={() => {

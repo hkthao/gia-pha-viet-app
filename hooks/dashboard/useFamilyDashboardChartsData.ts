@@ -15,7 +15,7 @@ export interface UseFamilyDashboardChartsDataResult {
   translatedGenderDistribution: GenderDistributionItem[];
 }
 
-export function useFamilyDashboardChartsData(dashboardData: DashboardMetrics | null): UseFamilyDashboardChartsDataResult {
+export function useFamilyDashboardChartsData(dashboardData: DashboardMetrics | undefined): UseFamilyDashboardChartsDataResult {
   const { t } = useTranslation();
 
   const generationsData = useMemo(() => {

@@ -1,6 +1,6 @@
-import { usePermissionStore } from '@/stores/usePermissionStore';
 import { FamilyRole } from '@/types';
-import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
+import { useGetMyAccessFamiliesQuery } from '@/hooks/family/useFamilyQueries'; // Import useGetMyAccessFamiliesQuery
+import { useGetCurrentUserProfileQuery } from '@/hooks/user/useUserProfileQueries'; // Import useGetCurrentUserProfileQuery
 
 /**
  * Hook to check user permissions for a given family or system role.
@@ -9,9 +9,9 @@ import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import us
  * @returns An object with permission checking functions.
  */
 export const usePermissionCheck = (familyId?: string) => {
-  const { userProfile } = useUserProfileStore(); // Get userProfile from userProfileStore
+  const { data: userProfile } = useGetCurrentUserProfileQuery(); // Get userProfile from useGetCurrentUserProfileQuery
   const currentUserId = userProfile?.userId; // Use userProfile.userId for the application's internal user ID
-  const { hasFamilyRole: storeHasFamilyRole } = usePermissionStore(); // Only need hasFamilyRole from store
+  const { data: accessData } = useGetMyAccessFamiliesQuery();
 
   const isAdmin = userProfile?.roles.includes("Admin");
 
@@ -20,10 +20,18 @@ export const usePermissionCheck = (familyId?: string) => {
       console.warn("usePermissionCheck: familyId is required for checking family roles.");
       return false;
     }
-    if (!currentUserId) {
+    if (!currentUserId || !accessData) { // Check if accessData is available
       return false;
     }
-    return storeHasFamilyRole(familyId, role, currentUserId);
+    const hasPermission = accessData.some(access => {
+      // If the requested role is Viewer, and the user is Manager, they also have Viewer permissions.
+      const hasViewerAccessByManager = (role === FamilyRole.Viewer && access.role === FamilyRole.Manager);
+      
+      return access.familyId === familyId &&
+             access.userId === currentUserId &&
+             (access.role === role || hasViewerAccessByManager);
+    });
+    return hasPermission;
   };
 
   // Convenience checks

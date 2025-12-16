@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
-import { usePrivacyStore } from '@/stores/usePrivacyStore';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { PrivacyConfigurationDto, UpdatePrivacyConfigurationCommand } from '@/types/privacy';
-import { useApiMutation } from '@/hooks/common/useApiMutation'; // Import useApiMutation
+import { useGetPrivacyConfigurationQuery, useUpdatePrivacyConfigurationMutation } from '@/hooks/privacy/usePrivacyQueries'; // Import react-query hooks
+import { useApiMutation } from '@/hooks/common/useApiMutation'; // Import useApiMutation (will be removed later)
 
 interface MemberProperty {
   text: string;
@@ -32,13 +32,11 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
   const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined);
   const hasPermit = !!(canManageFamily || isAdmin);
 
-  const {
-    item,
-    loading,
-    error,
-    get,
-    update,
-  } = usePrivacyStore();
+  const { data: privacyConfiguration, isLoading: privacyLoading, error: privacyQueryError } = useGetPrivacyConfigurationQuery(currentFamilyId || '');
+  const privacyError = privacyQueryError || null; // Map error
+
+  const { mutate: updatePrivacySettings, isPending: isSavingSettings, error: saveMutationError } = useUpdatePrivacyConfigurationMutation();
+
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
 
   const getIconNameForProperty = useCallback((propertyValue: string): string => {
@@ -96,35 +94,17 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
 
 
   useEffect(() => {
-    if (!currentFamilyId || !isFocused) {
-      return;
-    }
-
-    const fetchSettings = async () => {
-      if (!currentFamilyId) {
-        Alert.alert(t('common.error'), t('family.privacy.noFamilyIdError'));
-        return;
-      }
-      // showLoading(); // Handled by useApiMutation if showLoadingOverlay is true
-      await get(currentFamilyId);
-      // hideLoading(); // Handled by useApiMutation
-    };
-
-    fetchSettings();
-  }, [currentFamilyId, isFocused, get, t]); // Removed showLoading, hideLoading
-
-  useEffect(() => {
-    if (item) {
-      setSelectedProperties(item.publicMemberProperties);
+    if (privacyConfiguration) {
+      setSelectedProperties(privacyConfiguration.publicMemberProperties);
     } else {
-      if (!error) {
+      if (!privacyError) { // If there's no privacy configuration and no fetch error, assume all properties are public by default for a new setup.
         setSelectedProperties(memberProperties.map(p => p.value));
       } else {
-        // showSnackbar(t('family.privacy.fetchError'), 'error'); // Handled by useApiMutation
+        // If there's an error fetching privacy config, set all properties as public by default
         setSelectedProperties(memberProperties.map(p => p.value));
       }
     }
-  }, [item, error, memberProperties, t]); // Removed showSnackbar
+  }, [privacyConfiguration, privacyError, memberProperties]);
 
   const handleToggleProperty = useCallback((value: string) => {
     setSelectedProperties((prev) =>
@@ -132,43 +112,21 @@ export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
     );
   }, []);
 
-  const { mutate: saveSettings, isPending: isSavingSettings } = useApiMutation<PrivacyConfigurationDto | null, Error, UpdatePrivacyConfigurationCommand>(
-    async (command: UpdatePrivacyConfigurationCommand) => {
-      const result = await update(command);
-      if (result.isSuccess) {
-        return (result.value === undefined) ? null : result.value;
-      }
-      throw new Error(result.error?.message || t('family.privacy.saveError'));
-    },
-    {
-      successMessageKey: 'family.privacy.saveSuccess',
-      errorMessageKey: 'family.privacy.saveError',
-      showLoadingOverlay: true,
-      onSuccess: () => {
-        // Optionally invalidate queries here
-      },
-      onError: (err: Error) => {
-        console.error('Error saving privacy settings:', err);
-      },
-    }
-  );
-
   const savePrivacySettings = useCallback(async () => {
     if (!currentFamilyId) {
-      // showSnackbar(t('family.privacy.noFamilyIdError'), 'error'); // Handled by useApiMutation if mutationFn throws
       return;
     }
     const command: UpdatePrivacyConfigurationCommand = {
       familyId: currentFamilyId,
       publicMemberProperties: selectedProperties,
     };
-    await saveSettings(command);
-  }, [currentFamilyId, selectedProperties, saveSettings]);
+    await updatePrivacySettings(command);
+  }, [currentFamilyId, selectedProperties, updatePrivacySettings]);
 
   return {
     hasPermit,
-    loading: loading || isSavingSettings, // Combine loading states
-    error,
+    loading: privacyLoading || isSavingSettings,
+    error: privacyError || saveMutationError,
     selectedProperties,
     memberProperties,
     getIconNameForProperty,

@@ -1,9 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, Chip, List, Divider, Button } from 'react-native-paper';
+import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, List, Divider, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE, SPACING_EXTRA_LARGE } from '@/constants/dimensions';
+import { SPACING_MEDIUM, SPACING_SMALL, SPACING_EXTRA_LARGE } from '@/constants/dimensions';
 import { CalendarType, EventType, MemberListDto, RepeatRule } from '@/types';
 import { getAvatarSource } from '@/utils/imageUtils';
 import { useEventDetails } from '@/hooks/event/useEventDetails'; // Import the new hook
@@ -193,8 +193,7 @@ export default function EventDetailsScreen() {
     );
   }
 
-  const formattedStartDate = event.startDate ? new Date(event.startDate).toLocaleDateString() : t('common.not_available');
-  const formattedEndDate = event.endDate ? new Date(event.endDate).toLocaleDateString() : t('common.not_available');
+  const formattedLunarDate = event.solarDate ? new Date(event.solarDate).toLocaleDateString() : t('common.not_available');
 
   return (
     <View style={styles.container}>
@@ -248,15 +247,9 @@ export default function EventDetailsScreen() {
               )}
 
               <List.Item
-                title={t('eventDetail.startDate')}
-                description={formattedStartDate}
+                title={t('eventDetail.lunarDate')}
+                description={formattedLunarDate}
                 left={() => <List.Icon icon="calendar-start" />}
-              />
-              <Divider />
-              <List.Item
-                title={t('eventDetail.endDate')}
-                description={formattedEndDate}
-                left={() => <List.Icon icon="calendar-end" />}
               />
               <Divider />
 

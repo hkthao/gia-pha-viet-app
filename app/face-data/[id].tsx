@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFaceDataDetails } from '@/hooks/face/useFaceDataDetails';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { getAvatarSource } from '@/utils/imageUtils';
 
 export default function FaceDataDetailsScreen() {
@@ -14,7 +14,7 @@ export default function FaceDataDetailsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   const faceDataId = Array.isArray(id) ? id[0] : id;
 

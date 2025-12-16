@@ -12,10 +12,11 @@ import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth
 import { LoadingOverlayProvider } from '@/hooks/ui/useLoadingOverlay'; // Import LoadingOverlayProvider
 import { SnackbarProvider } from '@/hooks/ui/useGlobalSnackbar'; // Import SnackbarProvider
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar'; // Import StatusBar
-import { usePermissionStore } from '@/stores/usePermissionStore'; // Import usePermissionStore
-import { useUserProfileStore } from '@/stores/useUserProfileStore'; // Import useUserProfileStore
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Import React Query
 import { GestureHandlerRootView } from 'react-native-gesture-handler'; // Import GestureHandlerRootView
+import { useGetMyAccessFamiliesQuery } from '@/hooks/family/useFamilyQueries'; // Import useGetMyAccessFamiliesQuery
+import { useGetCurrentUserProfileQuery, userProfileQueryKeys } from '@/hooks/user/useUserProfileQueries'; // Import useGetCurrentUserProfileQuery and userProfileQueryKeys
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,8 +31,6 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
   const { isLoadingAuth } = useAuth(); // Get isLoadingAuth from useAuth
-  const { loadMyAccess } = usePermissionStore(); // Destructure loadMyAccess
-  const { fetchUserProfile } = useUserProfileStore(); // Destructure fetchUserProfile
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -41,23 +40,11 @@ export default function RootLayout() {
       } catch (_e) {
         console.error(_e);
         setHasOnboarded(false); // Assume not onboarded on error
-      } finally {
-        // No longer hiding splash screen here, moved to a separate useEffect
       }
     };
 
     checkOnboardingStatus();
   }, []);
-
-  useEffect(() => {
-    if (hasOnboarded !== null && !isLoadingAuth) { // Only hide splash screen if auth is loaded
-      SplashScreen.hideAsync();
-      // Load user permissions after authentication is complete
-      loadMyAccess();
-      // Fetch user profile after authentication and permissions are initiated
-      fetchUserProfile();
-    }
-  }, [hasOnboarded, isLoadingAuth, loadMyAccess, fetchUserProfile]); // Add fetchUserProfile to dependencies
 
   if (hasOnboarded === null || isLoadingAuth) { // Show loading until onboarding and auth are checked
     return null
@@ -66,7 +53,7 @@ export default function RootLayout() {
   return hasOnboarded ? (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppContent />
+        <AppContent hasOnboarded={hasOnboarded} isLoadingAuth={isLoadingAuth} />
       </ThemeProvider>
     </QueryClientProvider>
   ) : (
@@ -74,11 +61,29 @@ export default function RootLayout() {
   );
 }
 
+interface AppContentProps {
+  hasOnboarded: boolean | null;
+  isLoadingAuth: boolean;
+}
 
-
-function AppContent() {
+function AppContent({ hasOnboarded, isLoadingAuth }: AppContentProps) {
   const { colorScheme } = useThemeContext();
   const paperTheme = getPaperTheme(colorScheme);
+
+  // Move react-query hooks and related useEffect here
+  const { refetch: refetchMyAccess } = useGetMyAccessFamiliesQuery(); // To manually trigger if needed
+  const { refetch: refetchUserProfile } = useGetCurrentUserProfileQuery({ queryKey: userProfileQueryKeys.current(), enabled: false });
+
+  useEffect(() => {
+    if (hasOnboarded !== null && !isLoadingAuth) { // Only hide splash screen if auth is loaded
+      SplashScreen.hideAsync();
+      // Load user permissions after authentication is complete
+      refetchMyAccess();
+      // Fetch user profile after authentication and permissions are initiated
+      refetchUserProfile();
+    }
+  }, [hasOnboarded, isLoadingAuth, refetchMyAccess, refetchUserProfile]); // Add refetchUserProfile to dependencies
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={paperTheme}>

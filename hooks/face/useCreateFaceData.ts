@@ -7,7 +7,7 @@ import { DetectedFaceDto, MemberListDto, CreateFaceDataRequestDto, FaceStatus } 
 import { faceService, familyMediaService } from '@/services'; // Import familyMediaService
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { createAndUploadFile } from '@/utils/fileUploadUtils';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 
@@ -37,7 +37,7 @@ interface UseCreateFaceDataResult {
 export function useCreateFaceData(): UseCreateFaceDataResult {
   const { t } = useTranslation();
   const router = useRouter();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
   const queryClient = useQueryClient();
   const { showSnackbar } = useGlobalSnackbar();

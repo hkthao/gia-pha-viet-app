@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router'; // Import useRouter
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { Gender, MemberListDto, SearchMembersQuery, PaginatedList } from '@/types';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2'; // Use V2
-import { useFamilyStore } from '@/stores/useFamilyStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { memberService } from '@/services'; // Import memberService
 import type { QueryKey } from '@tanstack/react-query'; // Import QueryKey
 import MemberItem from '@/components/member/MemberItem'; // Import MemberItem
@@ -97,7 +97,7 @@ export default function FamilyMembersScreen() {
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
   const router = useRouter(); // Initialize useRouter
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
   const { canManageFamily } = usePermissionCheck(currentFamilyId ?? undefined); // Check permission
 
   // Define the query function for fetching member data

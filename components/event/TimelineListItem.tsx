@@ -42,8 +42,8 @@ const TimelineListItem: React.FC<TimelineListItemProps> = ({
   const currentLineColor = lineColor || theme.colors.primary;
 
   const formattedTime = useMemo(() => {
-    return item.startDate ? format(new Date(item.startDate), 'dd/MM/yyyy') : '';
-  }, [item.startDate]);
+    return item.solarDate ? format(new Date(item.solarDate), 'dd/MM/yyyy') : '';
+  }, [item.solarDate]);
 
   const styles = useMemo(() => StyleSheet.create({
     rowContainer: {

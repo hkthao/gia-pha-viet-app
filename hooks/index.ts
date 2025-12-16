@@ -15,3 +15,4 @@ export * from './member';
 export * from './user';
 export * from './calendar';
 export * from './event';
+export * from './privacy';

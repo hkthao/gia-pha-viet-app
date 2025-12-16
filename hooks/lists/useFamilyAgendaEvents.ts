@@ -1,11 +1,12 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { AgendaEntry, AgendaSchedule, DateData } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
-import { useEventStore } from '@/stores/useEventStore';
+
 import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
-import type { EventDto, EventType } from '@/types';
+import type { EventDto, EventType, SearchEventsQuery } from '@/types';
 import { debounce } from '@/utils/debounce';
-import { Alert } from 'react-native'; // Import Alert for error handling
+import { Alert } from 'react-native';
+import { useSearchEventsQuery } from '@/hooks/event/useEventsQuery';
 
 interface EventItem extends AgendaEntry {
   id: string;
@@ -19,7 +20,6 @@ export interface UseFamilyAgendaEventsResult {
   items: AgendaSchedule;
   markedDates: { [key: string]: { marked: boolean } };
   loadItemsForMonth: (day: DateData) => Promise<void>;
-  error: string | null;
   timeToString: (time: number) => string;
   getDayName: (dateString: string) => string;
   rowHasChanged: (r1: AgendaEntry, r2: AgendaEntry) => boolean;
@@ -31,9 +31,22 @@ export function useFamilyAgendaEvents(): UseFamilyAgendaEventsResult {
   const { t } = useTranslation();
 
   const currentFamilyId = useCurrentFamilyId();
-  const { error, search } = useEventStore();
+  const [searchFilters, setSearchFilters] = useState<SearchEventsQuery>({ familyId: currentFamilyId || '', page: 1, itemsPerPage: 100, sortBy: 'startDate' });
+  const { data: fetchedEventsData, error: eventsError, isLoading: eventsLoading, isRefetching } = useSearchEventsQuery(searchFilters);
+
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
   const loadedMonthsRef = useRef(loadedMonths);
+
+  const timeToString = useCallback((time: number) => {
+    const date = new Date(time);
+    return date.toISOString().split('T')[0];
+  }, []);
+
+  const getDayName = useCallback((dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+    return new Intl.DateTimeFormat('vi-VN', options).format(date);
+  }, []);
 
   useEffect(() => {
     loadedMonthsRef.current = loadedMonths;
@@ -49,66 +62,58 @@ export function useFamilyAgendaEvents(): UseFamilyAgendaEventsResult {
     setMarkedDates(updatedMarkedDates);
   }, [items]);
 
-  const timeToString = useCallback((time: number) => {
-    const date = new Date(time);
-    return date.toISOString().split('T')[0];
-  }, []);
+  useEffect(() => {
+    if (fetchedEventsData) {
+      setItems((prevItems) => {
+        const mergedItems = { ...prevItems };
+        fetchedEventsData.forEach((event: EventDto) => {
+          const eventDate = event.solarDate ? timeToString(new Date(event.solarDate).getTime()) : '';
+          if (eventDate) {
+            if (!mergedItems[eventDate]) {
+              mergedItems[eventDate] = [];
+            }
+            if (!(mergedItems[eventDate] as EventItem[]).some(item => item.id === event.id)) {
+              mergedItems[eventDate].push({
+                id: event.id,
+                name: event.name || t('eventDetail.noTitle'),
+                height: 80,
+                day: eventDate,
+                type: event.type,
+              } as EventItem);
+            }
+          }
+        });
+        return mergedItems;
+      });
+    }
+  }, [fetchedEventsData, t, timeToString]);
 
-  const getDayName = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
-    return new Intl.DateTimeFormat('vi-VN', options).format(date);
-  }, []);
 
-  const loadItems = useMemo(() => debounce(async (day: DateData) => {
+  const fetchAndProcessEvents = useCallback(async (day: DateData) => {
     if (!currentFamilyId) {
-      // Handle the case where familyId is not available, maybe show an alert or a message
       Alert.alert(t('common.error'), t('timeline.familyIdNotFound'));
       return;
     }
 
-    const monthString = new Date(day.timestamp).toISOString().slice(0, 7); // YYYY-MM
+    const monthString = new Date(day.timestamp).toISOString().slice(0, 7);
     if (loadedMonthsRef.current.has(monthString)) {
-      return; // Already loaded for this month
+      return;
     }
 
     const startDate = timeToString(day.timestamp);
-    const endDate = timeToString(day.timestamp + (30 * 24 * 60 * 60 * 1000)); // Load for a month
+    const endDate = timeToString(day.timestamp + (30 * 24 * 60 * 60 * 1000));
 
-    const fetchedPaginatedEvents = await search({
+    setSearchFilters(prev => ({
+      ...prev,
       familyId: currentFamilyId,
       startDate,
       endDate,
-      page: 1,
-      itemsPerPage: 100,
-      sortBy :"startDate"
-    });
+    }));
 
-    if (fetchedPaginatedEvents) {
-      setLoadedMonths(prev => new Set(prev).add(monthString)); // Mark month as loaded
-    }
+    setLoadedMonths(prev => new Set(prev).add(monthString));
+  }, [currentFamilyId, t, timeToString]);
 
-    setItems((prevItems) => {
-      const mergedItems = { ...prevItems };
-      fetchedPaginatedEvents?.items?.forEach((event: EventDto) => {
-        const eventDate = timeToString(new Date(event.startDate).getTime());
-        if (!mergedItems[eventDate]) {
-          mergedItems[eventDate] = [];
-        }
-        // Check for duplicates before adding
-        if (!(mergedItems[eventDate] as EventItem[]).some(item => item.id === event.id)) {
-          mergedItems[eventDate].push({
-            id: event.id,
-            name: event.name || t('eventDetail.noTitle'),
-            height: 80, // Fixed height for now, can be dynamic
-            day: eventDate,
-            type: event.type,
-          } as EventItem);
-        }
-      });
-      return mergedItems;
-    });
-  }, 300), [currentFamilyId, search, t, timeToString]);
+  const loadItems = useMemo(() => debounce(fetchAndProcessEvents, 300), [fetchAndProcessEvents]);
 
   const rowHasChanged = useCallback((r1: AgendaEntry, r2: AgendaEntry) => {
     return r1.name !== r2.name;
@@ -118,7 +123,6 @@ export function useFamilyAgendaEvents(): UseFamilyAgendaEventsResult {
     items,
     markedDates,
     loadItemsForMonth: loadItems,
-    error,
     timeToString,
     getDayName,
     rowHasChanged,

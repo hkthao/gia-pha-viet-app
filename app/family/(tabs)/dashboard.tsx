@@ -4,23 +4,23 @@ import { Text, useTheme, ActivityIndicator, Card, Appbar, Button } from 'react-n
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions';
 import { useRouter } from 'expo-router'; // Import useRouter
-import { useFamilyStore } from '@/stores/useFamilyStore';
-import { useFamilyListStore } from '@/stores/useFamilyListStore';
-import { PieChart, BarChart } from 'react-native-chart-kit';
-import { ProfileCard, DetailedInfoCard } from '@/components/family';
-import { MetricCard } from '@/components/common';
-import { useDashboardStore } from '@/stores/useDashboardStore';
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
+import { PieChart, BarChart } from 'react-native-chart-kit'; // Re-add PieChart, BarChart
+import { ProfileCard, DetailedInfoCard } from '@/components/family'; // Re-add ProfileCard, DetailedInfoCard
+import { MetricCard } from '@/components/common'; // Re-add MetricCard
+import { useGetDashboardDataQuery } from '@/hooks/dashboard/useDashboardQuery'; // Import useGetDashboardDataQuery
 import { useFamilyDashboardChartsData } from '@/hooks/dashboard/useFamilyDashboardChartsData'; // Import the new hook
 import { useFamilyDetails } from '@/hooks/family/useFamilyDetails';
+import { useGetFamilyByIdQuery } from '@/hooks/family/useFamilyQueries'; // Import useGetFamilyByIdQuery
 
 export default function FamilyDashboardScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter(); // Initialize useRouter
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId);
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
 
-  const { item: family, loading, error, getById: getFamilyById } = useFamilyListStore();
-  const { dashboardData, loading: loadingDashboard, error: errorDashboard, getDashboardData } = useDashboardStore();
+  const { data: family, isLoading: familyLoading, error: familyError } = useGetFamilyByIdQuery(currentFamilyId || '', !!currentFamilyId);
+  const { data: dashboardData, isLoading: loadingDashboard, error: errorDashboard } = useGetDashboardDataQuery(currentFamilyId || '');
 
   const { generationsData, translatedGenderDistribution } = useFamilyDashboardChartsData(dashboardData);
 
@@ -124,19 +124,8 @@ export default function FamilyDashboardScreen() {
     fillShadowGradientOpacity: 0.5
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      if (!currentFamilyId) {
-        return;
-      }
-      await getFamilyById(currentFamilyId);
-      await getDashboardData(currentFamilyId);
-    };
-    loadData();
-  }, [currentFamilyId, getFamilyById, getDashboardData]);
-
-  const isLoading = loading || loadingDashboard;
-  const hasError = error || errorDashboard;
+  const isLoading = familyLoading || loadingDashboard;
+  const hasError = familyError || errorDashboard;
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>

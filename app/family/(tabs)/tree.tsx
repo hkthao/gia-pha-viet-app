@@ -5,13 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import { useFamilySharing } from '@/hooks/family/useFamilySharing'; // Import the new hook
 import { WebView } from 'react-native-webview';
 import { useTranslation } from 'react-i18next';
-import { useFamilyStore } from '@/stores/useFamilyStore'; // Import useFamilyStore
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
 
 export default function FamilyTreeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const navigation = useNavigation();
-  const currentFamilyId = useFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId from store
+  const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId); // Get currentFamilyId from store
   const { onShare } = useFamilySharing();
 
   const styles = StyleSheet.create({

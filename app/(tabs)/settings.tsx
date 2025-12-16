@@ -127,7 +127,7 @@ export default function SettingsScreen() {
           {loadingProfile ? (
             <ActivityIndicator animating={true} color={theme.colors.primary} style={{ marginTop: SPACING_MEDIUM }} />
           ) : errorProfile ? (
-            <Text style={styles.errorText}>{errorProfile}</Text>
+            <Text style={styles.errorText}>{errorProfile.message}</Text>
           ) : isLoggedIn && fetchedUserProfile ? (
             <List.Section style={styles.listSection}>
               <List.Item

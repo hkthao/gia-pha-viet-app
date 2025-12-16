@@ -4,7 +4,6 @@ import { eventService } from '@/services';
 import { EventFormData } from '@/utils/validation/eventValidationSchema';
 import type { EventDto, UpdateEventRequestDto } from '@/types';
 import { parseError } from '@/utils/errorUtils';
-import { Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { eventQueryKeys } from './useEventsQuery'; // Import query keys

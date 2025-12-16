@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { userService } from '@/services';
 import { UserListDto } from '@/types';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native'; // Added KeyboardAvoidingView and Platform
 import { Button, Text, TextInput, useTheme, Avatar, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useFamilyForm } from '@/hooks/family/useFamilyForm';
@@ -133,183 +133,188 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={styles.formSection}>
-          <Controller
-            control={control}
-            name="avatarUrl"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.avatarSection}>
-                <Avatar.Image
-                  size={96}
-                  source={value ? { uri: value } : DefaultFamilyAvatar}
-                  style={styles.avatar}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <View style={styles.formSection}>
+            <Controller
+              control={control}
+              name="avatarUrl"
+              render={({ field: { onChange, value } }) => (
+                <View style={styles.avatarSection}>
+                  <Avatar.Image
+                    size={96}
+                    source={value ? { uri: value } : DefaultFamilyAvatar}
+                    style={styles.avatar}
+                  />
+                  <Button mode="outlined" onPress={() => pickImage(onChange)} disabled={!mediaLibraryPermission?.granted}>
+                    {t('common.chooseAvatar')}
+                  </Button>
+                </View>
+              )}
+            />
+            {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
+          </View>
+
+          <View style={styles.formSection}>
+            <Controller
+              control={control}
+              name="visibility"
+              render={({ field: { onChange, value } }) => (
+                <SegmentedButtons
+                  theme={{ roundness: theme.roundness }}
+                  value={value as 'Public' | 'Private'}
+                  onValueChange={newValue => onChange(newValue as 'Public' | 'Private')}
+                  buttons={[
+                    {
+                      value: 'Public',
+                      label: t('familyForm.public'),
+                      style: {
+                        borderRadius: theme.roundness,
+                      }
+                    },
+                    {
+                      value: 'Private',
+                      label: t('familyForm.private'),
+                      style: {
+                        borderRadius: theme.roundness,
+                      }
+                    },
+                  ]}
                 />
-                <Button mode="outlined" onPress={() => pickImage(onChange)} disabled={!mediaLibraryPermission?.granted}>
-                  {t('common.chooseAvatar')}
-                </Button>
-              </View>
-            )}
-          />
-          {errors.avatarUrl && <Text style={styles.errorText}>{errors.avatarUrl.message}</Text>}
-        </View>
+              )}
+            />
+            {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
+          </View>
 
-        <View style={styles.formSection}>
-          <Controller
-            control={control}
-            name="visibility"
-            render={({ field: { onChange, value } }) => (
-              <SegmentedButtons
-                theme={{ roundness: theme.roundness }}
-                value={value as 'Public' | 'Private'}
-                onValueChange={newValue => onChange(newValue as 'Public' | 'Private')}
-                buttons={[
-                  {
-                    value: 'Public',
-                    label: t('familyForm.public'),
-                    style: {
-                      borderRadius: theme.roundness,
-                    }
-                  },
-                  {
-                    value: 'Private',
-                    label: t('familyForm.private'),
-                    style: {
-                      borderRadius: theme.roundness,
-                    }
-                  },
-                ]}
-              />
-            )}
-          />
-          {errors.visibility && <Text style={styles.errorText}>{errors.visibility.message}</Text>}
-        </View>
+          <View style={styles.formSection}>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label={t('familyForm.name')}
+                  mode="outlined"
+                  value={value}
+                  onChangeText={onChange}
+                  style={styles.input}
+                  error={!!errors.name}
+                  left={<TextInput.Icon icon="account" />}
+                />
+              )}
+            />
+            {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
 
-        <View style={styles.formSection}>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label={t('familyForm.name')}
-                mode="outlined"
-                value={value}
-                onChangeText={onChange}
-                style={styles.input}
-                error={!!errors.name}
-                left={<TextInput.Icon icon="account" />}
-              />
-            )}
-          />
-          {errors.name && <Text style={styles.errorText}>{errors.name.message}</Text>}
+            <Controller
+              control={control}
+              name="code"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label={t('familyForm.code')}
+                  mode="outlined"
+                  value={value}
+                  onChangeText={onChange}
+                  style={styles.input}
+                  error={!!errors.code}
+                  editable={false} // Make it read-only
+                  left={<TextInput.Icon icon="pound" />}
+                />
+              )}
+            />
+            {errors.code && <Text style={styles.errorText}>{errors.code.message}</Text>}
 
-          <Controller
-            control={control}
-            name="code"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label={t('familyForm.code')}
-                mode="outlined"
-                value={value}
-                onChangeText={onChange}
-                style={styles.input}
-                error={!!errors.code}
-                editable={false} // Make it read-only
-                left={<TextInput.Icon icon="pound" />}
-              />
-            )}
-          />
-          {errors.code && <Text style={styles.errorText}>{errors.code.message}</Text>}
+            <Controller
+              control={control}
+              name="address"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label={t('familyForm.address')}
+                  mode="outlined"
+                  multiline
+                  numberOfLines={2}
+                  value={value}
+                  onChangeText={onChange}
+                  style={styles.input}
+                  error={!!errors.address}
+                  left={<TextInput.Icon icon="map-marker-outline" />}
+                />
+              )}
+            />
+            {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
 
-          <Controller
-            control={control}
-            name="address"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label={t('familyForm.address')}
-                mode="outlined"
-                multiline
-                numberOfLines={2}
-                value={value}
-                onChangeText={onChange}
-                style={styles.input}
-                error={!!errors.address}
-                left={<TextInput.Icon icon="map-marker-outline" />}
-              />
-            )}
-          />
-          {errors.address && <Text style={styles.errorText}>{errors.address.message}</Text>}
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label={t('familyForm.description')}
+                  mode="outlined"
+                  multiline
+                  numberOfLines={10}
+                  value={value}
+                  onChangeText={onChange}
+                  style={styles.input}
+                  error={!!errors.description}
+                  left={<TextInput.Icon icon="note-text-outline" />}
+                />
+              )}
+            />
+            {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
+          </View>
 
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label={t('familyForm.description')}
-                mode="outlined"
-                multiline
-                numberOfLines={10}
-                value={value}
-                onChangeText={onChange}
-                style={styles.input}
-                error={!!errors.description}
-                left={<TextInput.Icon icon="note-text-outline" />}
-              />
-            )}
-          />
-          {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
-        </View>
-
-        <View style={styles.formSection}>
-          <Controller
-            control={control}
-            name="managerIds"
-            render={({ field: { onChange, value } }) => (
-              <UserSelectInput
-                userIds={value || []}
-                onUserIdsChanged={(newIds) => {
-                  onChange(newIds); // Update react-hook-form state
-                  // Invalidate queries manually as onChange does not re-trigger the useCallback
-                  queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
-                  queryClient.invalidateQueries({ queryKey: ['users'] });
-                }}
-                label={t('familyForm.selectManagers')}
-                leftIcon="account-group"
-              />
-            )}
-          />
+          <View style={styles.formSection}>
+            <Controller
+              control={control}
+              name="managerIds"
+              render={({ field: { onChange, value } }) => (
+                <UserSelectInput
+                  userIds={value || []}
+                  onUserIdsChanged={(newIds) => {
+                    onChange(newIds); // Update react-hook-form state
+                    // Invalidate queries manually as onChange does not re-trigger the useCallback
+                    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+                    queryClient.invalidateQueries({ queryKey: ['users'] });
+                  }}
+                  label={t('familyForm.selectManagers')}
+                  leftIcon="account-group"
+                />
+              )}
+            />
 
 
-          <Controller
-            control={control}
-            name="viewerIds"
-            render={({ field: { onChange, value } }) => (
-              <UserSelectInput
-                userIds={value || []}
-                onUserIdsChanged={(newIds) => {
-                  onChange(newIds); // Update react-hook-form state
-                  // Invalidate queries manually as onChange does not re-trigger the useCallback
-                  queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
-                  queryClient.invalidateQueries({ queryKey: ['users'] });
-                }}
-                label={t('familyForm.selectViewers')}
-                leftIcon="account-group-outline"
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="viewerIds"
+              render={({ field: { onChange, value } }) => (
+                <UserSelectInput
+                  userIds={value || []}
+                  onUserIdsChanged={(newIds) => {
+                    onChange(newIds); // Update react-hook-form state
+                    // Invalidate queries manually as onChange does not re-trigger the useCallback
+                    queryClient.invalidateQueries({ queryKey: ['familyUserDetails'] });
+                    queryClient.invalidateQueries({ queryKey: ['users'] });
+                  }}
+                  label={t('familyForm.selectViewers')}
+                  leftIcon="account-group-outline"
+                />
+              )}
+            />
 
-        </View>
+          </View>
 
-        <Button
-          mode="contained"
-          onPress={handleSubmit}
-          style={[styles.button, { marginHorizontal: 0}]}
-          loading={isSubmitting}
-          disabled={isSubmitting || !isValid}
-        >
-          {t('common.save')}
-        </Button>
-      </ScrollView>
+          <Button
+            mode="contained"
+            onPress={handleSubmit}
+            style={[styles.button, { marginHorizontal: 0}]}
+            loading={isSubmitting}
+            disabled={isSubmitting || !isValid}
+          >
+            {t('common.save')}
+          </Button>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };

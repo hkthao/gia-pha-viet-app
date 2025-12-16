@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import {
   TextInput,
   Button,
@@ -162,290 +162,295 @@ export const EventForm: React.FC<EventFormProps> = ({
   ]), [t]);
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContent}>
-      <View style={styles.container}>
+    <KeyboardAvoidingView // Wrap content with KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.container}>
 
-        {/* Mã sự kiện */}
-        <Controller
-          control={control}
-          name="code"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label={t('eventForm.eventCode')}
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              mode="outlined"
-              style={styles.input}
-              theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-              error={!!errors.code}
-              testID="eventCodeInput"
-              left={<TextInput.Icon icon="identifier" />}
-              readOnly // Make it read-only
-            />)}
-        />
-        {errors.code && <Text style={styles.errorText}>{t(errors.code.message!, { fieldName: t('eventForm.eventCode') })}</Text>}
-
-        {/* Tên sự kiện */}
-        <Controller
-          control={control}
-          name="name"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label={t('eventForm.eventName')}
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              mode="outlined"
-              style={styles.input}
-              theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-              error={!!errors.name}
-              testID="eventNameInput"
-              left={<TextInput.Icon icon="format-title" />}
-            />)}
-        />
-        {errors.name && <Text style={styles.errorText}>{t(errors.name.message!, { fieldName: t('eventForm.eventName') })}</Text>}
-
-        {/* Mô tả */}
-        <Controller
-          control={control}
-          name="description"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label={t('eventForm.description')}
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              mode="outlined"
-              multiline
-              numberOfLines={3}
-              style={styles.input}
-              theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-              error={!!errors.description}
-              testID="eventDescriptionInput"
-              left={<TextInput.Icon icon="file-document-outline" />}
-            />)}
-        />
-
-
-        {/* Địa điểm */}
-        <Controller
-          control={control}
-          name="location"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              label={t('eventForm.location')}
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              mode="outlined"
-              style={styles.input}
-              theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-              error={!!errors.location}
-              testID="eventLocationInput"
-              left={<TextInput.Icon icon="map-marker" />}
-            />)}
-        />
-        {errors.location && <Text style={styles.errorText}>{t(errors.location.message!, { fieldName: t('eventForm.location') })}</Text>}
-
-        {/* Loại sự kiện */}
-        <List.Section title={t('eventForm.eventType')}>
+          {/* Mã sự kiện */}
           <Controller
             control={control}
-            name="type"
-            render={({ field: { onChange, value } }) => (
-              <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
-                <View style={styles.radioGroup}>
-                  {eventTypeOptions.map((option) => (
-                    <TouchableOpacity
-                      key={option.value}
-                      onPress={() => onChange(parseInt(option.value, 10))}
-                      style={styles.radioItem}
-                    >
-                      <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
-                      <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </RadioButton.Group>
-            )}
+            name="code"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t('eventForm.eventCode')}
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                mode="outlined"
+                style={styles.input}
+                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                error={!!errors.code}
+                testID="eventCodeInput"
+                left={<TextInput.Icon icon="identifier" />}
+                readOnly // Make it read-only
+              />)}
           />
-          {errors.type && <Text style={styles.errorText}>{t(errors.type.message!, { fieldName: t('eventForm.eventType') })}</Text>}
-        </List.Section>
-        <Divider />
+          {errors.code && <Text style={styles.errorText}>{t(errors.code.message!, { fieldName: t('eventForm.eventCode') })}</Text>}
 
-        {/* Chọn loại lịch */}
-        <List.Section title={t('eventForm.calendarType')}>
+          {/* Tên sự kiện */}
           <Controller
             control={control}
-            name="calendarType"
-            render={({ field: { onChange, value } }) => (
-              <View>
-                <List.Item
-                  title={t('eventForm.solarCalendar')}
-                  description={t('eventForm.solarCalendarDescription')}
-                  left={() => <List.Icon icon="white-balance-sunny" />}
-                  right={() => <RadioButton value={CalendarType.SOLAR.toString()} status={(value as CalendarType) === CalendarType.SOLAR ? 'checked' : 'unchecked'} />}
-                  onPress={() => onChange(CalendarType.SOLAR)}
-                  style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
-                />
-                <Divider />
-                <List.Item
-                  title={t('eventForm.lunarCalendar')}
-                  description={t('eventForm.lunarCalendarDescription')}
-                  left={() => <List.Icon icon="moon-waning-gibbous" />}
-                  right={() => <RadioButton value={CalendarType.LUNAR.toString()} status={(value as CalendarType) === CalendarType.LUNAR ? 'checked' : 'unchecked'} />}
-                  onPress={() => onChange(CalendarType.LUNAR)}
-                  style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
-                />
-              </View>
-            )}
+            name="name"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t('eventForm.eventName')}
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                mode="outlined"
+                style={styles.input}
+                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                error={!!errors.name}
+                testID="eventNameInput"
+                left={<TextInput.Icon icon="format-title" />}
+              />)}
           />
-        </List.Section>
-        {/* Input cho Dương lịch */}
-        {watch('calendarType') === CalendarType.SOLAR && ( // Conditional on calendarType
-          <>
-            <Divider style={{ marginBottom: SPACING_MEDIUM }} />
+          {errors.name && <Text style={styles.errorText}>{t(errors.name.message!, { fieldName: t('eventForm.eventName') })}</Text>}
+
+          {/* Mô tả */}
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t('eventForm.description')}
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                mode="outlined"
+                multiline
+                numberOfLines={3}
+                style={styles.input}
+                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                error={!!errors.description}
+                testID="eventDescriptionInput"
+                left={<TextInput.Icon icon="file-document-outline" />}
+              />)}
+          />
+
+
+          {/* Địa điểm */}
+          <Controller
+            control={control}
+            name="location"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t('eventForm.location')}
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                mode="outlined"
+                style={styles.input}
+                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                error={!!errors.location}
+                testID="eventLocationInput"
+                left={<TextInput.Icon icon="map-marker" />}
+              />)}
+          />
+          {errors.location && <Text style={styles.errorText}>{t(errors.location.message!, { fieldName: t('eventForm.location') })}</Text>}
+
+          {/* Loại sự kiện */}
+          <List.Section title={t('eventForm.eventType')}>
             <Controller
               control={control}
-              name="solarDate"
+              name="type"
               render={({ field: { onChange, value } }) => (
-                <DateInput
-                  label={t('eventForm.solarDate')}
-                  value={value}
-                  onChange={onChange}
-                  error={!!errors.solarDate}
-                  helperText={errors.solarDate ? t(errors.solarDate.message!, { fieldName: t('eventForm.solarDate') }) : undefined}
-                />
+                <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
+                  <View style={styles.radioGroup}>
+                    {eventTypeOptions.map((option) => (
+                      <TouchableOpacity
+                        key={option.value}
+                        onPress={() => onChange(parseInt(option.value, 10))}
+                        style={styles.radioItem}
+                      >
+                        <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
+                        <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </RadioButton.Group>
               )}
             />
-          </>
-        )}
+            {errors.type && <Text style={styles.errorText}>{t(errors.type.message!, { fieldName: t('eventForm.eventType') })}</Text>}
+          </List.Section>
+          <Divider />
 
-        {/* Input cho Âm lịch */}
-        {watch('calendarType') === CalendarType.LUNAR && ( // Conditional on calendarType
-          <>
-            <Divider style={{ marginBottom: SPACING_MEDIUM }} />
-            <View style={styles.lunarInputRow}>
-              <Controller
-                control={control}
-                name="lunarDay"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    label={t('eventForm.lunarDay')}
-                    value={value?.toString()} // Convert number to string for TextInput
-                    onBlur={onBlur}
-                    onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
-                    mode="outlined"
-                    keyboardType="numeric"
-                    style={styles.lunarInput}
-                    theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-                    error={!!errors.lunarDay}
-                    testID="lunarDayInput"
-                    left={<TextInput.Icon icon="brightness-2" />}
-                  />
-                )}
-              />
-              <View style={styles.lunarInputSpacer} />
-              <Controller
-                control={control}
-                name="lunarMonth"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    label={t('eventForm.lunarMonth')}
-                    value={value?.toString()} // Convert number to string for TextInput
-                    onBlur={onBlur}
-                    onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
-                    mode="outlined"
-                    keyboardType="numeric"
-                    style={styles.lunarInput}
-                    theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-                    error={!!errors.lunarMonth}
-                    testID="lunarMonthInput"
-                    left={<TextInput.Icon icon="moon-waning-gibbous" />}
-                  />
-                )}
-              />
-            </View>
-            {errors.lunarDay && <Text style={styles.errorText}>{t(errors.lunarDay.message!, { fieldName: t('eventForm.lunarDay') })}</Text>}
-            {errors.lunarMonth && <Text style={styles.errorText}>{t(errors.lunarMonth.message!, { fieldName: t('eventForm.lunarMonth') })}</Text>}
-
-            <Divider />
-
+          {/* Chọn loại lịch */}
+          <List.Section title={t('eventForm.calendarType')}>
             <Controller
               control={control}
-              name="isLeapMonth"
+              name="calendarType"
               render={({ field: { onChange, value } }) => (
-                <List.Item
-                  title={t('eventForm.isLeapMonth')}
-                  left={() => <List.Icon icon="calendar-alert" />}
-                  right={() => (
-                    <Switch
-                      value={value || false}
-                      onValueChange={onChange}
-                      testID="isLeapMonthSwitch"
+                <View>
+                  <List.Item
+                    title={t('eventForm.solarCalendar')}
+                    description={t('eventForm.solarCalendarDescription')}
+                    left={() => <List.Icon icon="white-balance-sunny" />}
+                    right={() => <RadioButton value={CalendarType.SOLAR.toString()} status={(value as CalendarType) === CalendarType.SOLAR ? 'checked' : 'unchecked'} />}
+                    onPress={() => onChange(CalendarType.SOLAR)}
+                    style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
+                  />
+                  <Divider />
+                  <List.Item
+                    title={t('eventForm.lunarCalendar')}
+                    description={t('eventForm.lunarCalendarDescription')}
+                    left={() => <List.Icon icon="moon-waning-gibbous" />}
+                    right={() => <RadioButton value={CalendarType.LUNAR.toString()} status={(value as CalendarType) === CalendarType.LUNAR ? 'checked' : 'unchecked'} />}
+                    onPress={() => onChange(CalendarType.LUNAR)}
+                    style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
+                  />
+                </View>
+              )}
+            />
+          </List.Section>
+          {/* Input cho Dương lịch */}
+          {watch('calendarType') === CalendarType.SOLAR && ( // Conditional on calendarType
+            <>
+              <Divider style={{ marginBottom: SPACING_MEDIUM }} />
+              <Controller
+                control={control}
+                name="solarDate"
+                render={({ field: { onChange, value } }) => (
+                  <DateInput
+                    label={t('eventForm.solarDate')}
+                    value={value}
+                    onChange={onChange}
+                    error={!!errors.solarDate}
+                    helperText={errors.solarDate ? t(errors.solarDate.message!, { fieldName: t('eventForm.solarDate') }) : undefined}
+                  />
+                )}
+              />
+            </>
+          )}
+
+          {/* Input cho Âm lịch */}
+          {watch('calendarType') === CalendarType.LUNAR && ( // Conditional on calendarType
+            <>
+              <Divider style={{ marginBottom: SPACING_MEDIUM }} />
+              <View style={styles.lunarInputRow}>
+                <Controller
+                  control={control}
+                  name="lunarDay"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      label={t('eventForm.lunarDay')}
+                      value={value?.toString()} // Convert number to string for TextInput
+                      onBlur={onBlur}
+                      onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
+                      mode="outlined"
+                      keyboardType="numeric"
+                      style={styles.lunarInput}
+                      theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                      error={!!errors.lunarDay}
+                      testID="lunarDayInput"
+                      left={<TextInput.Icon icon="brightness-2" />}
                     />
                   )}
-                  onPress={() => onChange(!value)}
-                  style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
                 />
-              )}
-            />
-          </>
-        )}
-
-        <Divider />
-
-        {/* Lặp hàng năm */}
-        <Controller
-          control={control}
-          name="repeatRule"
-          render={({ field: { onChange, value } }) => (
-            <List.Item
-              title={t('eventForm.repeatAnnually')}
-              description={value === RepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
-              left={() => <List.Icon icon="repeat" />}
-              right={() => (
-                <Switch
-                  value={value === RepeatRule.YEARLY}
-                  onValueChange={(newValue) => onChange(newValue ? RepeatRule.YEARLY : RepeatRule.NONE)}
+                <View style={styles.lunarInputSpacer} />
+                <Controller
+                  control={control}
+                  name="lunarMonth"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      label={t('eventForm.lunarMonth')}
+                      value={value?.toString()} // Convert number to string for TextInput
+                      onBlur={onBlur}
+                      onChangeText={(text) => onChange(parseInt(text, 10))} // Convert string to number for onChange
+                      mode="outlined"
+                      keyboardType="numeric"
+                      style={styles.lunarInput}
+                      theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                      error={!!errors.lunarMonth}
+                      testID="lunarMonthInput"
+                      left={<TextInput.Icon icon="moon-waning-gibbous" />}
+                    />
+                  )}
                 />
-              )}
-              onPress={() => onChange(value === RepeatRule.YEARLY ? RepeatRule.NONE : RepeatRule.YEARLY)}
-              style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
-            />
+              </View>
+              {errors.lunarDay && <Text style={styles.errorText}>{t(errors.lunarDay.message!, { fieldName: t('eventForm.lunarDay') })}</Text>}
+              {errors.lunarMonth && <Text style={styles.errorText}>{t(errors.lunarMonth.message!, { fieldName: t('eventForm.lunarMonth') })}</Text>}
+
+              <Divider />
+
+              <Controller
+                control={control}
+                name="isLeapMonth"
+                render={({ field: { onChange, value } }) => (
+                  <List.Item
+                    title={t('eventForm.isLeapMonth')}
+                    left={() => <List.Icon icon="calendar-alert" />}
+                    right={() => (
+                      <Switch
+                        value={value || false}
+                        onValueChange={onChange}
+                        testID="isLeapMonthSwitch"
+                      />
+                    )}
+                    onPress={() => onChange(!value)}
+                    style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
+                  />
+                )}
+              />
+            </>
           )}
-        />
 
-        <Divider style={{marginBottom: SPACING_MEDIUM}} />
+          <Divider />
 
-        {/* Màu hiển thị */}
-        <View style={styles.colorPickerContainer}>
-          {BASIC_COLORS.map((colorHex) => (
-            <TouchableOpacity
-              key={colorHex}
-              style={[
-                styles.colorChip,
-                { backgroundColor: colorHex },
-                watch('color') === colorHex && styles.selectedColorChip,
-              ]}
-              onPress={() => setValue('color', colorHex, { shouldValidate: true })}
-            />
-          ))}
+          {/* Lặp hàng năm */}
+          <Controller
+            control={control}
+            name="repeatRule"
+            render={({ field: { onChange, value } }) => (
+              <List.Item
+                title={t('eventForm.repeatAnnually')}
+                description={value === RepeatRule.YEARLY ? t('eventForm.repeatAnnuallyYes') : t('eventForm.repeatAnnuallyNo')}
+                left={() => <List.Icon icon="repeat" />}
+                right={() => (
+                  <Switch
+                    value={value === RepeatRule.YEARLY}
+                    onValueChange={(newValue) => onChange(newValue ? RepeatRule.YEARLY : RepeatRule.NONE)}
+                  />
+                )}
+                onPress={() => onChange(value === RepeatRule.YEARLY ? RepeatRule.NONE : RepeatRule.YEARLY)}
+                style={{ backgroundColor: theme.colors.surface, borderRadius: theme.roundness }}
+              />
+            )}
+          />
+
+          <Divider style={{ marginBottom: SPACING_MEDIUM }} />
+
+          {/* Màu hiển thị */}
+          <View style={styles.colorPickerContainer}>
+            {BASIC_COLORS.map((colorHex) => (
+              <TouchableOpacity
+                key={colorHex}
+                style={[
+                  styles.colorChip,
+                  { backgroundColor: colorHex },
+                  watch('color') === colorHex && styles.selectedColorChip,
+                ]}
+                onPress={() => setValue('color', colorHex, { shouldValidate: true })}
+              />
+            ))}
+          </View>
+          {errors.color && <Text style={styles.errorText}>{t(errors.color.message!, { fieldName: t('eventForm.color') })}</Text>}
+
+          <Button
+            mode="contained"
+            onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            style={styles.saveButton}
+            testID="saveEventButton"
+          >
+            {t('common.save')}
+          </Button>
         </View>
-        {errors.color && <Text style={styles.errorText}>{t(errors.color.message!, { fieldName: t('eventForm.color') })}</Text>}
-
-        <Button
-          mode="contained"
-          onPress={handleSubmit(onSubmit)}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.saveButton}
-          testID="saveEventButton"
-        >
-          {t('common.save')}
-        </Button>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };

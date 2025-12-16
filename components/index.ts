@@ -10,3 +10,4 @@ export * from './member';
 export * from './face'; // Export face components
 export * from './onboarding';
 export * from './user';
+export * from './chat';

@@ -9,8 +9,8 @@ export const userProfileQueryKeys = {
   current: () => [...userProfileQueryKeys.all, 'current'] as const,
 };
 
-export const useGetCurrentUserProfileQuery = (options?: UseQueryOptions<UserProfileDto, string>) => {
-  return useQuery<UserProfileDto, string>({
+export const useGetCurrentUserProfileQuery = (options?: UseQueryOptions<UserProfileDto, Error>) => {
+  return useQuery<UserProfileDto, Error>({
     queryKey: userProfileQueryKeys.current(),
     queryFn: async () => {
       const result = await userProfileService.getCurrentUserProfile();

@@ -1,6 +1,6 @@
 // gia-pha-viet-app/components/face/FaceBoundingBoxes.tsx
 import React, { useMemo } from 'react';
-import { StyleSheet, View, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Image } from 'react-native'; // Removed Dimensions
 import { Svg, Rect, G, Text as SvgText } from 'react-native-svg';
 import { useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +47,6 @@ const FaceBoundingBoxes: React.FC<FaceBoundingBoxesProps> = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const screenWidth = Dimensions.get('window').width;
 
   const [containerDimensions, setContainerDimensions] = React.useState<{ width: number; height: number } | null>(null);
 

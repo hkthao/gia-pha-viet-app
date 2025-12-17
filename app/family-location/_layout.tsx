@@ -1,11 +1,11 @@
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useTheme, Appbar } from 'react-native-paper';
+import { useTheme } from 'react-native-paper'; // Removed Appbar
 
 export default function FamilyLocationStackLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
+  // Removed const router = useRouter(); 
 
   return (
     <Stack

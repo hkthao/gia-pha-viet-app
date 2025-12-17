@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native'; // Removed Image, Dimensions
-import { Appbar, useTheme, Text, Button, ActivityIndicator, Divider } from 'react-native-paper';
+import { Appbar, useTheme, Text, Button, Divider } from 'react-native-paper'; // Removed ActivityIndicator
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';

@@ -41,7 +41,7 @@ export const FamilyForm: React.FC<FamilyFormProps> = ({ initialValues, onSubmit 
   }, [managerIds, viewerIds]);
 
   // Fetch details for all users (managers and viewers)
-  const { data: fetchedAllUserDetails } = useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
+  useQuery<UserListDto[], Error, UserListDto[], [string, { userIds: string[] }]>({
     queryKey: ['familyUserDetails', { userIds: allUserIds }],
     queryFn: async ({ queryKey }) => {
       const [, { userIds: idsToFetch }] = queryKey;

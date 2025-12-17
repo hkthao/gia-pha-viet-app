@@ -512,11 +512,16 @@
   "locationType.deathplace": "Nơi mất",
   "locationType.burial": "Nơi an táng",
   "locationType.other": "Khác",
+  "locationType.unknown": "Không xác định",
 
   "locationAccuracy.exact": "Chính xác",
   "locationAccuracy.approximate": "Xấp xỉ",
   "locationAccuracy.estimated": "Ước tính",
+  "locationAccuracy.unknown": "Không xác định",
 
   "locationSource.userSelected": "Người dùng chọn",
-  "locationSource.geocoded": "Được mã hóa địa lý"
+  "locationSource.geocoded": "Được mã hóa địa lý",
+  "locationSource.unknown": "Không xác định",
+
+  "more.family_location": "Vị trí gia đình"
 }

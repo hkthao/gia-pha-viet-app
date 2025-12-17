@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme, FAB, Appbar } from 'react-native-paper'; // Import FAB, Appbar
+import { Chip, useTheme, Appbar } from 'react-native-paper'; // Removed FAB
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router'; // Import useRouter
 

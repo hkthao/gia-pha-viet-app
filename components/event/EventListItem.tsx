@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, useTheme, TouchableRipple } from 'react-native-paper'; // Import TouchableRipple
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { SPACING_MEDIUM, SPACING_SMALL, SPACING_LARGE } from '@/constants/dimensions'; // Import necessary constants
+import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions'; // Removed SPACING_LARGE
 import { EventType } from '@/types'; // Import EventType
 
 interface EventListItemProps {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react'; // Removed useEffect, useState
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { Text, useTheme, ActivityIndicator, Card, Appbar, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';

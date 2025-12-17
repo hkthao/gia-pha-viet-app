@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import { TextInput, Text, useTheme, List } from 'react-native-paper'; // Import List
+import { Text, useTheme, List } from 'react-native-paper'; // Removed TextInput
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SPACING_MEDIUM } from '@/constants/dimensions';

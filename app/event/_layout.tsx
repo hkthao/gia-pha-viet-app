@@ -1,11 +1,11 @@
-import { Stack, useRouter } from 'expo-router'; // Import useRouter
+import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useTheme, Appbar } from 'react-native-paper'; // Import Appbar
+import { useTheme } from 'react-native-paper'; // Removed Appbar
 
 export default function EventStackLayout() {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter(); // Initialize useRouter
+  // Removed const router = useRouter(); 
 
   return (
     <Stack

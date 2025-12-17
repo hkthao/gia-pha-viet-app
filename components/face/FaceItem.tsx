@@ -73,7 +73,7 @@ const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
                   />
                 )}
                 compact
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
+                style={{  backgroundColor: 'transparent', }}
               >
                 {item.familyName}
               </Chip>
@@ -82,7 +82,7 @@ const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
               <Chip
                 icon="calendar"
                 compact
-                style={{ backgroundColor: theme.colors.surfaceVariant }}
+                style={{  backgroundColor: 'transparent' }}
               >
                 ({item.birthYear || t('common.not_available')} - {item.deathYear || t('common.not_available')})
               </Chip>

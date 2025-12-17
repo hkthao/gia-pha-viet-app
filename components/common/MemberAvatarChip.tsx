@@ -23,6 +23,7 @@ const MemberAvatarChip: React.FC<MemberAvatarChipProps> = ({ fullName, avatarUrl
     chip: {
       marginRight: SPACING_SMALL,
       marginBottom: SPACING_SMALL,
+      backgroundColor: 'transparent',
     }
   }), [theme]);
 

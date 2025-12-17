@@ -1,12 +1,12 @@
-import { Stack, router, useSegments } from 'expo-router'; // Import useSegments
-import { Appbar, useTheme } from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
+import { Stack } from 'expo-router'; // Removed router, useSegments
+import { useTheme } from 'react-native-paper'; // Removed Appbar
+// Removed useTranslation
 import { View } from 'react-native';
 
 export default function MemberLayout() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation(); // Removed initialization as it's not used
   const theme = useTheme();
-  const segments = useSegments(); // Use useSegments to determine current screen
+  // const segments = useSegments(); // Removed initialization as it's not used
 
 
   return (

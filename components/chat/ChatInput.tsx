@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, useTheme } from 'react-native-paper';
+import { TextInput, useTheme } from 'react-native-paper'; // Removed Button
 import { useTranslation } from 'react-i18next';
 
 interface ChatInputProps {

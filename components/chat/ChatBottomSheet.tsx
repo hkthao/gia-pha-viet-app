@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'; // Removed View
 import { Portal, useTheme } from 'react-native-paper'; // Import useTheme
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import ChatInput from './ChatInput';

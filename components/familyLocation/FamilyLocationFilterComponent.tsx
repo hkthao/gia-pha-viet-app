@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Chip, useTheme } from 'react-native-paper';
+import { Chip } from 'react-native-paper'; // Removed useTheme
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { SearchFamilyLocationsQuery, LocationType, LocationAccuracy, LocationSource } from '@/types';
@@ -13,7 +13,7 @@ interface FamilyLocationFilterProps {
 
 const FamilyLocationFilterComponent: React.FC<FamilyLocationFilterProps> = ({ filters, setFilters }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
+  // const theme = useTheme(); // Removed unused theme
 
   const handleFilterChange = useCallback((key: keyof SearchFamilyLocationsQuery, value: any) => {
     setFilters((prevFilters) => {

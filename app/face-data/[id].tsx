@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, Image } from 'react-native';
-import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Divider, List, Chip, Avatar } from 'react-native-paper';
+import { Appbar, useTheme, Text, ActivityIndicator, Card, Button, Chip, Avatar } from 'react-native-paper'; // Removed Divider, List
 import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';

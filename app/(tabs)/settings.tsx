@@ -208,7 +208,7 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="help-circle" />}
               title={t('settings.helpSupport.faq')}
-              onPress={() => router.push('/faq-webview')}
+              onPress={() => router.push('/settings/faq-webview')}
               right={() => <List.Icon icon="chevron-right" style={styles.rightIcon} />}
             />
             <Divider />
@@ -216,7 +216,7 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="comment-edit" />}
               title={t('settings.helpSupport.feedback')}
-              onPress={() => router.push('/feedback-webview')}
+              onPress={() => router.push('/settings/feedback-webview')}
               right={() => <List.Icon icon="chevron-right" style={styles.rightIcon} />}
             />
           </List.Section>
@@ -234,7 +234,7 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="file-document-multiple" />}
               title={t('settings.aboutApp.legalInfo')}
-              onPress={() => router.push('/legal-webview')}
+              onPress={() => router.push('/settings/legal-webview')}
               right={() => <List.Icon icon="chevron-right" style={styles.rightIcon} />}
             />
           </List.Section>

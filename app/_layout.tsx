@@ -94,18 +94,6 @@ function AppContent({ hasOnboarded, isLoadingAuth }: AppContentProps) {
               <ExpoStatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="family" options={{ headerShown: false }} />
-                <Stack.Screen name="member/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="event" options={{ headerShown: false }} />
-                <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
-                <Stack.Screen name="face-data" options={{ headerShown: false }} />
-                <Stack.Screen name="family-location" options={{ headerShown: false }} />
-
-                <Stack.Screen name="legal-webview" options={{ headerShown: false }} />
-                <Stack.Screen name="feedback-webview" options={{ headerShown: false }} />
-                <Stack.Screen name="faq-webview" options={{ headerShown: false }} />
-                <Stack.Screen name="feature-under-development" options={{ headerShown: false }} />
-                <Stack.Screen name="permission-denied" options={{ headerShown: false }} />
               </Stack>
             </NavigationThemeProvider>
           </SnackbarProvider>

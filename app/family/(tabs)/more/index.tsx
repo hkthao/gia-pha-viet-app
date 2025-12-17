@@ -81,7 +81,7 @@ export default function MoreOptionsScreen() {
             title={t('familyLocation.manageLocations')}
             left={() => <MaterialCommunityIcons name="map-marker-multiple" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
-            onPress={() => navigateTo('/family-location')}
+            onPress={() => navigateTo('/family/(tabs)/more/family-location')}
             style={styles.listItem}
           />
         </Card>

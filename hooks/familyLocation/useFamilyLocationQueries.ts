@@ -19,7 +19,7 @@ export const familyLocationQueryKeys = {
   detail: (id: string) => [...familyLocationQueryKeys.details(), id] as const,
 };
 
-// Hook for fetching a paginated list of family locations
+// Hook for fetching a paginated list of map data
 export const useFamilyLocations = (filters: SearchFamilyLocationsQuery) => {
   return useQuery<PaginatedList<FamilyLocationDto>, Error>({ // Corrected PaginatedResult to PaginatedList
     queryKey: familyLocationQueryKeys.list(filters),
@@ -28,14 +28,14 @@ export const useFamilyLocations = (filters: SearchFamilyLocationsQuery) => {
       if (response.isSuccess && response.value) { // Corrected success to isSuccess, data to value
         return response.value; // Corrected data to value
       }
-      throw new Error(response.error?.message || 'Failed to fetch family locations'); // Corrected errorMessage to error?.message
+      throw new Error(response.error?.message || 'Failed to fetch map data'); // Corrected errorMessage to error?.message
     },
     // Keep data fresh for 5 minutes
     staleTime: 1000 * 60 * 5,
   });
 };
 
-// Hook for fetching a single family location by ID
+// Hook for fetching a single map data by ID
 export const useFamilyLocation = (id: string) => {
   return useQuery<FamilyLocationDto, Error>({
     queryKey: familyLocationQueryKeys.detail(id),
@@ -44,13 +44,13 @@ export const useFamilyLocation = (id: string) => {
       if (response.isSuccess && response.value) { // Corrected success to isSuccess, data to value
         return response.value; // Corrected data to value
       }
-      throw new Error(response.error?.message || 'Failed to fetch family location'); // Corrected errorMessage to error?.message
+      throw new Error(response.error?.message || 'Failed to fetch map data'); // Corrected errorMessage to error?.message
     },
     enabled: !!id, // Only run the query if ID is available
   });
 };
 
-// Hook for creating a family location
+// Hook for creating a map data
 export const useCreateFamilyLocation = () => {
   const queryClient = useQueryClient();
   return useMutation<Result<FamilyLocationDto>, Error, CreateFamilyLocationRequestDto>({
@@ -59,7 +59,7 @@ export const useCreateFamilyLocation = () => {
       if (response.isSuccess) { // Corrected success to isSuccess
         return response;
       }
-      throw new Error(response.error?.message || 'Failed to create family location'); // Corrected errorMessage to error?.message
+      throw new Error(response.error?.message || 'Failed to create map data'); // Corrected errorMessage to error?.message
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: familyLocationQueryKeys.lists() });
@@ -67,7 +67,7 @@ export const useCreateFamilyLocation = () => {
   });
 };
 
-// Hook for updating a family location
+// Hook for updating a map data
 export const useUpdateFamilyLocation = () => {
   const queryClient = useQueryClient();
   const { currentFamilyId } = useCurrentFamilyStore(); // Get currentFamilyId
@@ -95,7 +95,7 @@ export const useUpdateFamilyLocation = () => {
       if (response.isSuccess) {
         return response;
       }
-      throw new Error(response.error?.message || 'Failed to update family location');
+      throw new Error(response.error?.message || 'Failed to update map data');
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: familyLocationQueryKeys.detail(variables.id) });
@@ -104,7 +104,7 @@ export const useUpdateFamilyLocation = () => {
   });
 };
 
-// Hook for deleting a family location
+// Hook for deleting a map data
 export const useDeleteFamilyLocation = () => {
   const queryClient = useQueryClient();
   return useMutation<Result<void>, Error, string>({
@@ -113,7 +113,7 @@ export const useDeleteFamilyLocation = () => {
       if (response.isSuccess) { // Corrected success to isSuccess
         return response;
       }
-      throw new Error(response.error?.message || 'Failed to delete family location'); // Corrected errorMessage to error?.message
+      throw new Error(response.error?.message || 'Failed to delete map data'); // Corrected errorMessage to error?.message
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: familyLocationQueryKeys.lists() });

@@ -93,7 +93,7 @@ export default function FamilyLocationListScreen() {
     setDialogVisible(true);
   }, []);
 
-  // Define the query function for fetching family location data
+  // Define the query function for fetching map data data
   const familyLocationSearchQueryFn = useCallback(
     async ({ pageParam = 1, filters, queryKey: reactQueryKey }: { pageParam?: number; queryKey: QueryKey; filters: SearchFamilyLocationsQuery }): Promise<PaginatedList<FamilyLocationDto>> => {
       if (!currentFamilyId) {

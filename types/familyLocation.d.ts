@@ -54,4 +54,6 @@ export interface SearchFamilyLocationsQuery extends BaseSearchQuery {
     familyId?: string;
     name?: string;
     locationType?: LocationType;
+    accuracy?: LocationAccuracy;
+    source?: LocationSource;
 }

@@ -15,3 +15,4 @@ export { UserCheckModal } from './UserCheckModal';
 export { UserRoleSelector } from './UserRoleSelector';
 export { default as LunarDayInput } from './LunarDayInput';
 export { default as LunarMonthInput } from './LunarMonthInput';
+export { default as ConfirmationDialog } from './ConfirmationDialog';

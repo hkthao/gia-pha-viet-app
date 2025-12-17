@@ -479,5 +479,44 @@
   "common.noDate": "Chưa có ngày",
   "memberForm.createTitle": "Tạo thành viên mới",
   "memberForm.editTitle": "Chỉnh sửa thành viên",
-  "welcome": "Chào mừng đến với Cây Gia Phả!"
+  "welcome": "Chào mừng đến với Cây Gia Phả!",
+
+  "familyLocation.manageLocations": "Dữ liệu bản đồ",
+  "familyLocation.viewLocations": "Xem dữ liệu bản đồ",
+  "familyLocation.listTitle": "Vị trí gia đình",
+  "familyLocation.searchPlaceholder": "Tìm kiếm vị trí theo tên",
+  "familyLocation.noLocationsFound": "Không tìm thấy dữ liệu bản đồ nào.",
+  "familyLocation.createOneNow": "Tạo một ngay bây giờ!",
+  "familyLocation.addLocation": "Thêm vị trí",
+  "familyLocation.deleteConfirmTitle": "Xác nhận xóa",
+  "familyLocation.deleteConfirmMessage": "Bạn có chắc chắn muốn xóa dữ liệu bản đồ này không?",
+  "familyLocation.selectFamilyPrompt": "Vui lòng chọn một gia đình để quản lý vị trí.",
+  "familyLocation.detailTitle": "Chi tiết vị trí",
+  "familyLocation.errors.dataNotAvailable": "Dữ liệu vị trí không có sẵn",
+  "familyLocation.errors.locationNotFound": "Không tìm thấy vị trí",
+
+  "familyLocationForm.name": "Tên vị trí",
+  "familyLocationForm.description": "Mô tả",
+  "familyLocationForm.address": "Địa chỉ",
+  "familyLocationForm.latitude": "Vĩ độ",
+  "familyLocationForm.longitude": "Kinh độ",
+  "familyLocationForm.locationType": "Loại vị trí",
+  "familyLocationForm.accuracy": "Độ chính xác",
+  "familyLocationForm.source": "Nguồn",
+  "familyLocationForm.createTitle": "Tạo vị trí",
+  "familyLocationForm.editTitle": "Chỉnh sửa vị trí",
+  "familyLocationForm.errors.locationIdMissing": "Thiếu ID vị trí để cập nhật.",
+
+  "locationType.home": "Nhà",
+  "locationType.birthplace": "Nơi sinh",
+  "locationType.deathplace": "Nơi mất",
+  "locationType.burial": "Nơi an táng",
+  "locationType.other": "Khác",
+
+  "locationAccuracy.exact": "Chính xác",
+  "locationAccuracy.approximate": "Xấp xỉ",
+  "locationAccuracy.estimated": "Ước tính",
+
+  "locationSource.userSelected": "Người dùng chọn",
+  "locationSource.geocoded": "Được mã hóa địa lý"
 }

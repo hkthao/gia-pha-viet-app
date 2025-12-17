@@ -12,4 +12,5 @@ export * from './familyDict.d';
 export * from './privacy.d';
 export * from './user.d';
 export * from './familyMedia.d';
+export * from './familyLocation.d';
 

@@ -46,5 +46,8 @@ export * from './api';
 export * from './privacy';
 export * from './user';
 export * from './familyMedia'; // Export new media service types
+export * from './familyLocation'; // Export familyLocation service types
+import { familyLocationService } from './familyLocation/familyLocationService';
+export { familyLocationService };
 
 

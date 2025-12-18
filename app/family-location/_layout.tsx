@@ -27,6 +27,7 @@ export default function FamilyLocationStackLayout() {
       <Stack.Screen name="create" options={{ title: t('familyLocationForm.createTitle') }} />
       <Stack.Screen name="[id]" options={{ title: t('familyLocation.detailTitle') }} />
       <Stack.Screen name="[id]/edit" options={{ title: t('familyLocationForm.editTitle') }} />
+      <Stack.Screen name="map-select" options={{ title: t('familyLocation.mapSelectTitle') }} />
     </Stack>
   );
 }

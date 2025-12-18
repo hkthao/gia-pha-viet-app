@@ -1,5 +1,12 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useMemo, useEffect, useCallback } from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import {
   TextInput,
   Button,
@@ -8,14 +15,23 @@ import {
   Text,
   MD3Theme,
   RadioButton,
-} from 'react-native-paper';
-import { useTranslation } from 'react-i18next';
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { FamilyLocationFormData, familyLocationValidationSchema } from '@/utils/validation/familyLocationValidationSchema';
-import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { LocationType, LocationAccuracy, LocationSource } from '@/types';
-import * as yup from 'yup';
+} from "react-native-paper";
+import { useTranslation } from "react-i18next";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "expo-router";
+import { useMapSelectionStore } from "@/stores/useMapSelectionStore"; // Import useMapSelectionStore
+import {
+  FamilyLocationFormData,
+  familyLocationValidationSchema,
+} from "@/utils/validation/familyLocationValidationSchema";
+import {
+  SPACING_EXTRA_LARGE,
+  SPACING_MEDIUM,
+  SPACING_SMALL,
+} from "@/constants/dimensions";
+import { LocationType, LocationAccuracy, LocationSource } from "@/types";
+import * as yup from "yup";
 
 interface FamilyLocationFormProps {
   initialValues?: Partial<FamilyLocationFormData>;
@@ -36,18 +52,18 @@ const getStyles = (theme: MD3Theme) =>
     },
     sectionTitle: {
       fontSize: 16,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       marginBottom: SPACING_SMALL,
       marginTop: SPACING_MEDIUM,
     },
     radioGroup: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
+      flexDirection: "row",
+      flexWrap: "wrap",
       marginBottom: SPACING_MEDIUM,
     },
     radioItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginRight: SPACING_MEDIUM,
       marginBottom: SPACING_SMALL,
     },
@@ -61,9 +77,10 @@ const getStyles = (theme: MD3Theme) =>
       marginLeft: SPACING_MEDIUM,
     },
     coordsInputRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       marginBottom: SPACING_MEDIUM,
+      flexWrap: "nowrap", // Ensure content stays on one line
     },
     coordsInput: {
       flex: 1,
@@ -73,7 +90,8 @@ const getStyles = (theme: MD3Theme) =>
     },
   });
 
-const typedFamilyLocationValidationSchema: yup.ObjectSchema<FamilyLocationFormData> = familyLocationValidationSchema as yup.ObjectSchema<FamilyLocationFormData>;
+const typedFamilyLocationValidationSchema: yup.ObjectSchema<FamilyLocationFormData> =
+  familyLocationValidationSchema as yup.ObjectSchema<FamilyLocationFormData>;
 
 export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
   initialValues,
@@ -83,18 +101,22 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = useMemo(() => getStyles(theme), [theme]);
+  const router = useRouter(); // Initialize useRouter
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    getValues, // Add getValues to get current form values
+    setValue, // Add setValue to set form values from map selection
+    trigger, // Add trigger to manually trigger validation
   } = useForm<FamilyLocationFormData>({
     resolver: yupResolver(typedFamilyLocationValidationSchema),
-    mode: 'onTouched',
+    mode: "onTouched",
     defaultValues: {
-      name: '',
-      description: '',
-      address: '',
+      name: "",
+      description: "",
+      address: "",
       latitude: undefined,
       longitude: undefined,
       locationType: LocationType.Home,
@@ -104,29 +126,88 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
     },
   });
 
-  const locationTypeOptions = useMemo(() => ([
-    { label: t('locationType.home'), value: LocationType.Home.toString() },
-    { label: t('locationType.birthplace'), value: LocationType.Birthplace.toString() },
-    { label: t('locationType.deathplace'), value: LocationType.Deathplace.toString() },
-    { label: t('locationType.burial'), value: LocationType.Burial.toString() },
-    { label: t('locationType.other'), value: LocationType.Other.toString() },
-  ]), [t]);
+  useEffect(() => {
+    trigger(); // Trigger validation on mount
+  }, [trigger]);
 
-  const accuracyOptions = useMemo(() => ([
-    { label: t('locationAccuracy.exact'), value: LocationAccuracy.Exact.toString() },
-    { label: t('locationAccuracy.approximate'), value: LocationAccuracy.Approximate.toString() },
-    { label: t('locationAccuracy.estimated'), value: LocationAccuracy.Estimated.toString() },
-  ]), [t]);
+  const handleOpenMap = useCallback(() => {
+    const { latitude, longitude } = getValues();
+    router.push({
+      pathname: "/family-location/map-select",
+      params: {
+        initialLatitude: latitude,
+        initialLongitude: longitude,
+      },
+    });
+  }, [router, getValues]);
 
-  const sourceOptions = useMemo(() => ([
-    { label: t('locationSource.userSelected'), value: LocationSource.UserSelected.toString() },
-    { label: t('locationSource.geocoded'), value: LocationSource.Geocoded.toString() },
-  ]), [t]);
+  const { selectedLatitude, selectedLongitude, clearCoordinates } =
+    useMapSelectionStore();
+
+  useEffect(() => {
+    if (selectedLatitude !== undefined && selectedLongitude !== undefined) {
+      setValue("latitude", selectedLatitude);
+      setValue("longitude", selectedLongitude);
+      clearCoordinates(); // Clear the store after use
+    }
+  }, [selectedLatitude, selectedLongitude, setValue, clearCoordinates]);
+
+  const locationTypeOptions = useMemo(
+    () => [
+      { label: t("locationType.home"), value: LocationType.Home.toString() },
+      {
+        label: t("locationType.birthplace"),
+        value: LocationType.Birthplace.toString(),
+      },
+      {
+        label: t("locationType.deathplace"),
+        value: LocationType.Deathplace.toString(),
+      },
+      {
+        label: t("locationType.burial"),
+        value: LocationType.Burial.toString(),
+      },
+      { label: t("locationType.other"), value: LocationType.Other.toString() },
+    ],
+    [t]
+  );
+
+  const accuracyOptions = useMemo(
+    () => [
+      {
+        label: t("locationAccuracy.exact"),
+        value: LocationAccuracy.Exact.toString(),
+      },
+      {
+        label: t("locationAccuracy.approximate"),
+        value: LocationAccuracy.Approximate.toString(),
+      },
+      {
+        label: t("locationAccuracy.estimated"),
+        value: LocationAccuracy.Estimated.toString(),
+      },
+    ],
+    [t]
+  );
+
+  const sourceOptions = useMemo(
+    () => [
+      {
+        label: t("locationSource.userSelected"),
+        value: LocationSource.UserSelected.toString(),
+      },
+      {
+        label: t("locationSource.geocoded"),
+        value: LocationSource.Geocoded.toString(),
+      },
+    ],
+    [t]
+  );
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.container}>
@@ -136,20 +217,27 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
             name="name"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label={t('familyLocationForm.name')}
+                label={t("familyLocationForm.name")}
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 mode="outlined"
                 style={styles.input}
-                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                theme={{
+                  colors: {
+                    primary: theme.colors.primary,
+                    outline: theme.colors.outline,
+                  },
+                }}
                 error={!!errors.name}
                 testID="familyLocationNameInput"
                 left={<TextInput.Icon icon="map-marker-account" />}
               />
             )}
           />
-          {errors.name && <Text style={styles.errorText}>{t(errors.name.message!)}</Text>}
+          {errors.name && (
+            <Text style={styles.errorText}>{t(errors.name.message!)}</Text>
+          )}
 
           {/* Description */}
           <Controller
@@ -157,7 +245,7 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
             name="description"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label={t('familyLocationForm.description')}
+                label={t("familyLocationForm.description")}
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -165,14 +253,23 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
                 multiline
                 numberOfLines={3}
                 style={styles.input}
-                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                theme={{
+                  colors: {
+                    primary: theme.colors.primary,
+                    outline: theme.colors.outline,
+                  },
+                }}
                 error={!!errors.description}
                 testID="familyLocationDescriptionInput"
                 left={<TextInput.Icon icon="file-document-outline" />}
               />
             )}
           />
-          {errors.description && <Text style={styles.errorText}>{t(errors.description.message!)}</Text>}
+          {errors.description && (
+            <Text style={styles.errorText}>
+              {t(errors.description.message!)}
+            </Text>
+          )}
 
           {/* Address */}
           <Controller
@@ -180,74 +277,107 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
             name="address"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                label={t('familyLocationForm.address')}
+                label={t("familyLocationForm.address")}
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
                 mode="outlined"
                 style={styles.input}
-                theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
+                theme={{
+                  colors: {
+                    primary: theme.colors.primary,
+                    outline: theme.colors.outline,
+                  },
+                }}
                 error={!!errors.address}
                 testID="familyLocationAddressInput"
                 left={<TextInput.Icon icon="home-map-marker" />}
               />
             )}
           />
-          {errors.address && <Text style={styles.errorText}>{t(errors.address.message!)}</Text>}
+          {errors.address && (
+            <Text style={styles.errorText}>{t(errors.address.message!)}</Text>
+          )}
 
           {/* Latitude and Longitude */}
-          <View style={styles.coordsInputRow}>
-            <Controller
-              control={control}
-              name="latitude"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t('familyLocationForm.latitude')}
-                  value={value?.toString()}
-                  onBlur={onBlur}
-                  onChangeText={(text) => onChange(text ? parseFloat(text) : undefined)}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={styles.coordsInput}
-                  theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-                  error={!!errors.latitude}
-                  testID="familyLocationLatitudeInput"
-                  left={<TextInput.Icon icon="latitude" />}
-                />
-              )}
-            />
-            <View style={styles.coordsInputSpacer} />
-            <Controller
-              control={control}
-              name="longitude"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label={t('familyLocationForm.longitude')}
-                  value={value?.toString()}
-                  onBlur={onBlur}
-                  onChangeText={(text) => onChange(text ? parseFloat(text) : undefined)}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  style={styles.coordsInput}
-                  theme={{ colors: { primary: theme.colors.primary, outline: theme.colors.outline } }}
-                  error={!!errors.longitude}
-                  testID="familyLocationLongitudeInput"
-                  left={<TextInput.Icon icon="longitude" />}
-                />
-              )}
-            />
-          </View>
-          {errors.latitude && <Text style={styles.errorText}>{t(errors.latitude.message!)}</Text>}
-          {errors.longitude && <Text style={styles.errorText}>{t(errors.longitude.message!)}</Text>}
+          <Controller
+            control={control}
+            name="latitude"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t("familyLocationForm.latitude")}
+                value={value?.toString()}
+                onBlur={onBlur}
+                onChangeText={(text) =>
+                  onChange(text ? parseFloat(text) : undefined)
+                }
+                mode="outlined"
+                keyboardType="numeric"
+                style={styles.input}
+                theme={{
+                  colors: {
+                    primary: theme.colors.primary,
+                    outline: theme.colors.outline,
+                  },
+                }}
+                error={!!errors.latitude}
+                testID="familyLocationLatitudeInput"
+                left={<TextInput.Icon icon="latitude" />}
+              />
+            )}
+          />
+          {errors.latitude && (
+            <Text style={styles.errorText}>{t(errors.latitude.message!)}</Text>
+          )}
+          <Controller
+            control={control}
+            name="longitude"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                label={t("familyLocationForm.longitude")}
+                value={value?.toString()}
+                onBlur={onBlur}
+                onChangeText={(text) =>
+                  onChange(text ? parseFloat(text) : undefined)
+                }
+                mode="outlined"
+                keyboardType="numeric"
+                style={styles.input}
+                theme={{
+                  colors: {
+                    primary: theme.colors.primary,
+                    outline: theme.colors.outline,
+                  },
+                }}
+                error={!!errors.longitude}
+                testID="familyLocationLongitudeInput"
+                left={<TextInput.Icon icon="longitude" />}
+              />
+            )}
+          />
+          {errors.longitude && (
+            <Text style={styles.errorText}>{t(errors.longitude.message!)}</Text>
+          )}
 
+          <Button
+            mode="outlined"
+            onPress={handleOpenMap}
+            icon="map-search-outline"
+            style={[styles.input, { borderRadius: theme.roundness }]}
+          >
+            {t("familyLocationForm.openMap")}
+          </Button>
 
           {/* Location Type */}
-          <List.Section title={t('familyLocationForm.locationType')}>
+          <List.Section title={t("familyLocationForm.locationType")}>
             <Controller
               control={control}
               name="locationType"
               render={({ field: { onChange, value } }) => (
-                <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
+                <RadioButton.Group
+                  onValueChange={(val) => onChange(parseInt(val, 10))}
+                  value={value.toString()}
+                >
                   <View style={styles.radioGroup}>
                     {locationTypeOptions.map((option) => (
                       <TouchableOpacity
@@ -255,24 +385,40 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
                         onPress={() => onChange(parseInt(option.value, 10))}
                         style={styles.radioItem}
                       >
-                        <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
-                        <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
+                        <RadioButton
+                          value={option.value}
+                          status={
+                            value.toString() === option.value
+                              ? "checked"
+                              : "unchecked"
+                          }
+                        />
+                        <Text style={{ color: theme.colors.onSurface }}>
+                          {option.label}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </RadioButton.Group>
               )}
             />
-            {errors.locationType && <Text style={styles.errorText}>{t(errors.locationType.message!)}</Text>}
+            {errors.locationType && (
+              <Text style={styles.errorText}>
+                {t(errors.locationType.message!)}
+              </Text>
+            )}
           </List.Section>
 
           {/* Accuracy */}
-          <List.Section title={t('familyLocationForm.accuracy')}>
+          <List.Section title={t("familyLocationForm.accuracy")}>
             <Controller
               control={control}
               name="accuracy"
               render={({ field: { onChange, value } }) => (
-                <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
+                <RadioButton.Group
+                  onValueChange={(val) => onChange(parseInt(val, 10))}
+                  value={value.toString()}
+                >
                   <View style={styles.radioGroup}>
                     {accuracyOptions.map((option) => (
                       <TouchableOpacity
@@ -280,24 +426,40 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
                         onPress={() => onChange(parseInt(option.value, 10))}
                         style={styles.radioItem}
                       >
-                        <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
-                        <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
+                        <RadioButton
+                          value={option.value}
+                          status={
+                            value.toString() === option.value
+                              ? "checked"
+                              : "unchecked"
+                          }
+                        />
+                        <Text style={{ color: theme.colors.onSurface }}>
+                          {option.label}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </RadioButton.Group>
               )}
             />
-            {errors.accuracy && <Text style={styles.errorText}>{t(errors.accuracy.message!)}</Text>}
+            {errors.accuracy && (
+              <Text style={styles.errorText}>
+                {t(errors.accuracy.message!)}
+              </Text>
+            )}
           </List.Section>
 
           {/* Source */}
-          <List.Section title={t('familyLocationForm.source')}>
+          <List.Section title={t("familyLocationForm.source")}>
             <Controller
               control={control}
               name="source"
               render={({ field: { onChange, value } }) => (
-                <RadioButton.Group onValueChange={(val) => onChange(parseInt(val, 10))} value={value.toString()}>
+                <RadioButton.Group
+                  onValueChange={(val) => onChange(parseInt(val, 10))}
+                  value={value.toString()}
+                >
                   <View style={styles.radioGroup}>
                     {sourceOptions.map((option) => (
                       <TouchableOpacity
@@ -305,15 +467,26 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
                         onPress={() => onChange(parseInt(option.value, 10))}
                         style={styles.radioItem}
                       >
-                        <RadioButton value={option.value} status={value.toString() === option.value ? 'checked' : 'unchecked'} />
-                        <Text style={{ color: theme.colors.onSurface }}>{option.label}</Text>
+                        <RadioButton
+                          value={option.value}
+                          status={
+                            value.toString() === option.value
+                              ? "checked"
+                              : "unchecked"
+                          }
+                        />
+                        <Text style={{ color: theme.colors.onSurface }}>
+                          {option.label}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </RadioButton.Group>
               )}
             />
-            {errors.source && <Text style={styles.errorText}>{t(errors.source.message!)}</Text>}
+            {errors.source && (
+              <Text style={styles.errorText}>{t(errors.source.message!)}</Text>
+            )}
           </List.Section>
 
           <Button
@@ -324,7 +497,7 @@ export const FamilyLocationForm: React.FC<FamilyLocationFormProps> = ({
             style={styles.saveButton}
             testID="saveFamilyLocationButton"
           >
-            {t('common.save')}
+            {t("common.save")}
           </Button>
         </View>
       </ScrollView>

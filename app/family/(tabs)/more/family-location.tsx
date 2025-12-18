@@ -12,6 +12,7 @@ import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // 
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2';
 import { familyLocationService } from '@/services'; // Import familyLocationService
 import type { QueryKey } from '@tanstack/react-query';
+import { familyLocationQueryKeys } from '@/hooks/familyLocation/useFamilyLocationQueries';
 import { FamilyLocationItem, FamilyLocationFilterComponent } from '@/components/familyLocation'; // Import the new components
 import DefaultEmptyList from '@/components/common/DefaultEmptyList'; // Import DefaultEmptyList
 
@@ -110,7 +111,7 @@ export default function FamilyLocationListScreen() {
 
   // Define the query key generation function
   const getFamilyLocationSearchQueryKey = useCallback((filters: SearchFamilyLocationsQuery): QueryKey => {
-    return ['familyLocations', 'search', currentFamilyId, filters];
+    return familyLocationQueryKeys.list({ ...filters, familyId: currentFamilyId || '' });
   }, [currentFamilyId]);
 
   const initialQuery: SearchFamilyLocationsQuery = useMemo(() => ({

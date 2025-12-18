@@ -512,5 +512,8 @@
     "locationSource.unknown": "Unknown",
   
       "more.family_location": "Family Locations",
-      "familyLocation.mapViewTitle": "Location Map"
+      "familyLocation.mapViewTitle": "Location Map",
+    "familyLocation.mapSelect.title": "Select Location on Map",
+    "familyLocation.mapSelect.noLocationSelected": "No location selected. Please select a point on the map.",
+    "familyLocationForm.openMap": "Open Map"
     }

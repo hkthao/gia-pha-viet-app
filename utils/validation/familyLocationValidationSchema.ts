@@ -20,8 +20,8 @@ export const familyLocationValidationSchema = yup.object().shape({
     .max(100, 'Tên vị trí không được vượt quá 100 ký tự.'),
   description: yup.string().trim().optional().max(500, 'Mô tả không được vượt quá 500 ký tự.'),
   address: yup.string().trim().optional().max(200, 'Địa chỉ không được vượt quá 200 ký tự.'),
-  latitude: yup.number().optional().nullable().min(-90, 'Vĩ độ không hợp lệ').max(90, 'Vĩ độ không hợp lệ'),
-  longitude: yup.number().optional().nullable().min(-180, 'Kinh độ không hợp lệ').max(180, 'Kinh độ không hợp lệ'),
+  latitude: yup.number().required('Vĩ độ không được để trống.').min(-90, 'Vĩ độ không hợp lệ').max(90, 'Vĩ độ không hợp lệ'),
+  longitude: yup.number().required('Kinh độ không được để trống.').min(-180, 'Kinh độ không hợp lệ').max(180, 'Kinh độ không hợp lệ'),
   locationType: yup.number()
     .required('Loại vị trí không được để trống.')
     .oneOf(Object.values(LocationType).filter(v => typeof v === 'number'), 'Loại vị trí không hợp lệ.'),

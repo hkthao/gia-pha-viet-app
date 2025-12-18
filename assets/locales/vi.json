@@ -524,5 +524,8 @@
   "locationSource.unknown": "Không xác định",
 
   "more.family_location": "Vị trí gia đình",
-  "familyLocation.mapViewTitle": "Bản đồ vị trí"
-}
+      "familyLocation.mapViewTitle": "Bản đồ vị trí",
+      "familyLocation.mapSelect.title": "Chọn vị trí trên bản đồ",
+      "familyLocation.mapSelect.noLocationSelected": "Chưa chọn vị trí nào. Vui lòng chọn một điểm trên bản đồ.",
+      "familyLocationForm.openMap": "Mở bản đồ"
+  }

@@ -150,7 +150,7 @@ export default function FamilyLocationDetailScreen() {
                 </>
               )}
 
-              {familyLocation.latitude !== undefined && (
+              {familyLocation.latitude != null && (
                 <>
                   <List.Item
                     title={t('familyLocationForm.latitude')}
@@ -161,7 +161,7 @@ export default function FamilyLocationDetailScreen() {
                 </>
               )}
 
-              {familyLocation.longitude !== undefined && (
+              {familyLocation.longitude != null && (
                 <>
                   <List.Item
                     title={t('familyLocationForm.longitude')}

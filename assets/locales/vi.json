@@ -523,5 +523,6 @@
   "locationSource.geocoded": "Được mã hóa địa lý",
   "locationSource.unknown": "Không xác định",
 
-  "more.family_location": "Vị trí gia đình"
+  "more.family_location": "Vị trí gia đình",
+  "familyLocation.mapViewTitle": "Bản đồ vị trí"
 }

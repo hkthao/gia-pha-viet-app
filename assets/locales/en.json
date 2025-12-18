@@ -511,5 +511,6 @@
     "locationSource.geocoded": "Geocoded",
     "locationSource.unknown": "Unknown",
   
-    "more.family_location": "Family Locations"
-  }
+      "more.family_location": "Family Locations",
+      "familyLocation.mapViewTitle": "Location Map"
+    }

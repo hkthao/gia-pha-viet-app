@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { familyService } from '@/services'; // Keep for now if update still uses it directly
+
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { useGetFamilyByIdQuery, useUpdateFamilyMutation } from '@/hooks/family/useFamilyQueries'; // Import react-query hooks
-import { FamilyDetailDto, FamilyRole } from '@/types';
+
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema';
 import { convertNullToUndefined } from '@/utils/typeUtils';
+import { FamilyRole } from '@/types';
 
 export const useEditFamily = () => {
   const { t } = useTranslation();

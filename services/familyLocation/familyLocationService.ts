@@ -2,8 +2,7 @@ import {
   FamilyLocationDto,
   CreateFamilyLocationRequestDto,
   UpdateFamilyLocationRequestDto,
-  SearchFamilyLocationsQuery,
-  ApiClientMethods, // Corrected import for ApiClientMethods
+  SearchFamilyLocationsQuery, // Corrected import for ApiClientMethods
 } from '@/types';
 import { GenericService } from '../base/abstract.generic.service';
 import { IFamilyLocationService } from './familyLocation.service.interface';
@@ -18,10 +17,6 @@ export class ApiFamilyLocationService extends GenericService<
 > implements IFamilyLocationService {
   protected get baseEndpoint(): string {
     return '/family-locations';
-  }
-
-  constructor(apiClient: ApiClientMethods) {
-    super(apiClient);
   }
 }
 

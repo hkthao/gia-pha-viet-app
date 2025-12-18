@@ -1,5 +1,4 @@
 // gia-pha-viet-app/services/familyMedia/api.family.media.service.ts
-import { ApiClientMethods } from '@/types';
 import { Result } from '@/types';
 import { IFamilyMediaService, CreateFamilyMediaRequest } from './family.media.service.interface';
 import { ResultHelper } from '@/utils/resultUtils';
@@ -12,9 +11,7 @@ export class ApiFamilyMediaService extends GenericService<FamilyMediaDto, Family
     return '/family-media';
   }
 
-  constructor(apiClient: ApiClientMethods) {
-    super(apiClient);
-  }
+
 
   // Override the create method to handle file uploads
   async create(request: CreateFamilyMediaRequest): Promise<Result<FamilyMediaDto>> {

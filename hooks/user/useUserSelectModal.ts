@@ -29,7 +29,7 @@ export const useUserSelectModal = ({
       const paginatedList = await userService.search({ ...filters, page: pageParam });
       return paginatedList;
     },
-    [t]
+    []
   );
 
   const getUserSearchQueryKey = useCallback((filters: SearchUsersQuery): QueryKey => {

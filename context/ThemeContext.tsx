@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useColorScheme as useSystemColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Assuming this is installed or will be installed
 
@@ -36,14 +36,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     loadThemePreference();
   }, []);
 
-  const setThemePreference = async (preference: ThemePreference) => {
+  const setThemePreference = useCallback(async (preference: ThemePreference) => {
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, preference);
       setThemePreferenceState(preference);
     } catch (error) {
       console.error('Failed to save theme preference to AsyncStorage', error);
     }
-  };
+  }, [setThemePreferenceState]);
 
   const colorScheme = useMemo(() => {
     if (themePreference === 'system') {

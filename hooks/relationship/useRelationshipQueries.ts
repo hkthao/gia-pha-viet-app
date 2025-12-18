@@ -1,5 +1,5 @@
 // gia-pha-viet-app/hooks/relationship/useRelationshipQueries.ts
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { relationshipService } from '@/services';
 import type { RelationshipListDto, DetectRelationshipResult } from '@/types';
 import { parseError } from '@/utils/errorUtils';

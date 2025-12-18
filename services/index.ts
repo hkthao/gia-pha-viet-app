@@ -14,7 +14,8 @@ import { ApiUserService, IUserService } from './user';
 import { ApiFamilyMediaService, IFamilyMediaService } from './familyMedia'; // New Media Service
 
 
-import { apiClientWithAuth, publicApiClient } from './api';
+import { apiClientWithAuth, publicApiClient } from './api'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { familyLocationService } from './familyLocation/familyLocationService';  
 
 // Initialize services
 export const userProfileService: IUserProfileService = new ApiUserProfileService(apiClientWithAuth);
@@ -30,8 +31,7 @@ export const userService: IUserService = new ApiUserService(apiClientWithAuth);
 export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); // Initialize new media service
 
 
-// Re-export API clients for direct use if needed
-export { apiClientWithAuth, publicApiClient };
+
 
 // Optionally re-export all types and classes from sub-modules for broader access if needed
 export * from './userProfile';
@@ -46,8 +46,7 @@ export * from './api';
 export * from './privacy';
 export * from './user';
 export * from './familyMedia'; // Export new media service types
-export * from './familyLocation'; // Export familyLocation service types
-import { familyLocationService } from './familyLocation/familyLocationService';
-export { familyLocationService };
+export * from './familyLocation';
+
 
 

@@ -1,7 +1,6 @@
 // services/face/face.service.interface.ts
 
-import { Result, PaginatedList } from '@/types';
-import { DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto, CreateFaceDataRequestDto } from '@/types';
+import { Result , DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto, CreateFaceDataRequestDto } from '@/types';
 import { IGenericService } from '@/services/base/generic.service.interface';
 
 export interface DetectFacesRequest {

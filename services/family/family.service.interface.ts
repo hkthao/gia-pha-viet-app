@@ -1,6 +1,6 @@
 // apps/mobile/family_tree_rn/services/family/family.service.interface.ts
 
-import { FamilyListDto, SearchFamiliesQuery, FamilyDetailDto, PaginatedList, Result, FamilyCreateRequestDto, FamilyUpdateRequestDto } from '@/types';
+import { FamilyListDto, SearchFamiliesQuery, FamilyDetailDto, Result, FamilyCreateRequestDto, FamilyUpdateRequestDto } from '@/types';
 import { IGenericService } from '../base/generic.service.interface';
 
 // IFamilyService sẽ quản lý FamilyListDto cho các hoạt động tìm kiếm/liệt kê

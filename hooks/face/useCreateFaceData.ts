@@ -251,7 +251,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     } finally {
       setIsProcessing(false);
     }
-  }, [currentFamilyId, image, detectedFacesWithMember, uploadImageMutation, saveFaceDataMutation, t]);
+  }, [currentFamilyId, image, detectedFacesWithMember, uploadImageMutation, saveFaceDataMutation, t, base64Image, showSnackbar]);
 
   const handleDeleteFace = useCallback((faceToDelete: DetectedFaceDto) => {
     Alert.alert(

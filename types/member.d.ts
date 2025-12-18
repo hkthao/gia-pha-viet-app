@@ -1,7 +1,7 @@
 // gia-pha-viet-app/src/types/member.d.ts
 
 import { BaseAuditableDto, BaseSearchQuery } from './common';
-import { RelationshipDto, RelationshipMemberDto } from './relationship'; // PROPER IMPORT
+import { RelationshipDto } from './relationship';
 
 
 export enum Gender {

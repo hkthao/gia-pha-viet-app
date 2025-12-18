@@ -1,6 +1,6 @@
 // apps/mobile/family_tree_rn/services/familyDict/api.familyDict.service.ts
 
-import { ApiClientMethods, FamilyDictDto, FamilyDictSearchQuery } from '@/types';
+import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 import { IFamilyDictService } from '@/services/familyDict/familyDict.service.interface';
 import { GenericService } from '../base/abstract.generic.service';
 
@@ -9,7 +9,5 @@ export class ApiFamilyDictService extends GenericService<FamilyDictDto, FamilyDi
     return '/family-dict';
   }
 
-  constructor(apiClient: ApiClientMethods) {
-    super(apiClient);
-  }
+
 }

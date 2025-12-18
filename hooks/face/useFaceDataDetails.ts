@@ -63,7 +63,7 @@ export function useFaceDataDetails(faceDataId: string): UseFaceDataDetailsResult
     // TODO: Implement navigation to an edit screen for face data
     // router.push(`/family/face-data/${faceDataId}/edit`);
     showSnackbar(t('common.featureUnderDevelopment'), 'info'); // Placeholder
-  }, [faceDataId, router, showSnackbar, t]);
+  }, [showSnackbar, t]);
 
   const handleDeleteFaceData = useCallback(() => {
     Alert.alert(

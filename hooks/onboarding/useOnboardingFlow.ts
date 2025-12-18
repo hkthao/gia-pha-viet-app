@@ -1,9 +1,9 @@
 import { useState, useRef, useCallback } from 'react';
-import { Dimensions, Animated, ViewToken, FlatList } from 'react-native';
+import { Animated, ViewToken, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const { width } = Dimensions.get('window');
+
 
 // Define the slide type locally for the hook
 interface OnboardingSlideData {
@@ -44,18 +44,18 @@ export function useOnboardingFlow(slides: OnboardingSlideData[]): UseOnboardingF
     }
   }, [currentIndex]);
 
+  const skipOnboarding = useCallback(async () => {
+    await AsyncStorage.setItem('hasOnboarded', 'true');
+    router.push('/');
+  }, [router]);
+
   const scrollToNext = useCallback((slidesLength: number) => {
     if (slidesRef.current && currentIndex < slidesLength - 1) {
       slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
     } else {
       skipOnboarding();
     }
-  }, [currentIndex, slides.length]); // Add slides.length to dependencies
-
-  const skipOnboarding = useCallback(async () => {
-    await AsyncStorage.setItem('hasOnboarded', 'true');
-    router.push('/');
-  }, []);
+  }, [currentIndex, slides.length, skipOnboarding]);  
 
   return {
     currentIndex,

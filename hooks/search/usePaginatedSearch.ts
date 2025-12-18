@@ -20,7 +20,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
   externalDependencies?: any[];
 }) {
   const { useStore, initialQuery, debounceTime = 400 } = options;
-  const { items, loading, error, hasMore, page: storePage, refresh, loadMore, reset } = useStore();
+  const { items, loading, error, hasMore, refresh, loadMore, reset } = useStore();
 
   const [searchQuery, setSearchQuery] = useState(initialQuery.searchQuery || "");
   const [filters, setFilters] = useState<Q>(initialQuery);
@@ -32,7 +32,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
   const query = useMemo(
     () =>
       buildQuery(initialQuery, filters, debouncedSearch),
-    [filters, debouncedSearch]
+    [initialQuery, filters, debouncedSearch]
   );
 
   /** Fetch on any query change (triggers refresh) */
@@ -83,7 +83,7 @@ export function usePaginatedSearch<T, Q extends QueryParams>(options: {
     reset();
     setSearchQuery(initialQuery.searchQuery || "");
     setFilters(initialQuery);
-  }, [initialQuery]);
+  }, [initialQuery, reset]);
 
   return {
     items,

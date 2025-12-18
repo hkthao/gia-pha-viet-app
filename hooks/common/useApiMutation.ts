@@ -1,4 +1,4 @@
-import { UseMutationOptions, UseMutationResult, useMutation, useQueryClient } from '@tanstack/react-query';
+import { UseMutationOptions, UseMutationResult, useMutation } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
 import { useLoadingOverlay } from '@/hooks/ui/useLoadingOverlay';
@@ -27,7 +27,7 @@ export const useApiMutation = <TData = unknown, TError = unknown, TVariables = v
   const { t } = useTranslation();
   const { showSnackbar } = useGlobalSnackbar();
   const { showLoading, hideLoading } = useLoadingOverlay();
-  const queryClient = useQueryClient();
+
 
   const { successMessageKey, errorMessageKey, showLoadingOverlay = false, ...mutationOptions } = options || {};
 
@@ -59,6 +59,8 @@ export const useApiMutation = <TData = unknown, TError = unknown, TVariables = v
       if (successMessageKey) {
         showSnackbar(t(successMessageKey), 'success');
       }
+      // Example: Invalidate queries after successful mutation
+      // queryClient.invalidateQueries(['someQueryKey']);
       // Call original onSuccess if provided
       options?.onSuccess?.(data, variables, onMutateResult, context);
     },

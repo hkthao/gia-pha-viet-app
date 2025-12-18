@@ -1,4 +1,4 @@
-import { UserCheckResultDto, PaginatedList, UserListDto, SearchUsersQuery, Result } from '@/types';
+import { UserCheckResultDto, PaginatedList, UserListDto, SearchUsersQuery } from '@/types';
 
 export interface IUserService {
   checkUserByEmailOrUsername(identifier: string): Promise<UserCheckResultDto>;

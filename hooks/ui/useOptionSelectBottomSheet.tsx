@@ -75,7 +75,7 @@ export function useOptionSelectBottomSheet(): UseOptionSelectBottomSheetResult {
           bottomSheetRef.current.close();
         }
       };
-    }, [sheetState]); // Depend on sheetState to trigger when it becomes non-null
+    }, []); // Depend on sheetState to trigger when it becomes non-null
 
     if (!sheetState) return null; // Only render when open
     return (

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ApiMemberService } from '@/services/member/api.member.service';
+
 import { memberService } from '@/services/index';
 import { IMemberService } from '@/services/member/member.service.interface';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';

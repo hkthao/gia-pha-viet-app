@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+
+
 import { useCurrentFamilyId } from '@/hooks/family/useCurrentFamilyId';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
-import { PrivacyConfigurationDto, UpdatePrivacyConfigurationCommand } from '@/types/privacy';
+import { UpdatePrivacyConfigurationCommand } from '@/types/privacy';
 import { useGetPrivacyConfigurationQuery, useUpdatePrivacyConfigurationMutation } from '@/hooks/privacy/usePrivacyQueries'; // Import react-query hooks
-import { useApiMutation } from '@/hooks/common/useApiMutation'; // Import useApiMutation (will be removed later)
+
 
 interface MemberProperty {
   text: string;
@@ -26,7 +26,7 @@ export interface UseFamilyPrivacySettingsResult {
 
 export function useFamilyPrivacySettings(): UseFamilyPrivacySettingsResult {
   const { t } = useTranslation();
-  const isFocused = useIsFocused();
+
 
   const currentFamilyId = useCurrentFamilyId();
   const { canManageFamily, isAdmin } = usePermissionCheck(currentFamilyId ?? undefined);

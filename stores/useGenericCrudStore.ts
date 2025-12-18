@@ -1,4 +1,4 @@
-import { create, StateCreator } from 'zustand';
+import { StateCreator } from 'zustand';
 import { IGenericService } from '@/services/base/generic.service.interface';
 import { Result, PaginatedList } from '@/types';
 import { parseError } from '@/utils/errorUtils';

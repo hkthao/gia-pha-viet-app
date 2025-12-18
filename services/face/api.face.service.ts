@@ -1,6 +1,5 @@
 // services/face/api.face.service.ts
 
-import { ApiClientMethods } from '@/types';
 import { Result, DetectedFaceDto, SearchFacesQuery, FaceDetectionResponseDto, CreateFaceDataRequestDto } from '@/types';
 import { IFaceService, DetectFacesRequest } from '@/services/face/face.service.interface';
 import { GenericService } from '@/services/base/abstract.generic.service'; // Import GenericService
@@ -12,9 +11,7 @@ export class ApiFaceService extends GenericService<DetectedFaceDto, SearchFacesQ
     return '/member-faces';
   }
 
-  constructor(apiClient: ApiClientMethods) {
-    super(apiClient);
-  }
+
 
   async detectFaces(request: DetectFacesRequest): Promise<Result<FaceDetectionResponseDto>> {
     try {

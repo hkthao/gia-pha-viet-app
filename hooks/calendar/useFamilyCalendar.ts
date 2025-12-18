@@ -81,7 +81,7 @@ export const useFamilyCalendar = (currentViewYear: number, startDate: string, en
   const { data: eventsData, isLoading, isError, error, refetch } = useQuery<PaginatedList<EventDto>, Error, EventDto[]>({
     queryKey: ['familyEvents', currentFamilyId, currentViewYear, startDate, endDate],
     queryFn: async ({ queryKey }): Promise<PaginatedList<EventDto>> => { // Explicitly define queryFn return type
-      const [_key, familyId, year, queryStartDate, queryEndDate] = queryKey;
+      const [familyId, year, queryStartDate, queryEndDate] = queryKey;
       if (!familyId) {
         throw new Error(t('calendar.errors.noFamilyId'));
       }

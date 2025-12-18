@@ -25,7 +25,7 @@ export const useFamilyLocations = (filters: SearchFamilyLocationsQuery) => {
     queryKey: familyLocationQueryKeys.list(filters),
     queryFn: async () => {
       const response = await familyLocationService.search(filters);
-      if (response.isSuccess && response.value) { // Corrected success to isSuccess, data to value
+      if (response.isSuccess && response.value) { 
         return response.value; // Corrected data to value
       }
       throw new Error(response.error?.message || 'Failed to fetch map data'); // Corrected errorMessage to error?.message

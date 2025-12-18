@@ -1,7 +1,6 @@
 // apps/mobile/family_tree_rn/services/event/api.event.service.ts
 
-import { ApiClientMethods } from '@/types';
-import { Result, ApiError, EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery, CreateEventRequestDto, UpdateEventRequestDto } from '@/types';
+import { ApiClientMethods , Result, ApiError, EventDto, PaginatedList, SearchEventsQuery, GetUpcomingEventsQuery, CreateEventRequestDto, UpdateEventRequestDto } from '@/types';
 import { IEventService } from '@/services/event/event.service.interface';
 
 export class ApiEventService implements IEventService {

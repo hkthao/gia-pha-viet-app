@@ -1,4 +1,4 @@
-import { useForm, type Resolver } from 'react-hook-form';
+import { useForm, type Resolver, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { memberValidationSchema, MemberFormData, setMemberValidationI18n } from '@/utils/validation';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +18,10 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
     setMemberValidationI18n(i18n);
   }, [i18n]);
 
-  const defaultFormValues: MemberFormData = {
+  const defaultFormValues = useMemo(() => ({
     firstName: '',
     lastName: '',
-    gender: 'Unknown',
+    gender: 'Unknown' as MemberFormData['gender'],
     isAlive: true,
     dateOfBirth: null,
     dateOfDeath: null,
@@ -42,7 +42,7 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
     nickname: undefined, // ensure nickname is in default form values
     isRoot: undefined, // ensure isRoot is in default form values
     // isDeceased: is handled by form logic, not directly in default
-  };
+  }), []);
 
   const currentDefaultValues = useMemo(() => {
     if (initialValues) {
@@ -130,7 +130,7 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
 
   return {
     control,
-    handleSubmit: handleSubmit(onSubmit),
+    handleSubmit: handleSubmit(onSubmit as SubmitHandler<MemberFormData>),
     errors,
     setValue,
     watch,

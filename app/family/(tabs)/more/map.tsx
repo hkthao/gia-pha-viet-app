@@ -29,7 +29,7 @@ const MapViewScreen: React.FC = () => {
 
   });
 
-  const familyLocations = familyLocationsPaginatedList?.items || [];
+  const familyLocations = useMemo(() => familyLocationsPaginatedList?.items || [], [familyLocationsPaginatedList]);
 
   const injectedJavaScriptBeforeContentLoaded = useMemo(() => {
     const data = JSON.stringify(familyLocations);

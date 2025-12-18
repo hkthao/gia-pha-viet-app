@@ -32,7 +32,7 @@ export function useFamilyAgendaEvents(): UseFamilyAgendaEventsResult {
 
   const currentFamilyId = useCurrentFamilyId();
   const [searchFilters, setSearchFilters] = useState<SearchEventsQuery>({ familyId: currentFamilyId || '', page: 1, itemsPerPage: 100, sortBy: 'startDate' });
-  const { data: fetchedEventsData, error: eventsError, isLoading: eventsLoading, isRefetching } = useSearchEventsQuery(searchFilters);
+  const { data: fetchedEventsData } = useSearchEventsQuery(searchFilters);
 
   const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
   const loadedMonthsRef = useRef(loadedMonths);

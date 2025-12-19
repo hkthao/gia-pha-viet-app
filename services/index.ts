@@ -13,10 +13,8 @@ import { ApiPrivacyService, IPrivacyService } from './privacy';
 import { ApiUserService, IUserService } from './user';
 import { ApiFamilyMediaService, IFamilyMediaService } from './familyMedia'; // New Media Service
 import { ApiMemoryItemService, IMemoryItemService } from './memory'; // New Memory Item Service
-
-
-import { apiClientWithAuth, publicApiClient } from './api'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { familyLocationService } from './familyLocation/familyLocationService';  
+import { apiClientWithAuth } from './api';
+import { ApiFamilyLocationService, IFamilyLocationService } from './familyLocation';
 
 // Initialize services
 export const userProfileService: IUserProfileService = new ApiUserProfileService(apiClientWithAuth);
@@ -29,11 +27,9 @@ export const familyDictService: IFamilyDictService = new ApiFamilyDictService(ap
 export const dashboardService: IDashboardService = new ApiDashboardService(apiClientWithAuth);
 export const privacyService: IPrivacyService = new ApiPrivacyService(apiClientWithAuth);
 export const userService: IUserService = new ApiUserService(apiClientWithAuth);
-export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); // Initialize new media service
-export const memoryItemService: IMemoryItemService = new ApiMemoryItemService(apiClientWithAuth); // Initialize new memory item service
-
-
-
+export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); 
+export const familyLocationService: IFamilyLocationService = new ApiFamilyLocationService(apiClientWithAuth); 
+export const memoryItemService: IMemoryItemService = new ApiMemoryItemService(apiClientWithAuth); 
 
 // Optionally re-export all types and classes from sub-modules for broader access if needed
 export * from './userProfile';

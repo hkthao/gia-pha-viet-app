@@ -15,7 +15,7 @@ export default function CreateMemoryItemScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { currentFamilyId } = useCurrentFamilyStore();
-  const { mutate: createMemoryItem, isPending: isSubmitting } = useCreateMemoryItem();
+  const { mutate: createMemoryItem } = useCreateMemoryItem();
 
   const handleCreateMemoryItem = useCallback(async (data: MemoryItemFormData) => {
     if (!currentFamilyId) {

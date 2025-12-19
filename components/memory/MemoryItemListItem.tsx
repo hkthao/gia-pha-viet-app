@@ -2,19 +2,19 @@
 
 import React, { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
+import { Avatar, Card, Chip, MD3Theme, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'expo-router';
 import { MemoryItemDto, EmotionalTag } from '@/types';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import dayjs from 'dayjs';
+import { getAvatarSource } from '@/utils/imageUtils';
 
 interface MemoryItemListItemProps {
   item: MemoryItemDto;
   onPress: (id: string) => void;
 }
 
-const getStyles = (theme: any) => StyleSheet.create({
+const getStyles = (theme: MD3Theme) => StyleSheet.create({
   memoryCard: {
     marginBottom: SPACING_SMALL,
     marginHorizontal: 1,
@@ -47,16 +47,14 @@ const getStyles = (theme: any) => StyleSheet.create({
 const MemoryItemListItem = ({ item, onPress }: MemoryItemListItemProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const router = useRouter();
   const styles = getStyles(theme);
 
   const getEmotionalTagLabel = (tag: EmotionalTag) => {
     switch (tag) {
       case EmotionalTag.Happy: return t('emotionalTag.happy');
       case EmotionalTag.Sad: return t('emotionalTag.sad');
-      case EmotionalTag.Angry: return t('emotionalTag.angry');
-      case EmotionalTag.Surprise: return t('emotionalTag.surprise');
-      case EmotionalTag.Love: return t('emotionalTag.love');
+      case EmotionalTag.Proud: return t('emotionalTag.proud');
+      case EmotionalTag.Memorial: return t('emotionalTag.memorial');
       case EmotionalTag.Neutral:
       default: return t('emotionalTag.neutral');
     }
@@ -66,9 +64,8 @@ const MemoryItemListItem = ({ item, onPress }: MemoryItemListItemProps) => {
     switch (tag) {
       case EmotionalTag.Happy: return 'emoticon-happy-outline';
       case EmotionalTag.Sad: return 'emoticon-sad-outline';
-      case EmotionalTag.Angry: return 'emoticon-angry-outline';
-      case EmotionalTag.Surprise: return 'emoticon-confused-outline'; // Using confused as closest for surprise
-      case EmotionalTag.Love: return 'heart-outline';
+      case EmotionalTag.Proud: return 'medal'; // Placeholder icon
+      case EmotionalTag.Memorial: return 'grave-stone'; // Placeholder icon
       case EmotionalTag.Neutral:
       default: return 'emoticon-neutral-outline';
     }
@@ -80,7 +77,7 @@ const MemoryItemListItem = ({ item, onPress }: MemoryItemListItemProps) => {
       <Card.Content style={styles.cardContent}>
         <Avatar.Image
           size={48}
-          source={item.memoryMedia && item.memoryMedia.length > 0 ? { uri: item.memoryMedia[0].url } : require('@/assets/images/partial-react-logo.png')} // Placeholder image
+          source={getAvatarSource(item.memoryMedia?.[0]?.url)}
           style={styles.avatar}
         />
         <View style={styles.cardText}>

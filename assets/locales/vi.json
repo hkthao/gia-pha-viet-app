@@ -292,7 +292,7 @@
     "emotionalTag": "Cảm Xúc",
     "media": "Phương Tiện",
     "mediaUploadPlaceholder": "Component tải phương tiện sẽ ở đây...",
-    "involvedPersons": "Những Người Liên Quan",
+    "involvedPersons": "Thành viên liên quan",
     "personSelectionPlaceholder": "Component chọn người sẽ ở đây...",
     "errors": {
       "dataNotAvailable": "Dữ liệu kỷ niệm không có sẵn.",
@@ -304,12 +304,11 @@
     "editTitle": "Chỉnh Sửa Kỷ Niệm"
   },
   "emotionalTag": {
-    "neutral": "Bình Thường",
     "happy": "Vui Vẻ",
     "sad": "Buồn Bã",
-    "angry": "Tức Giận",
-    "surprise": "Ngạc Nhiên",
-    "love": "Yêu Thương"
+    "proud": "Tự Hào",
+    "memorial": "Tưởng Niệm",
+    "neutral": "Bình Thường"
   },
   "member.birthDeathYears": "Năm sinh/mất",
   "member.father": "Cha",

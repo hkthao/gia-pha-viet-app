@@ -6,7 +6,6 @@ import {
 } from '@/types';
 import { GenericService } from '../base/abstract.generic.service';
 import { IFamilyLocationService } from './familyLocation.service.interface';
-import { apiClientWithAuth } from '../api/publicApiClient'; // Correct import for apiClientWithAuth
 
 export class ApiFamilyLocationService extends GenericService<
   FamilyLocationDto, // TListDto
@@ -19,5 +18,3 @@ export class ApiFamilyLocationService extends GenericService<
     return '/family-locations';
   }
 }
-
-export const familyLocationService: IFamilyLocationService = new ApiFamilyLocationService(apiClientWithAuth);

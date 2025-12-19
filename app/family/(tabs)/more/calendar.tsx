@@ -65,7 +65,7 @@ const FamilyCalendarScreen: React.FC = () => {
     <EventListItem event={item} onPress={(eventId) => router.push(`/event/${eventId}`)} />
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -105,7 +105,7 @@ const FamilyCalendarScreen: React.FC = () => {
       alignItems: 'center',
       padding: SPACING_MEDIUM,
     },
-  }), [theme]);  
+  }), []);  
 
   if (isError) {
     return (

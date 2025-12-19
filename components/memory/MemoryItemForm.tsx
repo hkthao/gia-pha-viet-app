@@ -1,12 +1,12 @@
 // gia-pha-viet-app/components/memory/MemoryItemForm.tsx
 
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { Button, Text, TextInput, useTheme, SegmentedButtons, Chip } from 'react-native-paper';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Button, Text, TextInput, useTheme, SegmentedButtons } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Controller } from 'react-hook-form';
 import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { EmotionalTag, MemoryItemDto, MemoryItemCreateRequestDto, MemoryItemUpdateRequestDto } from '@/types';
+import { EmotionalTag, MemoryItemDto } from '@/types';
 import { MemoryItemFormData } from '@/utils/validation/memoryItemValidationSchema'; // Will create this later
 import { useMemoryItemForm } from '@/hooks/memory/useMemoryItemForm'; // Will create this later
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -90,12 +90,11 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
   };
 
   const getEmotionalTagOptions = () => ([
-    { label: t('emotionalTag.neutral'), value: EmotionalTag.Neutral.toString() },
     { label: t('emotionalTag.happy'), value: EmotionalTag.Happy.toString() },
     { label: t('emotionalTag.sad'), value: EmotionalTag.Sad.toString() },
-    { label: t('emotionalTag.angry'), value: EmotionalTag.Angry.toString() },
-    { label: t('emotionalTag.surprise'), value: EmotionalTag.Surprise.toString() },
-    { label: t('emotionalTag.love'), value: EmotionalTag.Love.toString() },
+    { label: t('emotionalTag.proud'), value: EmotionalTag.Proud.toString() },
+    { label: t('emotionalTag.memorial'), value: EmotionalTag.Memorial.toString() },
+    { label: t('emotionalTag.neutral'), value: EmotionalTag.Neutral.toString() },
   ]);
 
   return (

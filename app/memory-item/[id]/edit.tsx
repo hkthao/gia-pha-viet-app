@@ -1,7 +1,7 @@
 // gia-pha-viet-app/app/memory/[id]/edit.tsx
 
 import React from 'react';
-import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Appbar, useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { MemoryItemForm } from '@/components/memory/MemoryItemForm';
@@ -16,7 +16,6 @@ export default function EditMemoryItemScreen() {
     initialMemoryItemData,
     isLoadingInitialData,
     fetchError,
-    isUpdating,
     handleUpdateMemoryItem,
     handleCancel,
   } = useEditMemoryItem();

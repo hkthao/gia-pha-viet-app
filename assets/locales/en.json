@@ -293,12 +293,11 @@
     "editTitle": "Edit Memory Item"
   },
   "emotionalTag": {
-    "neutral": "Neutral",
     "happy": "Happy",
     "sad": "Sad",
-    "angry": "Angry",
-    "surprise": "Surprise",
-    "love": "Love"
+    "proud": "Proud",
+    "memorial": "Memorial",
+    "neutral": "Neutral"
   },
   "member.birthDeathYears": "Birth/Death Years",
   "member.father": "Father",

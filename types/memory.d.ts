@@ -3,12 +3,11 @@
 import { BaseAuditableDto, BaseSearchQuery } from './common';
 
 export enum EmotionalTag {
-  Neutral = 0,
-  Happy = 1,
-  Sad = 2,
-  Angry = 3,
-  Surprise = 4,
-  Love = 5,
+  Happy = 0,
+  Sad = 1,
+  Proud = 2,
+  Memorial = 3,
+  Neutral = 4,
 }
 
 export interface MemoryMediaDto {
@@ -19,6 +18,7 @@ export interface MemoryMediaDto {
 export interface MemoryPersonDto {
   memberId: string;
   memberName: string;
+  memberAvatarUrl?: string;
 }
 
 export interface MemoryItemDto extends BaseAuditableDto {

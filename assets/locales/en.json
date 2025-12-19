@@ -238,6 +238,8 @@
   "featureUnderDevelopment.title": "Feature Under Development",
   "hello": "Hello",
   "home.banner.cta_button": "GET STARTED NOW",
+  "home.banner.start_now": "GET STARTED NOW",
+  "home.banner.create_free": "CREATE FOR FREE",
   "home.banner.description": "Create visual family trees, share memories, and connect with relatives in minutes.",
   "home.banner.title": "Connect generations, tell your family's story",
   "home.features.discover_connections.description": "Automatically detect relationships within the clan.",

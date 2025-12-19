@@ -276,6 +276,41 @@
   "login.button": "Đăng nhập",
   "login.description": "Vui lòng đăng nhập để tiếp tục.",
   "login.title": "Chào mừng trở lại!",
+  "memory": {
+    "listTitle": "Các Kỷ Niệm",
+    "detailTitle": "Chi Tiết Kỷ Niệm",
+    "selectFamilyPrompt": "Vui lòng chọn một gia đình để xem kỷ niệm.",
+    "search": {
+      "search": "Tìm kiếm kỷ niệm..."
+    },
+    "noMemoryItemsFound": "Không tìm thấy kỷ niệm nào.",
+    "details": "Chi Tiết",
+    "title": "Tiêu Đề",
+    "description": "Mô Tả",
+    "happenedAt": "Thời Gian Diễn Ra",
+    "selectDate": "Chọn Ngày",
+    "emotionalTag": "Cảm Xúc",
+    "media": "Phương Tiện",
+    "mediaUploadPlaceholder": "Component tải phương tiện sẽ ở đây...",
+    "involvedPersons": "Những Người Liên Quan",
+    "personSelectionPlaceholder": "Component chọn người sẽ ở đây...",
+    "errors": {
+      "dataNotAvailable": "Dữ liệu kỷ niệm không có sẵn.",
+      "invalidId": "ID kỷ niệm không hợp lệ."
+    }
+  },
+  "memoryForm": {
+    "createTitle": "Tạo Kỷ Niệm Mới",
+    "editTitle": "Chỉnh Sửa Kỷ Niệm"
+  },
+  "emotionalTag": {
+    "neutral": "Bình Thường",
+    "happy": "Vui Vẻ",
+    "sad": "Buồn Bã",
+    "angry": "Tức Giận",
+    "surprise": "Ngạc Nhiên",
+    "love": "Yêu Thương"
+  },
   "member.birthDeathYears": "Năm sinh/mất",
   "member.father": "Cha",
   "member.fatherFullName": "Tên đầy đủ của Cha",
@@ -335,6 +370,7 @@
   "more.faceData": "Dữ liệu khuôn mặt",
   "more.faceDataPlaceholder": "Màn hình dữ liệu khuôn mặt chi tiết hơn (đang phát triển)",
   "more.memories": "Ký ức",
+  "more.memoryItem": "Tủ kỷ vật",
   "more.memoriesPlaceholder": "Màn hình ký ức chi tiết hơn (đang phát triển)",
   "more.privacy": "Riêng tư",
   "more.privacyPlaceholder": "Màn hình cài đặt riêng tư chi tiết hơn (đang phát triển)",

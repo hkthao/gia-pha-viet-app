@@ -12,3 +12,4 @@ export * from './onboarding';
 export * from './user';
 export * from './chat';
 export * from './familyLocation';
+export * from './memory';

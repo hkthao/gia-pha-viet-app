@@ -265,6 +265,41 @@
   "login.button": "Log In",
   "login.description": "Please log in to continue.",
   "login.title": "Welcome Back!",
+  "memory": {
+    "listTitle": "Memory Items",
+    "detailTitle": "Memory Item Detail",
+    "selectFamilyPrompt": "Please select a family to view memories.",
+    "search": {
+      "search": "Search memories..."
+    },
+    "noMemoryItemsFound": "No memory items found.",
+    "details": "Details",
+    "title": "Title",
+    "description": "Description",
+    "happenedAt": "Happened At",
+    "selectDate": "Select Date",
+    "emotionalTag": "Emotional Tag",
+    "media": "Media",
+    "mediaUploadPlaceholder": "Media upload component will go here...",
+    "involvedPersons": "Involved Persons",
+    "personSelectionPlaceholder": "Person selection component will go here...",
+    "errors": {
+      "dataNotAvailable": "Memory item data not available.",
+      "invalidId": "Invalid memory item ID."
+    }
+  },
+  "memoryForm": {
+    "createTitle": "Create Memory Item",
+    "editTitle": "Edit Memory Item"
+  },
+  "emotionalTag": {
+    "neutral": "Neutral",
+    "happy": "Happy",
+    "sad": "Sad",
+    "angry": "Angry",
+    "surprise": "Surprise",
+    "love": "Love"
+  },
   "member.birthDeathYears": "Birth/Death Years",
   "member.father": "Father",
   "member.fatherFullName": "Father's Full Name",

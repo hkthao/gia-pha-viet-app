@@ -62,7 +62,7 @@ export default function MoreOptionsScreen() {
           />
           <Divider />
           <List.Item
-            title={t('more.memories')}
+            title={t('more.memoryItem')}
             left={() => <MaterialCommunityIcons name="image-multiple-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() => navigateTo('/family/(tabs)/more/memories')}

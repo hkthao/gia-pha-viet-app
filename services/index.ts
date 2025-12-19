@@ -12,6 +12,7 @@ import { ApiDashboardService, IDashboardService } from './dashboard';
 import { ApiPrivacyService, IPrivacyService } from './privacy';
 import { ApiUserService, IUserService } from './user';
 import { ApiFamilyMediaService, IFamilyMediaService } from './familyMedia'; // New Media Service
+import { ApiMemoryItemService, IMemoryItemService } from './memory'; // New Memory Item Service
 
 
 import { apiClientWithAuth, publicApiClient } from './api'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -29,6 +30,7 @@ export const dashboardService: IDashboardService = new ApiDashboardService(apiCl
 export const privacyService: IPrivacyService = new ApiPrivacyService(apiClientWithAuth);
 export const userService: IUserService = new ApiUserService(apiClientWithAuth);
 export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); // Initialize new media service
+export const memoryItemService: IMemoryItemService = new ApiMemoryItemService(apiClientWithAuth); // Initialize new memory item service
 
 
 
@@ -47,6 +49,7 @@ export * from './privacy';
 export * from './user';
 export * from './familyMedia'; // Export new media service types
 export * from './familyLocation';
+export * from './memory';
 
 
 

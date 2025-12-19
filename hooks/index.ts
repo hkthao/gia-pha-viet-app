@@ -17,3 +17,4 @@ export * from './calendar';
 export * from './event';
 export * from './privacy';
 export * from './familyLocation';
+export * from './memory';

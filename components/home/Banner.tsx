@@ -60,8 +60,8 @@ export function Banner({ t, toggleLanguage, i18n, backgroundColor, router }: Ban
       >
         <Text variant="headlineLarge">{t('home.banner.title')}</Text>
         <Text variant="bodyLarge">{t('home.banner.description')}</Text>
-        <Button mode="contained" onPress={() => router.push('/feature-under-development')} style={styles.languageButton}>
-          {t('home.banner.cta_button')}
+        <Button mode="contained" onPress={() => router.push('/(tabs)/search')} style={styles.languageButton}>
+          {t('home.banner.start_now')}
         </Button>
       </LinearGradient>
     </View>

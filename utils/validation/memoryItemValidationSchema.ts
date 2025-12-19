@@ -42,7 +42,7 @@ export const memoryItemValidationSchema: yup.ObjectSchema<MemoryItemFormData> = 
   memoryMedia: yup
     .array(yup.object({
       id: yup.string().optional(),
-      url: yup.string().url(() => globalI18n.t('validation.invalidUrl')).optional() // Changed from required to optional
+      url: yup.string().optional() // Removed .url() validator
     }))
     .optional()
     .default([]),

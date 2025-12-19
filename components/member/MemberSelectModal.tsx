@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { PaginatedSearchListV2 } from '@/components/common/PaginatedSearchListV2';
 import MemberItem from './MemberItem';
 import { MemberListDto, SearchMembersQuery } from '@/types';
-import { Modal, Portal, Text, IconButton, Button } from 'react-native-paper'; // Added Button
+import { Modal, Portal, Text, IconButton } from 'react-native-paper'; // Added Button
 import { View, StyleSheet } from 'react-native';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import DefaultEmptyList from '@/components/common/DefaultEmptyList';
@@ -92,7 +92,7 @@ const MemberSelectModalComponent = <TFieldName extends string>({
       <Modal visible={isVisible}
         onDismiss={onClose} style={modalStyle}
         contentContainerStyle={containerStyle}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING_MEDIUM, marginBottom: SPACING_MEDIUM }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <IconButton icon="close" onPress={onClose} />
           <Text style={{ flex: 1, textAlign: 'center' }} variant="headlineSmall">{t('memberSelectModal.title')}</Text>
           {multiSelect && (

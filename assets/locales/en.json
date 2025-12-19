@@ -10,6 +10,8 @@
   "common.confirm": "Confirm",
   "common.clearSelection": "Clear Selection",
   "common.delete": "Delete",
+  "common.deleteConfirmationTitle": "Confirm Deletion",
+  "memory.deleteConfirmationMessage": "Are you sure you want to delete this memory item? This action cannot be undone.",
   "common.dismiss": "Dismiss",
   "common.done": "Done",
   "common.error": "Error",

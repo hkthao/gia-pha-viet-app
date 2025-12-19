@@ -35,16 +35,15 @@ export const useCreateMemoryItem = () => {
       if (!currentFamilyId) {
         throw new Error(t('memory.selectFamilyPrompt'));
       }
-
       const updatedMemoryMedia: MemoryMediaDto[] = [];
       if (newItem.memoryMedia && newItem.memoryMedia.length > 0) {
         for (const media of newItem.memoryMedia) {
           if (media.url === undefined) {
-            updatedMemoryMedia.push(media); // If URL is undefined, push as is (e.g., placeholder or already handled)
+            updatedMemoryMedia.push(media);
             continue;
           }
-          // Check if it's a new local file (e.g., from image picker, starts with file:// or data:)
-          if (media.url.startsWith('file://') || media.url.startsWith('data:')) {
+          // Only upload if media is new
+          if (media.isNew) {
             const fileName = media.url!.startsWith('data:') ? `memory_media_${Date.now()}.jpg` : media.url!.split('/').pop() || `memory_media_${Date.now()}.jpg`;
             let mediaType = 'image/jpeg'; // Default, try to infer from data URI
 
@@ -73,11 +72,13 @@ export const useCreateMemoryItem = () => {
                 uploadMutation: uploadMediaMutation,
               });
             } else {
+              // This case should ideally not be reached if isNew is true and url is not undefined
+              // but still handle it to be safe
               throw new Error(t('memoryForm.unsupportedMediaUri'));
             }
             updatedMemoryMedia.push({ id: media.id, url: uploadedUrl });
           } else {
-            // Already an uploaded URL
+            // Already an uploaded URL or not new, just push as is
             updatedMemoryMedia.push(media);
           }
         }

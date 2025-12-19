@@ -10,6 +10,8 @@
   "common.confirm": "Xác nhận",
   "common.create": "Tạo",
   "common.delete": "Xóa",
+  "common.deleteConfirmationTitle": "Xác nhận xóa",
+  "memory.deleteConfirmationMessage": "Bạn có chắc chắn muốn xóa kỷ vật này không? Thao tác này không thể hoàn tác.",
   "common.dismiss": "Đóng",
   "common.done": "Hoàn thành",
   "common.edit": "Chỉnh sửa",
@@ -305,7 +307,9 @@
   "memoryForm": {
     "createTitle": "Tạo Kỷ Vật Mới",
     "editTitle": "Chỉnh Sửa Kỷ Vật",
-    "createSuccess": "Tạo kỷ vật thành công!"
+    "createSuccess": "Tạo kỷ vật thành công!",
+    "updateError": "Cập nhật kỷ vật thất bại!",
+    "updateSuccess": "Cập nhật kỷ vật thành công!"
   },
   "emotionalTag": {
     "happy": "Vui Vẻ",

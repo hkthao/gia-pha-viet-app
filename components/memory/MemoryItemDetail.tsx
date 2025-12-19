@@ -1,7 +1,7 @@
 // gia-pha-viet-app/components/memory/MemoryItemDetail.tsx
 
 import React, { memo, useMemo, useRef, useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Image, FlatList, Dimensions, TouchableOpacity } from 'react-native'; // Added TouchableOpacity
+import { View, StyleSheet, Image, FlatList, Dimensions, TouchableOpacity } from 'react-native'; // Added TouchableOpacity
 import { Text, useTheme, Chip, IconButton, Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { MemoryItemDto, EmotionalTag } from '@/types';
@@ -16,8 +16,6 @@ interface MemoryItemDetailProps {
 
 const getStyles = (theme: any) => StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
   },
   content: {
     padding: SPACING_MEDIUM,
@@ -52,7 +50,7 @@ const getStyles = (theme: any) => StyleSheet.create({
     color: theme.colors.onBackground,
   },
   mediaContainer: {
-    height: 250, // Fixed height for the carousel
+    height: 320, // Fixed height for the carousel
   },
   carouselItem: {
     width: Dimensions.get('window').width - (SPACING_MEDIUM * 2), // Full width minus padding
@@ -166,7 +164,7 @@ const MemoryItemDetail = ({ memoryItem }: MemoryItemDetailProps) => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View>
       {memoryItem.memoryMedia && memoryItem.memoryMedia.length > 0 && (
         <View style={[styles.mediaContainer, { marginBottom: 0 }]}> {/* Removed bottom margin here */}
           <FlatList
@@ -256,7 +254,7 @@ const MemoryItemDetail = ({ memoryItem }: MemoryItemDetailProps) => {
           onRequestClose={() => setViewerVisible(false)}
         />
       )}
-    </ScrollView>
+    </View>
   );
 };
 

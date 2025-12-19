@@ -5,15 +5,16 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
 import { memoryItemValidationSchema, MemoryItemFormData, setMemoryItemValidationI18n } from '@/utils/validation/memoryItemValidationSchema';
-import { MemoryItemDto } from '@/types';
+import { MemoryItemDto, MemoryMediaDto } from '@/types';
 
 interface UseMemoryItemFormProps {
   initialValues?: MemoryItemDto;
   onSubmit: (data: MemoryItemFormData) => Promise<void>;
   familyId: string;
+  selectedImages: MemoryMediaDto[]; // Changed to MemoryMediaDto[]
 }
 
-export const useMemoryItemForm = ({ initialValues, onSubmit, familyId }: UseMemoryItemFormProps) => {
+export const useMemoryItemForm = ({ initialValues, onSubmit, familyId, selectedImages }: UseMemoryItemFormProps) => {
   const { i18n } = useTranslation();
 
   // Set the i18n instance for validation messages
@@ -28,7 +29,7 @@ export const useMemoryItemForm = ({ initialValues, onSubmit, familyId }: UseMemo
     setValue,
     watch,
     reset,
-    trigger, // Add trigger to the destructuring
+    trigger,
   } = useForm<MemoryItemFormData>({
     resolver: yupResolver(memoryItemValidationSchema),
     defaultValues: {
@@ -36,17 +37,20 @@ export const useMemoryItemForm = ({ initialValues, onSubmit, familyId }: UseMemo
       title: initialValues?.title || '',
       description: initialValues?.description || '',
       happenedAt: initialValues?.happenedAt || new Date().toISOString(),
-      emotionalTag: initialValues?.emotionalTag || 0, // Default to Neutral
+      emotionalTag: initialValues?.emotionalTag || 0,
       memoryMedia: initialValues?.memoryMedia || [],
       memoryPersons: initialValues?.memoryPersons || [],
     },
-    mode: 'onTouched', // Changed from 'onBlur'
+    mode: 'onTouched',
   });
+
+  // Effect to update memoryMedia field in react-hook-form when selectedImages changes
+  useEffect(() => {
+    setValue('memoryMedia', selectedImages, { shouldDirty: true, shouldValidate: true });
+  }, [selectedImages, setValue]);
 
   // Effect to trigger validation on mount
   useEffect(() => {
-    // Only trigger validation on mount if not in edit mode (or if initialValues are not provided)
-    // This prevents showing errors for existing data in edit mode
     if (!initialValues) {
       trigger();
     }
@@ -64,8 +68,6 @@ export const useMemoryItemForm = ({ initialValues, onSubmit, familyId }: UseMemo
         memoryMedia: initialValues.memoryMedia,
         memoryPersons: initialValues.memoryPersons,
       });
-      // Trigger validation after resetting the form for edit mode
-      // This will ensure any existing validation errors are re-evaluated
       trigger();
     }
   }, [initialValues, reset, trigger]);

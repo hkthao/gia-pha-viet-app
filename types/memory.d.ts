@@ -13,6 +13,7 @@ export enum EmotionalTag {
 export interface MemoryMediaDto {
   id?: string; // Optional for creation, present for update/view
   url?: string;
+  isNew?: boolean; // New property to indicate if the media is newly added
 }
 
 export interface MemoryPersonDto {

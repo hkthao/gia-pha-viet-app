@@ -1,12 +1,12 @@
 // gia-pha-viet-app/components/memory/MemoryItemForm.tsx
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert, FlatList, TouchableOpacity } from 'react-native';
 import { Button, Text, TextInput, useTheme, Chip, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Controller } from 'react-hook-form';
 import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { EmotionalTag, MemoryItemDto, MemberListDto, MemoryPersonDto } from '@/types';
+import { EmotionalTag, MemoryItemDto, MemberListDto, MemoryPersonDto, MemoryMediaDto } from '@/types';
 import { MemoryItemFormData } from '@/utils/validation/memoryItemValidationSchema';
 import { useMemoryItemForm } from '@/hooks/memory/useMemoryItemForm';
 import * as ImagePicker from 'expo-image-picker';
@@ -76,9 +76,15 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { control, handleSubmit, errors, isSubmitting, isValid } = useMemoryItemForm({ initialValues, onSubmit, familyId });
+  const initialMedia = useMemo(() =>
+    initialValues?.memoryMedia
+      ?.filter((media): media is MemoryMediaDto & { url: string } => media.url !== undefined)
+      .map(media => ({ ...media, isNew: false })) || [],
+    [initialValues?.memoryMedia]
+  );
+  const [selectedImages, setSelectedImages] = useState<MemoryMediaDto[]>(initialMedia);
+  const { control, handleSubmit, errors, isSubmitting, isValid } = useMemoryItemForm({ initialValues, onSubmit, familyId, selectedImages });
 
-  const [selectedImages, setSelectedImages] = useState<string[]>(initialValues?.memoryMedia?.map(file => file.url).filter((url): url is string => url !== undefined) || []);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
 
@@ -97,16 +103,14 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       allowsMultipleSelection: true,
       quality: 1,
       base64: true,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const newImages = result.assets.map(asset => {
-        return asset.uri;
-      });
+      const newImages = result.assets.map(asset => ({ url: asset.uri, isNew: true }));
       setSelectedImages(prev => [...prev, ...newImages]);
     }
   };
@@ -139,7 +143,7 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
     { label: t('emotionalTag.neutral'), value: EmotionalTag.Neutral.toString() },
   ]);
 
-  const imagesForViewer = selectedImages.map(uri => ({ uri }));
+  const imagesForViewer = selectedImages.filter(media => media.url !== undefined).map(media => ({ uri: media.url! }));
 
   const openImageViewer = useCallback((index: number) => {
     setCurrentImageIndex(index);
@@ -161,7 +165,7 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
             <View style={{ marginBottom: SPACING_MEDIUM }}>
               <FlatList
                 data={selectedImages}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => (item.id || item.url || index).toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 renderItem={({ item, index }) => (
@@ -169,7 +173,7 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
                     onPress={() => openImageViewer(index)}
                     style={{ marginRight: SPACING_SMALL }}
                   >
-                    <Image source={{ uri: item }} style={styles.imageThumbnail} />
+                    <Image source={{ uri: item.url }} style={styles.imageThumbnail} />
                   </TouchableOpacity>
                 )}
                 contentContainerStyle={styles.mediaContainer}

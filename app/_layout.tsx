@@ -50,7 +50,7 @@ export default function RootLayout() {
     return null
   }
 
-  return hasOnboarded ? (
+  return !!hasOnboarded ? (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AppContent hasOnboarded={hasOnboarded} isLoadingAuth={isLoadingAuth} />

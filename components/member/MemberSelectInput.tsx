@@ -117,8 +117,9 @@ const MemberSelectInput: React.FC<MemberSelectInputProps> = ({
       <MemberSelectModalComponent
         isVisible={modalVisible}
         onClose={handleCloseModal}
-        onSelectMember={handleMemberSelectedFromModal}
+        onSelectSingleMember={handleMemberSelectedFromModal}
         fieldName={fieldName} // Pass fieldName to the modal
+        multiSelect={false}
       />
     </View>
   );

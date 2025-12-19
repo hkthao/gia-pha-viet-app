@@ -46,8 +46,9 @@ export function useMemberSelectModal<TFieldName extends string>(): UseMemberSele
         <MemberSelectModalComponent<TFieldName>
           isVisible={isVisible}
           onClose={hideModal}
-          onSelectMember={handleSelectMember}
+          onSelectSingleMember={handleSelectMember}
           fieldName={currentFieldName}
+          multiSelect={false}
         />
       );
     };

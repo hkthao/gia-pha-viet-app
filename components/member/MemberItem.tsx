@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Avatar, Card, Chip, Text, useTheme } from 'react-native-paper';
+import { Avatar, Card, Chip, Text, useTheme, IconButton } from 'react-native-paper'; // Added IconButton
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 
@@ -11,13 +11,15 @@ import { MemberListDto } from '@/types';
 interface MemberItemProps {
   item: MemberListDto;
   onPress?: () => void; // Added optional onPress prop
+  isSelected?: boolean; // New prop for selection state
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
   memberCard: {
     marginBottom: SPACING_MEDIUM,
     marginHorizontal: 1,
-    width: "100%"
+    width: "100%",
+    position: 'relative', // For absolute positioning of checkmark
   },
   cardContent: {
     flexDirection: 'row',
@@ -39,10 +41,26 @@ const getStyles = (theme: any) => StyleSheet.create({
     paddingHorizontal: 0,
     borderWidth: 0,
   },
+  selectedOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 128, 0, 0.2)', // Greenish overlay for selected
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: theme.roundness,
+  },
+  checkmark: {
+    position: 'absolute',
+    top: SPACING_SMALL,
+    right: SPACING_SMALL,
+  },
 });
 
 // ...
-const MemberItem = ({ item, onPress }: MemberItemProps) => { // Destructure onPress
+const MemberItem = ({ item, onPress, isSelected }: MemberItemProps) => { // Destructure onPress and isSelected
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
@@ -96,6 +114,16 @@ const MemberItem = ({ item, onPress }: MemberItemProps) => { // Destructure onPr
           </View>
         </View>
       </Card.Content>
+      {isSelected && (
+        <View style={styles.selectedOverlay}>
+          <IconButton
+            icon="check-circle"
+            iconColor={theme.colors.primary}
+            size={30}
+            style={styles.checkmark}
+          />
+        </View>
+      )}
     </Card>
   );
 };

@@ -8,6 +8,7 @@
   "common.cancel": "Hủy",
   "common.clearSelection": "Xóa lựa chọn",
   "common.confirm": "Xác nhận",
+  "common.create": "Tạo",
   "common.delete": "Xóa",
   "common.dismiss": "Đóng",
   "common.done": "Hoàn thành",
@@ -258,7 +259,7 @@
   "home.features.smart_search.description": "Tìm kiếm nhanh theo tên, vai trò, nhánh họ.",
   "home.features.smart_search.title": "Tìm Kiếm Thông Minh",
   "home.features.stories_memories.description": "Lưu giữ ảnh, video, câu chuyện của từng thành viên.",
-  "home.features.stories_memories.title": "Câu Chuyện & Kỷ Niệm",
+  "home.features.stories_memories.title": "Câu Chuyện & Kỷ Vật",
   "home.features.title": "Tính năng nổi bật",
   "home.features.visual_tree.description": "Tạo cây gia phả trực quan, kéo thả dễ dàng.",
   "home.features.visual_tree.title": "Cây Gia Phả Trực Quan",
@@ -277,13 +278,13 @@
   "login.description": "Vui lòng đăng nhập để tiếp tục.",
   "login.title": "Chào mừng trở lại!",
   "memory": {
-    "listTitle": "Các Kỷ Niệm",
-    "detailTitle": "Chi Tiết Kỷ Niệm",
+    "listTitle": "Các Kỷ Vật",
+    "detailTitle": "Chi Tiết Kỷ Vật",
     "selectFamilyPrompt": "Vui lòng chọn một gia đình để xem kỷ niệm.",
     "search": {
       "search": "Tìm kiếm kỷ niệm..."
     },
-    "noMemoryItemsFound": "Không tìm thấy kỷ niệm nào.",
+    "noMemoryItemsFound": "Không tìm thấy kỷ vật nào.",
     "details": "Chi Tiết",
     "title": "Tiêu Đề",
     "description": "Mô Tả",
@@ -294,14 +295,15 @@
     "mediaUploadPlaceholder": "Component tải phương tiện sẽ ở đây...",
     "involvedPersons": "Thành viên liên quan",
     "personSelectionPlaceholder": "Component chọn người sẽ ở đây...",
+    "chooseImage": "Chọn ảnh",
     "errors": {
-      "dataNotAvailable": "Dữ liệu kỷ niệm không có sẵn.",
-      "invalidId": "ID kỷ niệm không hợp lệ."
+      "dataNotAvailable": "Dữ liệu kỷ vật không có sẵn.",
+      "invalidId": "ID kỷ vật không hợp lệ."
     }
   },
   "memoryForm": {
-    "createTitle": "Tạo Kỷ Niệm Mới",
-    "editTitle": "Chỉnh Sửa Kỷ Niệm"
+    "createTitle": "Tạo Kỷ Vật Mới",
+    "editTitle": "Chỉnh Sửa Kỷ Vật"
   },
   "emotionalTag": {
     "happy": "Vui Vẻ",
@@ -387,7 +389,7 @@
   "onboarding.slide1.description": "Dễ dàng xây dựng và trực quan hóa cây gia phả của bạn.",
   "onboarding.slide1.title": "Kết nối các thế hệ",
   "onboarding.slide2.description": "Thêm ảnh, video và câu chuyện cho từng thành viên gia đình.",
-  "onboarding.slide2.title": "Chia sẻ kỷ niệm",
+  "onboarding.slide2.title": "Chia sẻ kỷ vật",
   "onboarding.slide3.description": "Khám phá các mối quan hệ và mở rộng lịch sử gia đình của bạn.",
   "onboarding.slide3.title": "Khám phá các kết nối",
   "onboarding.slide4.description": "Dữ liệu gia đình của bạn được an toàn và bảo mật với chúng tôi.",

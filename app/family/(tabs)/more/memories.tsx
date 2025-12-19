@@ -85,7 +85,7 @@ export default function MemoryItemListScreen() {
   return (
     <View style={styles.safeArea}>
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => {}} />
+        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title={t("memory.listTitle")} />
         <Appbar.Action
           icon="plus"

@@ -1,16 +1,22 @@
 // gia-pha-viet-app/components/memory/MemoryItemForm.tsx
 
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { Button, Text, TextInput, useTheme, SegmentedButtons } from 'react-native-paper';
+import React, { useState, useCallback } from 'react';
+import { View, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, Alert, FlatList, TouchableOpacity } from 'react-native';
+import { Button, Text, TextInput, useTheme, Chip, IconButton } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Controller } from 'react-hook-form';
 import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { EmotionalTag, MemoryItemDto } from '@/types';
-import { MemoryItemFormData } from '@/utils/validation/memoryItemValidationSchema'; // Will create this later
-import { useMemoryItemForm } from '@/hooks/memory/useMemoryItemForm'; // Will create this later
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { MemoryItemFormData } from '@/utils/validation/memoryItemValidationSchema';
+import { useMemoryItemForm } from '@/hooks/memory/useMemoryItemForm';
+import * as ImagePicker from 'expo-image-picker';
+import { useMediaLibraryPermissions } from 'expo-image-picker';
+import { DateInput } from '@/components/common';
 import dayjs from 'dayjs';
+import ImageViewing from 'react-native-image-viewing';
+import { Image } from 'expo-image';
+import MemberSelectModalComponent from '@/components/member/MemberSelectModal';
+import { MemberListDto, MemoryPersonDto } from '@/types';
 
 interface MemoryItemFormProps {
   initialValues?: MemoryItemDto;
@@ -37,7 +43,6 @@ const getStyles = (theme: any) => StyleSheet.create({
     marginBottom: SPACING_MEDIUM,
   },
   button: {
-    marginHorizontal: SPACING_SMALL / 2,
     borderRadius: theme.roundness,
   },
   formSection: {
@@ -45,33 +50,26 @@ const getStyles = (theme: any) => StyleSheet.create({
     borderRadius: theme.roundness,
     marginBottom: SPACING_MEDIUM,
     elevation: 1,
-    padding: SPACING_MEDIUM,
-  },
-  sectionTitle: {
-    fontWeight: 'bold',
-    marginBottom: SPACING_SMALL,
-  },
-  datePickerContainer: {
-    marginBottom: SPACING_MEDIUM,
-  },
-  dateInput: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: SPACING_SMALL,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: theme.roundness,
-  },
-  dateText: {
-    paddingVertical: SPACING_SMALL,
   },
   chipContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: SPACING_SMALL,
     marginBottom: SPACING_MEDIUM,
-  }
+  },
+  mediaContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING_SMALL,
+    marginBottom: SPACING_MEDIUM,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageThumbnail: {
+    width: 100,
+    height: 100,
+    borderRadius: theme.roundness,
+  },
 });
 
 export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, onSubmit, isEditMode }) => {
@@ -80,14 +78,58 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
   const styles = getStyles(theme);
   const { control, handleSubmit, errors, setValue, isSubmitting, isValid } = useMemoryItemForm({ initialValues, onSubmit });
 
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>(initialValues?.memoryMedia?.map(file => file.url) || []);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
-    if (selectedDate) {
-      setValue('happenedAt', selectedDate.toISOString(), { shouldValidate: true });
+  const [selectedRelatedMembers, setSelectedRelatedMembers] = useState<MemoryPersonDto[]>(initialValues?.memoryPersons || []);
+  const [showMemberSelectModal, setShowMemberSelectModal] = useState(false);
+
+  const [mediaLibraryPermission, requestMediaLibraryPermission] = useMediaLibraryPermissions();
+
+  const pickImage = async () => {
+    if (!mediaLibraryPermission?.granted) {
+      const { granted } = await requestMediaLibraryPermission();
+      if (!granted) {
+        Alert.alert(t('common.permissionRequired'), t('common.mediaLibraryPermissionDenied'));
+        return;
+      }
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const newImages = result.assets.map(asset => {
+        return asset.uri;
+      });
+      setSelectedImages(prev => [...prev, ...newImages]);
     }
   };
+
+  const handleSelectMember = useCallback((members: MemberListDto[]) => {
+    const newMemoryPersons: MemoryPersonDto[] = members.map(member => ({
+      memberId: member.id,
+      memberName: member.fullName,
+      memberAvatarUrl: member.avatarUrl,
+    }));
+
+    // Filter out duplicates if any, though the modal should handle this
+    const uniqueNewMembers = newMemoryPersons.filter(
+      nm => !selectedRelatedMembers.some(existing => existing.memberId === nm.memberId)
+    );
+
+    setSelectedRelatedMembers(prev => [...prev, ...uniqueNewMembers]);
+    setShowMemberSelectModal(false);
+  }, [selectedRelatedMembers]);
+
+  const handleRemoveMember = useCallback((memberId: string) => {
+    setSelectedRelatedMembers(prev => prev.filter(p => p.memberId !== memberId));
+  }, []);
 
   const getEmotionalTagOptions = () => ([
     { label: t('emotionalTag.happy'), value: EmotionalTag.Happy.toString() },
@@ -97,6 +139,17 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
     { label: t('emotionalTag.neutral'), value: EmotionalTag.Neutral.toString() },
   ]);
 
+  const imagesForViewer = selectedImages.map(uri => ({ uri }));
+
+  const openImageViewer = useCallback((index: number) => {
+    setCurrentImageIndex(index);
+    setIsImageViewerVisible(true);
+  }, []);
+
+  const closeImageViewer = useCallback(() => {
+    setIsImageViewerVisible(false);
+  }, []);
+
   return (
     <View style={styles.mainContainer}>
       <KeyboardAvoidingView
@@ -104,8 +157,39 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          {selectedImages.length > 0 && (
+            <View style={{ marginBottom: SPACING_MEDIUM }}>
+              <FlatList
+                data={selectedImages}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item, index }) => (
+                  <TouchableOpacity
+                    onPress={() => openImageViewer(index)}
+                    style={{ marginRight: SPACING_SMALL }}
+                  >
+                    <Image source={{ uri: item }} style={styles.imageThumbnail} />
+                  </TouchableOpacity>
+                )}
+                contentContainerStyle={styles.mediaContainer}
+              />
+            </View>
+          )}
+
+          <Button
+            mode="outlined"
+            onPress={pickImage}
+            style={[styles.button, { marginBottom: SPACING_MEDIUM }]}
+            icon="image-plus"
+            disabled={!mediaLibraryPermission?.granted}
+          >
+            {t('memory.chooseImage')}
+          </Button>
+
           <View style={styles.formSection}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>{t('memory.details')}</Text>
+            {/* Remove the section title for memory.details as per request */}
+            {/* <Text variant="titleMedium" style={styles.sectionTitle}>{t('memory.details')}</Text> */}
             <Controller
               control={control}
               name="title"
@@ -117,6 +201,8 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
                   onChangeText={onChange}
                   style={styles.input}
                   error={!!errors.title}
+                  multiline
+                  left={<TextInput.Icon icon="format-title" />}
                 />
               )}
             />
@@ -135,62 +221,73 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
                   onChangeText={onChange}
                   style={styles.input}
                   error={!!errors.description}
+                  left={<TextInput.Icon icon="note-text-outline" />}
                 />
               )}
             />
             {errors.description && <Text style={styles.errorText}>{errors.description.message}</Text>}
 
-            <View style={styles.datePickerContainer}>
-              <Text variant="bodyLarge" style={{ marginBottom: SPACING_SMALL }}>{t('memory.happenedAt')}</Text>
-              <Controller
-                control={control}
-                name="happenedAt"
-                render={({ field: { value } }) => (
-                  <Button mode="outlined" onPress={() => setShowDatePicker(true)}>
-                    <Text>{value ? dayjs(value).format('DD/MM/YYYY') : t('memory.selectDate')}</Text>
-                  </Button>
-                )}
-              />
-              {showDatePicker && (
-                <DateTimePicker
-                  value={initialValues?.happenedAt ? dayjs(initialValues.happenedAt).toDate() : new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={handleDateChange}
+            <Controller
+              control={control}
+              name="happenedAt"
+              render={({ field: { onChange, value } }) => (
+                <DateInput
+                  label={t('memory.happenedAt')}
+                  value={value ? dayjs(value).toDate() : undefined}
+                  onChange={(date) => onChange(date ? date.toISOString() : undefined)}
+                  maximumDate={new Date()}
+                  error={!!errors.happenedAt}
+                  helperText={errors.happenedAt?.message}
+                  style={styles.input}
                 />
               )}
-              {errors.happenedAt && <Text style={styles.errorText}>{errors.happenedAt.message}</Text>}
-            </View>
+            />
 
-            <View style={styles.chipContainer}>
-              <Text variant="bodyLarge" style={{ marginBottom: SPACING_SMALL }}>{t('memory.emotionalTag')}</Text>
+            <Text variant="bodyLarge" style={{ marginBottom: SPACING_SMALL }}>{t('memory.emotionalTag')}</Text>
               <Controller
                 control={control}
                 name="emotionalTag"
                 render={({ field: { onChange, value } }) => (
-                  <SegmentedButtons
-                    value={value !== undefined ? value.toString() : EmotionalTag.Neutral.toString()}
-                    onValueChange={(newValue) => onChange(parseInt(newValue, 10))}
-                    buttons={getEmotionalTagOptions()}
-                  />
+                  <View style={styles.chipContainer}>
+                    {getEmotionalTagOptions().map((option) => (
+                      <Chip
+                        key={option.value}
+                        selected={value !== undefined && value.toString() === option.value}
+                        onPress={() => onChange(parseInt(option.value, 10))}
+                        mode="outlined"
+                        style={{ borderColor: theme.colors.outline }}
+                      >
+                        {option.label}
+                      </Chip>
+                    ))}
+                  </View>
                 )}
               />
-              {errors.emotionalTag && <Text style={styles.errorText}>{errors.emotionalTag.message}</Text>}
+          </View>
+
+          <View style={styles.formSection}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING_SMALL }}>
+              <Text variant="titleMedium">{t('memory.involvedPersons')}</Text>
+              <IconButton
+                icon="account-plus"
+                size={28}
+                onPress={() => setShowMemberSelectModal(true)}
+              />
             </View>
-          </View>
-
-          {/* Placeholder for Media Upload */}
-          <View style={styles.formSection}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>{t('memory.media')}</Text>
-            <Text>{t('memory.mediaUploadPlaceholder')}</Text>
-            {/* Media upload component will go here */}
-          </View>
-
-          {/* Placeholder for Person Selection */}
-          <View style={styles.formSection}>
-            <Text variant="titleMedium" style={styles.sectionTitle}>{t('memory.involvedPersons')}</Text>
-            <Text>{t('memory.personSelectionPlaceholder')}</Text>
-            {/* Person selection component will go here */}
+            {selectedRelatedMembers.length > 0 && (
+              <View style={styles.chipContainer}>
+                {selectedRelatedMembers.map((item) => (
+                  <Chip
+                    key={item.memberId}
+                    avatar={item.memberAvatarUrl ? <Image source={{ uri: item.memberAvatarUrl }} style={{ width: 24, height: 24, borderRadius: 12 }} /> : undefined}
+                    onClose={() => handleRemoveMember(item.memberId)}
+                    style={{ marginRight: SPACING_SMALL }}
+                  >
+                    {item.memberName}
+                  </Chip>
+                ))}
+              </View>
+            )}
           </View>
 
           <Button
@@ -204,6 +301,33 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ImageViewing
+        images={imagesForViewer}
+        imageIndex={currentImageIndex}
+        visible={isImageViewerVisible}
+        onRequestClose={closeImageViewer}
+      />
+
+      <MemberSelectModalComponent
+        isVisible={showMemberSelectModal}
+        onClose={() => setShowMemberSelectModal(false)}
+        onSelectMultipleMembers={(members) => handleSelectMember(members)}
+        fieldName="involvedMembers"
+        multiSelect={true}
+        initialSelectedMembers={selectedRelatedMembers.map(mp => ({
+          id: mp.memberId,
+          fullName: mp.memberName,
+          avatarUrl: mp.memberAvatarUrl,
+          // Add other required MemberListDto properties, even if empty/dummy
+          firstName: '',
+          lastName: '',
+          code: '',
+          familyId: '',
+          isRoot: false,
+          created: '',
+        }))}
+      />
     </View>
   );
 };

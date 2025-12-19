@@ -11,13 +11,11 @@ import { SPACING_SMALL } from '@/constants/dimensions';
 const screenHeight = Dimensions.get('window').height;
 
 interface UseMemberSelectModalProps<TFieldName extends string> {
-  onSelectMember: (member: MemberListDto, fieldName: TFieldName) => void;
   fieldName: TFieldName;
   onClose: () => void;
 }
 
 export const useMemberSelectModal = <TFieldName extends string>({
-  onSelectMember,
   fieldName,
   onClose,
 }: UseMemberSelectModalProps<TFieldName>) => {
@@ -50,11 +48,6 @@ export const useMemberSelectModal = <TFieldName extends string>({
     familyId: currentFamilyId || '',
   }), [currentFamilyId]);
 
-  const handleMemberPress = useCallback((member: MemberListDto) => {
-    onSelectMember(member, fieldName);
-    onClose();
-  }, [onSelectMember, onClose, fieldName]);
-
   const containerStyle = useMemo(() => ({
     padding: SPACING_SMALL,
     borderRadius: theme.roundness,
@@ -69,7 +62,6 @@ export const useMemberSelectModal = <TFieldName extends string>({
     memberSearchQueryFn,
     getMemberSearchQueryKey,
     initialQuery,
-    handleMemberPress,
     containerStyle,
     modalStyle,
     currentFamilyId,

@@ -16,6 +16,7 @@ export default function EditMemoryItemScreen() {
     initialMemoryItemData,
     isLoadingInitialData,
     fetchError,
+    isUpdating,
     handleUpdateMemoryItem,
     handleCancel,
   } = useEditMemoryItem();
@@ -76,6 +77,8 @@ export default function EditMemoryItemScreen() {
     );
   }
 
+  const processing = isLoadingInitialData || isUpdating;
+
   return (
     <View style={styles.container}>
       <Appbar.Header>
@@ -86,6 +89,8 @@ export default function EditMemoryItemScreen() {
         initialValues={initialMemoryItemData}
         onSubmit={handleUpdateMemoryItem}
         isEditMode={true}
+        familyId={initialMemoryItemData.familyId}
+        processing={processing}
       />
     </View>
   );

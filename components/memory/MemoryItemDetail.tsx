@@ -239,7 +239,7 @@ const MemoryItemDetail = ({ memoryItem }: MemoryItemDetailProps) => {
                 <MemberAvatarChip
                   key={person.memberId || index}
                   id={person.memberId}
-                  fullName={person.memberName}
+                  fullName={person.memberName || ''}
                   avatarUrl={person.memberAvatarUrl}
                 />
               ))}

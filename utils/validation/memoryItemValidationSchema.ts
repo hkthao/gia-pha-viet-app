@@ -42,14 +42,14 @@ export const memoryItemValidationSchema: yup.ObjectSchema<MemoryItemFormData> = 
   memoryMedia: yup
     .array(yup.object({
       id: yup.string().optional(),
-      url: yup.string().url(() => globalI18n.t('validation.invalidUrl')).required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memory.mediaUrl') }))
+      url: yup.string().url(() => globalI18n.t('validation.invalidUrl')).optional() // Changed from required to optional
     }))
     .optional()
     .default([]),
   memoryPersons: yup
     .array(yup.object({
       memberId: yup.string().required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memory.memberId') })),
-      memberName: yup.string().required(() => globalI18n.t('validation.required', { fieldName: globalI18n.t('memory.memberName') }))
+      memberName: yup.string().optional() // Changed from required to optional
     }))
     .optional()
     .default([]),

@@ -10,6 +10,15 @@ interface UploadFileArgs {
   uploadMutation: any; // Use a more specific type if available, e.g., UseMutationResult for the upload mutation
 }
 
+interface UploadFileFromUriArgs {
+  fileUri: string;
+  fileName: string;
+  mediaType: string;
+  familyId: string;
+  folder: string;
+  uploadMutation: any;
+}
+
 export async function createAndUploadFile({
   base64Content,
   fileName,
@@ -21,8 +30,8 @@ export async function createAndUploadFile({
   const file = new File(Paths.cache, fileName);
   const bytes = Uint8Array.from(Buffer.from(base64Content, 'base64'));
 
-  await file.create({ overwrite: true });
-  await file.write(bytes);
+  file.create({ overwrite: true });
+  file.write(bytes);
 
   const uploadedUrl = await uploadMutation.mutateAsync({
     file: {
@@ -35,5 +44,26 @@ export async function createAndUploadFile({
   });
 
   await file.delete();
+  return uploadedUrl;
+}
+
+export async function uploadFileFromUri({
+  fileUri,
+  fileName,
+  mediaType,
+  familyId,
+  folder,
+  uploadMutation,
+}: UploadFileFromUriArgs): Promise<string> {
+  const uploadedUrl = await uploadMutation.mutateAsync({
+    file: {
+      uri: fileUri,
+      name: fileName,
+      type: mediaType,
+    },
+    familyId: familyId,
+    folder: folder,
+  });
+
   return uploadedUrl;
 }

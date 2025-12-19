@@ -12,12 +12,12 @@ export enum EmotionalTag {
 
 export interface MemoryMediaDto {
   id?: string; // Optional for creation, present for update/view
-  url: string;
+  url?: string;
 }
 
 export interface MemoryPersonDto {
   memberId: string;
-  memberName: string;
+  memberName?: string;
   memberAvatarUrl?: string;
 }
 
@@ -36,10 +36,11 @@ export interface MemoryItemCreateRequestDto {
   familyId: string;
   title: string;
   description?: string;
-  happenedAt: string;
+  happenedAt?: string;
   emotionalTag: EmotionalTag;
-  memoryMedia?: MemoryMediaDto[]; // Media might be uploaded separately or as part of creation
-  memoryPersons?: MemoryPersonDto[];
+  memoryMedia: MemoryMediaDto[];
+  personIds: string[];
+  deletedMediaIds: string[];
 }
 
 export interface MemoryItemUpdateRequestDto {

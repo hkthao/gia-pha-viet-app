@@ -1,8 +1,8 @@
 // gia-pha-viet-app/app/memory/create.tsx
 
 import React, { useCallback } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import { View, StyleSheet, Text, Alert } from 'react-native';
+import { Appbar, useTheme  } from 'react-native-paper';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { MemoryItemForm } from '@/components/memory/MemoryItemForm';
@@ -15,14 +15,14 @@ export default function CreateMemoryItemScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { currentFamilyId } = useCurrentFamilyStore();
-  const { mutate: createMemoryItem } = useCreateMemoryItem();
+  const { mutate: createMemoryItem, processing } = useCreateMemoryItem();
 
   const handleCreateMemoryItem = useCallback(async (data: MemoryItemFormData) => {
     if (!currentFamilyId) {
       Alert.alert(t('common.error'), t('memory.selectFamilyPrompt'));
       return;
     }
-    createMemoryItem({ ...data, familyId: currentFamilyId }, {
+    createMemoryItem({ ...data, familyId: currentFamilyId, personIds: [], deletedMediaIds: [], memoryMedia: data.memoryMedia || [] }, {
       onSuccess: () => {
         router.back();
       },
@@ -49,7 +49,13 @@ export default function CreateMemoryItemScreen() {
         <Appbar.BackAction onPress={handleCancel} color={theme.colors.onSurface} />
         <Appbar.Content title={t('memoryForm.createTitle')} titleStyle={{ color: theme.colors.onSurface }} />
       </Appbar.Header>
-      <MemoryItemForm onSubmit={handleCreateMemoryItem} isEditMode={false} />
+      {!currentFamilyId ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>{t('memory.selectFamilyPrompt')}</Text>
+        </View>
+      ) : (
+        <MemoryItemForm onSubmit={handleCreateMemoryItem} isEditMode={false} familyId={currentFamilyId} processing={processing} />
+      )}
     </View>
   );
 }

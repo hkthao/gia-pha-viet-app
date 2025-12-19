@@ -28,6 +28,7 @@
   "common.not_available": "N/A",
   "common.other": "Khác",
   "common.save": "Lưu",
+  "common.saveChanges": "Lưu thay đổi",
   "common.success": "Thành công!",
   "common.unknown": "Không xác định",
   "dialog.confirmTitle": "Xác nhận hành động",
@@ -303,7 +304,8 @@
   },
   "memoryForm": {
     "createTitle": "Tạo Kỷ Vật Mới",
-    "editTitle": "Chỉnh Sửa Kỷ Vật"
+    "editTitle": "Chỉnh Sửa Kỷ Vật",
+    "createSuccess": "Tạo kỷ vật thành công!"
   },
   "emotionalTag": {
     "happy": "Vui Vẻ",

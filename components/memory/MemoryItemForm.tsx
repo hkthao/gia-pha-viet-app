@@ -6,7 +6,7 @@ import { Button, Text, TextInput, useTheme, Chip, IconButton } from 'react-nativ
 import { useTranslation } from 'react-i18next';
 import { Controller } from 'react-hook-form';
 import { SPACING_EXTRA_LARGE, SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
-import { EmotionalTag, MemoryItemDto } from '@/types';
+import { EmotionalTag, MemoryItemDto, MemberListDto, MemoryPersonDto } from '@/types';
 import { MemoryItemFormData } from '@/utils/validation/memoryItemValidationSchema';
 import { useMemoryItemForm } from '@/hooks/memory/useMemoryItemForm';
 import * as ImagePicker from 'expo-image-picker';
@@ -16,12 +16,12 @@ import dayjs from 'dayjs';
 import ImageViewing from 'react-native-image-viewing';
 import { Image } from 'expo-image';
 import MemberSelectModalComponent from '@/components/member/MemberSelectModal';
-import { MemberListDto, MemoryPersonDto } from '@/types';
-
 interface MemoryItemFormProps {
   initialValues?: MemoryItemDto;
   onSubmit: (data: MemoryItemFormData) => Promise<void>;
   isEditMode: boolean;
+  familyId: string;
+  processing: boolean;
 }
 
 const getStyles = (theme: any) => StyleSheet.create({
@@ -72,13 +72,13 @@ const getStyles = (theme: any) => StyleSheet.create({
   },
 });
 
-export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, onSubmit, isEditMode }) => {
+export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, onSubmit, isEditMode, familyId, processing }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { control, handleSubmit, errors, setValue, isSubmitting, isValid } = useMemoryItemForm({ initialValues, onSubmit });
+  const { control, handleSubmit, errors, isSubmitting, isValid } = useMemoryItemForm({ initialValues, onSubmit, familyId });
 
-  const [selectedImages, setSelectedImages] = useState<string[]>(initialValues?.memoryMedia?.map(file => file.url) || []);
+  const [selectedImages, setSelectedImages] = useState<string[]>(initialValues?.memoryMedia?.map(file => file.url).filter((url): url is string => url !== undefined) || []);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
 
@@ -294,8 +294,8 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
             mode="contained"
             onPress={handleSubmit}
             style={[styles.button, { marginHorizontal: 0 }]}
-            loading={isSubmitting}
-            disabled={isSubmitting || !isValid}
+            loading={isSubmitting || processing}
+            disabled={isSubmitting || processing || !isValid}
           >
             {isEditMode ? t('common.saveChanges') : t('common.create')}
           </Button>
@@ -317,7 +317,7 @@ export const MemoryItemForm: React.FC<MemoryItemFormProps> = ({ initialValues, o
         multiSelect={true}
         initialSelectedMembers={selectedRelatedMembers.map(mp => ({
           id: mp.memberId,
-          fullName: mp.memberName,
+          fullName: mp.memberName || '', // Provide a default empty string if memberName is undefined
           avatarUrl: mp.memberAvatarUrl,
           // Add other required MemberListDto properties, even if empty/dummy
           firstName: '',

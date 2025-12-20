@@ -1,10 +1,15 @@
 import { ImageSourcePropType } from 'react-native';
 
-const defaultFamilyAvatar = require('@/assets/images/familyAvatar.png');
+const defaultUserAvatar = require('@/assets/images/familyAvatar.png'); // Using familyAvatar for generic user
+const defaultAIAvatar = require('@/assets/images/ai-avatar.png'); // Placeholder for AI robot icon
 
-export const getAvatarSource = (avatarUrl?: string | null): ImageSourcePropType => {
+export const getMemberAvatarSource = (avatarUrl?: string | null): ImageSourcePropType => {
   if (avatarUrl) {
     return { uri: avatarUrl };
   }
-  return defaultFamilyAvatar;
+  return defaultUserAvatar;
+};
+
+export const getAIAvatarSource = (): ImageSourcePropType => {
+  return defaultAIAvatar;
 };

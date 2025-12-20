@@ -57,7 +57,6 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
             user: {
               _id: '2', // Ensure _id is a string
               name: 'AI Assistant',
-              avatar: 'https://placeimg.com/140/140/any',
             },
           };
           setMessages(previousMessages => [...previousMessages, errorMessage]);

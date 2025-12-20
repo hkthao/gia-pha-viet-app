@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { MemoryItemDto, EmotionalTag } from '@/types';
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import dayjs from 'dayjs';
-import { getAvatarSource } from '@/utils/imageUtils';
+import { getMemberAvatarSource } from '@/utils/imageUtils';
 
 interface MemoryItemListItemProps {
   item: MemoryItemDto;
@@ -77,7 +77,7 @@ const MemoryItemListItem = ({ item, onPress }: MemoryItemListItemProps) => {
       <Card.Content style={styles.cardContent}>
         <Avatar.Image
           size={48}
-          source={getAvatarSource(item.memoryMedia?.[0]?.url)}
+          source={getMemberAvatarSource(item.memoryMedia?.[0]?.url)}
           style={styles.avatar}
         />
         <View style={styles.cardText}>

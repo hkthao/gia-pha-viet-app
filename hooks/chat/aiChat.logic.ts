@@ -1,6 +1,7 @@
 // gia-pha-viet-app/hooks/chat/aiChat.logic.ts
 import { IMessage } from '@/types';
 import { AIChatServiceAdapter } from './aiChat.adapters';
+import { nanoid } from 'nanoid';
 
 // Define the dependencies for the logic module
 export interface AIChatLogicDeps {
@@ -23,9 +24,8 @@ export function generateInitialMessage(t: (key: string) => string): IMessage[] {
       text: t('aiChat.initialMessage'),
       createdAt: new Date(),
       user: {
-        _id: 2,
+        _id: "2",
         name: 'AI Assistant',
-        avatar: 'https://placeimg.com/140/140/any', // Placeholder avatar
       },
     },
   ];
@@ -47,13 +47,12 @@ export async function processUserMessage(
   const aiResponseText = await aiChatService.getAIResponse(userMessage, sessionId, familyId);
 
   return {
-    _id: Math.round(Math.random() * 1000000),
+    _id: nanoid(),
     text: aiResponseText,
     createdAt: new Date(),
     user: {
-      _id: 2,
+      _id: "2",
       name: 'AI Assistant',
-      avatar: 'https://placeimg.com/140/140/any',
     },
   };
 }

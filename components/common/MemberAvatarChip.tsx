@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { useTheme, Chip } from 'react-native-paper'; // Import Chip
 import { SPACING_SMALL } from '@/constants/dimensions';
-import { getAvatarSource } from '@/utils/imageUtils';
+import { getMemberAvatarSource } from '@/utils/imageUtils';
 
 interface MemberAvatarChipProps {
   id: string;
@@ -27,7 +27,7 @@ const MemberAvatarChip: React.FC<MemberAvatarChipProps> = ({ fullName, avatarUrl
     }
   }), [theme]);
 
-  const avatarSource = getAvatarSource(avatarUrl);
+  const avatarSource = getMemberAvatarSource(avatarUrl);
 
   return (
     <Chip

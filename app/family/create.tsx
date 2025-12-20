@@ -4,7 +4,7 @@ import { Appbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { FamilyForm } from '@/components/family';
-import { ChatBottomSheet } from '@/components'; // Import ChatBottomSheet
+import { ChatBottomSheet } from '@/components/chat'; // Import ChatBottomSheet
 import { useCreateFamily } from '@/hooks/family/useCreateFamily'; // Import the new hook
 import { FamilyFormData } from '@/utils/validation/familyValidationSchema'; // Import FamilyFormData
 

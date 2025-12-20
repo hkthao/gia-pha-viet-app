@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { DetectedFaceDto } from '@/types';
-import { getAvatarSource } from '@/utils/imageUtils'; // Import getAvatarSource
+import { getMemberAvatarSource } from '@/utils/imageUtils';
 
 interface FaceItemProps {
   item: DetectedFaceDto;
@@ -44,7 +44,7 @@ const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
   const styles = getStyles(theme);
 
   // Use getAvatarSource from imageUtils
-  const faceImageSource = getAvatarSource(item.thumbnailUrl);
+  const faceImageSource = getMemberAvatarSource(item.thumbnailUrl);
 
   // Navigate to member details if memberId is available
   const handlePress = () => {
@@ -68,8 +68,7 @@ const FaceItem = ({ item, onPress }: FaceItemProps) => { // Accept onPress prop
                 icon={({ size }: { size: number, color: string }) => (
                   <Avatar.Image
                     size={size}
-                    source={getAvatarSource(item.familyAvatarUrl)}
-                    style={{ backgroundColor: 'transparent' }}
+                                         source={getMemberAvatarSource(item.familyAvatarUrl)}                    style={{ backgroundColor: 'transparent' }}
                   />
                 )}
                 compact

@@ -7,7 +7,7 @@ import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { useFaceDataDetails } from '@/hooks/face/useFaceDataDetails';
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
-import { getAvatarSource } from '@/utils/imageUtils';
+import { getMemberAvatarSource } from '@/utils/imageUtils';
 
 export default function FaceDataDetailsScreen() {
   const { id } = useLocalSearchParams();
@@ -130,14 +130,14 @@ export default function FaceDataDetailsScreen() {
             }}>
 
               <Chip compact
-                avatar={faceData.memberAvatarUrl ? <Avatar.Image size={24} source={getAvatarSource(faceData.memberAvatarUrl)} /> : <Avatar.Icon size={24} icon="account" />}
+                avatar={faceData.memberAvatarUrl ? <Avatar.Image size={24} source={getMemberAvatarSource(faceData.memberAvatarUrl)} /> : <Avatar.Icon size={24} icon="account" />}
 
               >
                 {faceData.memberName}
               </Chip>
 
               <Chip compact
-                avatar={faceData.familyAvatarUrl ? <Avatar.Image size={24} source={getAvatarSource(faceData.familyAvatarUrl)} /> : <Avatar.Icon size={24} icon="account-group" />}
+                avatar={faceData.familyAvatarUrl ? <Avatar.Image size={24} source={getMemberAvatarSource(faceData.familyAvatarUrl)} /> : <Avatar.Icon size={24} icon="account-group" />}
               >
                 {faceData.familyName}
               </Chip>

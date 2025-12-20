@@ -5,7 +5,7 @@ import { Appbar, Text, useTheme, Card, Avatar, ActivityIndicator, List, Divider,
 import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM, SPACING_SMALL, SPACING_EXTRA_LARGE } from '@/constants/dimensions';
 import { CalendarType, EventType, MemberListDto, RepeatRule } from '@/types';
-import { getAvatarSource } from '@/utils/imageUtils';
+import { getMemberAvatarSource } from '@/utils/imageUtils';
 import { useEventDetails } from '@/hooks/event/useEventDetails'; // Import the new hook
 import { useDeleteEvent } from '@/hooks/event/useDeleteEvent'; // Import the new hook
 import { usePermissionCheck } from '@/hooks/permissions/usePermissionCheck'; // Import usePermissionCheck
@@ -314,7 +314,7 @@ export default function EventDetailsScreen() {
                     <List.Item
                       key={member.id}
                       title={member.fullName}
-                      left={() => <Avatar.Image size={40} source={getAvatarSource(member.avatarUrl)} />}
+                      left={() => <Avatar.Image size={40} source={getMemberAvatarSource(member.avatarUrl)} />}
                       onPress={() => router.push(`/member/${member.id}`)}
                     />
                   </>

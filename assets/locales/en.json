@@ -557,5 +557,6 @@
     "aiChat.title": "AI Chat",
     "aiChat.initialMessage": "Hello! I am your AI Family Tree Assistant. How can I help you today?",
     "aiChat.responsePrefix": "You asked: \"{{message}}\". I am still learning, but I can try to help with questions about your family tree data.",
-    "aiChat.errorMessage": "Oops! Something went wrong while getting an AI response. Please try again."
+    "aiChat.errorMessage": "Oops! Something went wrong while getting an AI response. Please try again.",
+    "aiChat.typeMessage": "Type your message..."
     }

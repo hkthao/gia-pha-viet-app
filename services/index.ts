@@ -15,6 +15,7 @@ import { ApiFamilyMediaService, IFamilyMediaService } from './familyMedia'; // N
 import { ApiMemoryItemService, IMemoryItemService } from './memory'; // New Memory Item Service
 import { apiClientWithAuth } from './api';
 import { ApiFamilyLocationService, IFamilyLocationService } from './familyLocation';
+import { ApiChatService, IChatService } from './chat/chatService';
 
 // Initialize services
 export const userProfileService: IUserProfileService = new ApiUserProfileService(apiClientWithAuth);
@@ -30,6 +31,7 @@ export const userService: IUserService = new ApiUserService(apiClientWithAuth);
 export const familyMediaService: IFamilyMediaService = new ApiFamilyMediaService(apiClientWithAuth); 
 export const familyLocationService: IFamilyLocationService = new ApiFamilyLocationService(apiClientWithAuth); 
 export const memoryItemService: IMemoryItemService = new ApiMemoryItemService(apiClientWithAuth); 
+export const chatService: IChatService = new ApiChatService(apiClientWithAuth);
 
 // Optionally re-export all types and classes from sub-modules for broader access if needed
 export * from './userProfile';

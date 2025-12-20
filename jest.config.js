@@ -18,6 +18,7 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
     '^@react-native-async-storage/async-storage$': '<rootDir>/__mocks__/@react-native-async-storage/async-storage.ts',
     '^react-native-paper$': '<rootDir>/__mocks__/react-native-paper.tsx',
+    '^react-native-keyboard-controller$': '<rootDir>/__mocks__/react-native-keyboard-controller.ts',
 
   },
   transformIgnorePatterns: [

@@ -553,5 +553,9 @@
       "familyLocation.mapViewTitle": "Location Map",
     "familyLocation.mapSelect.title": "Select Location on Map",
     "familyLocation.mapSelect.noLocationSelected": "No location selected. Please select a point on the map.",
-    "familyLocationForm.openMap": "Open Map"
+    "familyLocationForm.openMap": "Open Map",
+    "aiChat.title": "AI Chat",
+    "aiChat.initialMessage": "Hello! I am your AI Family Tree Assistant. How can I help you today?",
+    "aiChat.responsePrefix": "You asked: \"{{message}}\". I am still learning, but I can try to help with questions about your family tree data.",
+    "aiChat.errorMessage": "Oops! Something went wrong while getting an AI response. Please try again."
     }

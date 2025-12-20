@@ -21,6 +21,7 @@ export default function MoreLayout() {
         <Stack.Screen name="privacy" options={{ title: t('more.privacy') }} />
         <Stack.Screen name="detect-relationship" options={{ title: t('detectRelationship.title') }} />
         <Stack.Screen name="family-location" options={{ title: t('more.family_location') }} />
+        <Stack.Screen name="ai-chat" options={{ title: t('aiChat.title') }} />
       </Stack>
     </View>
   );

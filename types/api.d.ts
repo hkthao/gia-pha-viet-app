@@ -14,3 +14,13 @@ export interface Result<T> {
   value?: T;
   error?: ApiError;
 }
+
+export interface ChatWithAssistantCommand {
+  sessionId: string;
+  chatInput: string;
+  metadata: Record<string, any>;
+}
+
+export interface ChatResponse {
+  output: string;
+}

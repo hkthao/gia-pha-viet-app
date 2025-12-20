@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useColorScheme as useSystemColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Assuming this is installed or will be installed
+import { AsyncKVS } from '@/services/storageService'; // Use the new storage service
 
 type ThemePreference = 'light' | 'dark' | 'system';
 
@@ -22,12 +22,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadThemePreference = async () => {
       try {
-        const storedPreference = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        const storedPreference = await AsyncKVS.getItem(THEME_STORAGE_KEY);
         if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'system') {
           setThemePreferenceState(storedPreference);
         }
       } catch (error) {
-        console.error('Failed to load theme preference from AsyncStorage', error);
+        console.error('Failed to load theme preference from storage service', error);
       } finally {
         setIsLoaded(true);
       }
@@ -38,10 +38,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setThemePreference = useCallback(async (preference: ThemePreference) => {
     try {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, preference);
+      await AsyncKVS.setItem(THEME_STORAGE_KEY, preference);
       setThemePreferenceState(preference);
     } catch (error) {
-      console.error('Failed to save theme preference to AsyncStorage', error);
+      console.error('Failed to save theme preference to storage service', error);
     }
   }, [setThemePreferenceState]);
 

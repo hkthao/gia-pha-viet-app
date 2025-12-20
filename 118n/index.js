@@ -1,10 +1,12 @@
-import * as Localization from 'expo-localization';
 import i18nextInstance from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { AsyncKVS } from '@/services/storageService'; // Import AsyncKVS
 
 // Import translation files
 import en from '@/assets/locales/en.json';
 import vi from '@/assets/locales/vi.json';
+
+const LANGUAGE_STORAGE_KEY = 'user-language-preference'; // Key for stored language
 
 const resources = {
   en: {
@@ -15,19 +17,31 @@ const resources = {
   },
 };
 
-// eslint-disable-next-line import/no-named-as-default-member
 const languageDetector = {
   type: 'languageDetector',
   async: true,
   detect: async (callback) => {
-    const preferredLanguage = Localization.locale.split('-')[0]; // e.g., "en-US" -> "en"
-    const supportedLanguages = Object.keys(resources);
-    const finalLanguage = supportedLanguages.includes(preferredLanguage) ? preferredLanguage : 'vi'; // Default to 'vi' if preferred is not supported
-
-    callback(finalLanguage);
+    try {
+      const storedLanguage = await AsyncKVS.getItem(LANGUAGE_STORAGE_KEY);
+      if (storedLanguage) {
+        callback(storedLanguage);
+      } else {
+        // Default to 'vi' if no language is stored
+        callback('vi');
+      }
+    } catch (error) {
+      console.error('Failed to detect language from storage', error);
+      callback('vi'); // Fallback to 'vi' on error
+    }
   },
   init: () => {},
-  cacheUserLanguage: () => {},
+  cacheUserLanguage: async (lng) => {
+    try {
+      await AsyncKVS.setItem(LANGUAGE_STORAGE_KEY, lng);
+    } catch (error) {
+      console.error('Failed to cache user language', error);
+    }
+  },
 };
 
 i18nextInstance
@@ -46,3 +60,4 @@ i18nextInstance
   });
 
 export default i18nextInstance;
+

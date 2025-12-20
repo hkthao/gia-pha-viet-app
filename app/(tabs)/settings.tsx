@@ -4,37 +4,30 @@ import { useTranslation } from 'react-i18next';
 import { SPACING_MEDIUM } from '@/constants/dimensions';
 import { useAuth } from '@/hooks/auth/useAuth';
 import { router } from 'expo-router';
-import { useEffect, useState, useMemo } from 'react';
-import { useThemeContext } from '@/context/ThemeContext'; // Import useThemeContext
+import { useEffect, useMemo } from 'react'; // Removed useState
+// import { useThemeContext } from '@/context/ThemeContext'; // Removed useThemeContext
 import FamilyAvatar from '@/assets/images/familyAvatar.png'; // Import the default avatar image
 import { useGetCurrentUserProfileQuery } from '@/hooks/user/useUserProfileQueries'; // Import user profile query
+import { useAppSettings } from '@/hooks/settings/useAppSettings'; // Import the new hook
+import { defaultStorageService } from '@/services/storageService'; // Import defaultStorageService
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
-  const { logout, isLoggedIn } = useAuth(); // Destructure isLoggedIn, no longer need `user` directly
+  const { logout, isLoggedIn } = useAuth();
   const theme = useTheme();
-  const { themePreference, setThemePreference } = useThemeContext(); // Use theme context
+
+  const {
+    state: { isDarkMode, currentLanguage }, // Destructure from useAppSettings state
+    actions: { toggleTheme, changeLanguage }, // Destructure from useAppSettings actions
+  } = useAppSettings({ i18n, storageService: defaultStorageService }); // Pass i18n instance and storageService
 
   const { data: fetchedUserProfile, isLoading: loadingProfile, error: errorProfile, refetch: refetchUserProfile } = useGetCurrentUserProfileQuery();
-
-  // State for appearance settings
-  const [isDarkMode, setIsDarkMode] = useState(themePreference === 'dark'); // Initialize from context
-
-  useEffect(() => {
-    setIsDarkMode(themePreference === 'dark');
-  }, [themePreference]);
 
   useEffect(() => {
     if (isLoggedIn) {
       refetchUserProfile();
     }
   }, [isLoggedIn, refetchUserProfile]);
-
-  const handleThemeToggle = () => {
-    const newTheme = isDarkMode ? 'light' : 'dark';
-    setThemePreference(newTheme);
-    setIsDarkMode(!isDarkMode);
-  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -177,7 +170,7 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="theme-light-dark" />}
               title={t('settings.appAppearance.theme')}
-              right={() => <Switch value={isDarkMode} onValueChange={handleThemeToggle} />}
+              right={() => <Switch value={isDarkMode} onValueChange={toggleTheme} />}
             />
           </List.Section>
 
@@ -187,16 +180,16 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="translate" />}
               title={t('settings.language.vietnamese')}
-              onPress={() => i18n.changeLanguage('vi')}
-              right={() => i18n.language === 'vi' ? <List.Icon style={styles.rightIcon} icon="check" /> : null}
+              onPress={() => changeLanguage('vi')}
+              right={() => currentLanguage === 'vi' ? <List.Icon style={styles.rightIcon} icon="check" /> : null}
             />
             <Divider />
             <List.Item
               style={styles.listItem}
               left={() => <List.Icon icon="translate" />}
               title={t('settings.language.english')}
-              onPress={() => i18n.changeLanguage('en')}
-              right={() => i18n.language === 'en' ? <List.Icon icon="check" /> : null}
+              onPress={() => changeLanguage('en')}
+              right={() => currentLanguage === 'en' ? <List.Icon icon="check" /> : null}
             />
           </List.Section>
 

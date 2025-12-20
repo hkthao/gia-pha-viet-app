@@ -14,4 +14,5 @@ export * from './user.d';
 export * from './familyMedia.d';
 export * from './familyLocation.d';
 export * from './memory.d';
+export * from './chat.d';
 

@@ -1,5 +1,5 @@
 // gia-pha-viet-app/hooks/chat/aiChat.logic.ts
-import { IMessage } from 'react-native-gifted-chat';
+import { IMessage } from '@/types';
 import { AIChatServiceAdapter } from './aiChat.adapters';
 
 // Define the dependencies for the logic module
@@ -41,7 +41,7 @@ export async function processUserMessage(
   userMessages: IMessage[],
   deps: AIChatLogicDeps
 ): Promise<IMessage> {
-  const { aiChatService, getTranslation, sessionId, familyId } = deps;
+  const { aiChatService, sessionId, familyId } = deps;
   const userMessage = userMessages[0].text;
 
   const aiResponseText = await aiChatService.getAIResponse(userMessage, sessionId, familyId);

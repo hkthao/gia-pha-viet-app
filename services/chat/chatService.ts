@@ -7,7 +7,7 @@ import { AIChatServiceAdapter } from '@/hooks/chat/aiChat.adapters'; // Correct 
 export interface IChatService extends AIChatServiceAdapter { }
 
 export class ApiChatService implements IChatService {
-  private baseEndpoint: string = '/api/ai/chat';
+  private baseEndpoint: string = '/ai/chat';
 
   constructor(private apiClient: ApiClientMethods) {}
 
@@ -18,12 +18,12 @@ export class ApiChatService implements IChatService {
       metadata: { familyId: familyId },
     };
 
-    const response = await this.apiClient.post<Result<ChatResponse>>(this.baseEndpoint, command);
-
-    if (response.isSuccess && response.value) {
-      return response.value.output;
-    } else {
-      throw new Error(response.error?.message || 'Failed to get AI response');
+    try {
+      const response = await this.apiClient.post<ChatResponse>(this.baseEndpoint, command);
+      return response.output;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || 'Không thể lấy phản hồi từ AI. Vui lòng thử lại sau.';
+      throw new Error(errorMessage);
     }
   }
 }

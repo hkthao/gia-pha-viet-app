@@ -16,7 +16,7 @@ export default function MoreOptionsScreen() {
       paddingHorizontal: SPACING_MEDIUM,
     },
     listSection: {
-      marginTop: SPACING_MEDIUM,
+      marginBottom: SPACING_MEDIUM,
       padding: SPACING_SMALL,
       borderRadius: theme.roundness
     },

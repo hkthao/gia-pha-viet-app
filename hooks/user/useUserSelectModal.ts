@@ -62,7 +62,8 @@ export const useUserSelectModal = ({
   }), [theme]);
 
   const modalStyle = useMemo(() => ({
-    backgroundColor: theme.colors.background
+    backgroundColor: theme.colors.background,
+    height: screenHeight
   }), [theme]);
 
   return {

@@ -8,7 +8,7 @@ export class ApiRelationshipService implements IRelationshipService {
 
   async getRelationshipsByFamilyId(familyId: string): Promise<Result<RelationshipListDto[]>> {
     try {
-      const response = await this.api.get<RelationshipListDto[]>(`/family/${familyId}/relationships`);
+      const response = await this.api.get<RelationshipListDto[]>(`/relationship/by-family/${familyId}`);
       return { isSuccess: true, value: response };
     } catch (error: any) {
       const apiError: ApiError = {

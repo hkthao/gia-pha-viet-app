@@ -46,18 +46,18 @@ export default function MoreOptionsScreen() {
         <Card style={styles.listSection}>
           <List.Subheader style={styles.listSubheader}>{t('more.data')}</List.Subheader>
           <List.Item
-            title={t('more.calendar')}
-            left={() => <MaterialCommunityIcons name="calendar-month-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
-            right={() => <List.Icon icon="chevron-right" />}
-            onPress={() => navigateTo('/family/(tabs)/more/calendar')}
-            style={styles.listItem}
-          />
-          <Divider />
-          <List.Item
             title={t('more.faceData')}
             left={() => <MaterialCommunityIcons name="face-recognition" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() => navigateTo('/family/(tabs)/more/face-data')}
+            style={styles.listItem}
+          />
+          <Divider />
+            <List.Item
+            title={t('familyLocation.manageLocations')}
+            left={() => <MaterialCommunityIcons name="map-marker-multiple" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+            right={() => <List.Icon icon="chevron-right" />}
+            onPress={() => navigateTo('/family/(tabs)/more/family-location')}
             style={styles.listItem}
           />
           <Divider />
@@ -76,12 +76,15 @@ export default function MoreOptionsScreen() {
             onPress={() => navigateTo('/family/(tabs)/more/timeline')}
             style={styles.listItem}
           />
-          <Divider />
+        </Card>
+
+        <Card style={styles.listSection}>
+          <List.Subheader style={styles.listSubheader}>{t('more.tools')}</List.Subheader>
           <List.Item
-            title={t('familyLocation.manageLocations')}
-            left={() => <MaterialCommunityIcons name="map-marker-multiple" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+            title={t('more.calendar')}
+            left={() => <MaterialCommunityIcons name="calendar-month-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
-            onPress={() => navigateTo('/family/(tabs)/more/family-location')}
+            onPress={() => navigateTo('/family/(tabs)/more/calendar')}
             style={styles.listItem}
           />
           <Divider />
@@ -92,23 +95,9 @@ export default function MoreOptionsScreen() {
             onPress={() => navigateTo('/family/(tabs)/more/map')}
             style={styles.listItem}
           />
-        </Card>
-
-        <Card style={styles.listSection}>
-          <List.Subheader style={styles.listSubheader}>{t('more.privacy')}</List.Subheader>
+          <Divider />
           <List.Item
-            title={t('more.privacyPolicy')}
-            left={() => <MaterialCommunityIcons name="shield-lock-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
-            right={() => <List.Icon icon="chevron-right" />}
-            onPress={() => navigateTo('/family/(tabs)/more/privacy')}
-            style={styles.listItem}
-          />
-        </Card>
-
-        <Card style={styles.listSection}>
-          <List.Subheader style={styles.listSubheader}>{t('more.tools')}</List.Subheader>
-          <List.Item
-            title={t('more.relationships')}
+            title={t('detectRelationship.title')}
             left={() => <MaterialCommunityIcons name="family-tree" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() => navigateTo('/family/(tabs)/more/detect-relationship')}
@@ -120,6 +109,17 @@ export default function MoreOptionsScreen() {
             left={() => <MaterialCommunityIcons name="robot-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() => navigateTo('/family/(tabs)/more/ai-chat')}
+            style={styles.listItem}
+          />
+        </Card>
+
+        <Card style={styles.listSection}>
+          <List.Subheader style={styles.listSubheader}>{t('more.privacy')}</List.Subheader>
+          <List.Item
+            title={t('more.privacyPolicy')}
+            left={() => <MaterialCommunityIcons name="shield-lock-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+            right={() => <List.Icon icon="chevron-right" />}
+            onPress={() => navigateTo('/family/(tabs)/more/privacy')}
             style={styles.listItem}
           />
         </Card>

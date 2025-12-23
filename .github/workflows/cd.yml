@@ -1,0 +1,40 @@
+name: CD
+
+on:
+  push:
+    branches: [main] # Trigger only on pushes to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: gia-pha-viet-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          cache-dependency-path: gia-pha-viet-app/yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Setup Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }} # Ensure EXPO_TOKEN is set as a GitHub Secret
+
+      - name: EAS Build (Android)
+        run: eas build --platform android --profile production --non-interactive
+
+      - name: EAS Submit (Android Production)
+        if: success()
+        run: eas submit --platform android --profile production --non-interactive

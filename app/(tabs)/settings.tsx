@@ -20,6 +20,7 @@ import { SPACING_MEDIUM } from "@/constants/dimensions";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { router } from "expo-router";
 import { useEffect, useMemo } from "react"; // Removed useState
+import * as Application from 'expo-application'; // Import Application
 // import { useThemeContext } from '@/context/ThemeContext'; // Removed useThemeContext
 import FamilyAvatar from "@/assets/images/familyAvatar.png"; // Import the default avatar image
 import { useGetCurrentUserProfileQuery } from "@/hooks/user/useUserProfileQueries"; // Import user profile query
@@ -79,29 +80,29 @@ export default function SettingsScreen() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    Alert.alert(
-      t("settings.deleteAccount.confirmTitle"),
-      t("settings.deleteAccount.confirmMessage"),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("common.delete"),
-          onPress: () => {
-            // Implement account deletion logic
-            console.log("Account Deleted");
-            logout(); // Log out after deletion
-            router.replace("/login");
-          },
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
-    );
-  };
+  // const handleDeleteAccount = () => {
+  //   Alert.alert(
+  //     t("settings.deleteAccount.confirmTitle"),
+  //     t("settings.deleteAccount.confirmMessage"),
+  //     [
+  //       {
+  //         text: t("common.cancel"),
+  //         style: "cancel",
+  //       },
+  //       {
+  //         text: t("common.delete"),
+  //         onPress: () => {
+  //           // Implement account deletion logic
+  //           console.log("Account Deleted");
+  //           logout(); // Log out after deletion
+  //           router.replace("/login");
+  //         },
+  //         style: "destructive",
+  //       },
+  //     ],
+  //     { cancelable: false }
+  //   );
+  // };
 
   const styles = useMemo(
     () =>
@@ -198,14 +199,14 @@ export default function SettingsScreen() {
                 title={t("settings.privacySecurity.downloadData")}
                 onPress={() => console.log("Download my data")}
               />
-              <Divider />
+              {/* <Divider />
               <List.Item
                 style={styles.listItem}
                 left={() => <List.Icon icon="delete" />}
                 title={t("settings.privacySecurity.deleteAccount")}
                 onPress={handleDeleteAccount}
                 titleStyle={{ color: theme.colors.error }}
-              />
+              /> */}
             </List.Section>
           )}
 
@@ -287,7 +288,7 @@ export default function SettingsScreen() {
               style={styles.listItem}
               left={() => <List.Icon icon="information" />}
               title={t("settings.aboutApp.versionInfo")}
-              right={() => <Text>1.0.0</Text>} // TODO: Get actual version
+              right={() => <Text>{`${Application.nativeApplicationVersion} (${Application.nativeBuildVersion})`}</Text>} // Get actual version
             />
             <Divider />
             <List.Item

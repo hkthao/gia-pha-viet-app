@@ -31,13 +31,13 @@ export default function LoginScreen() {
       width: '100%',
       height: '100%',
       zIndex: 0,
-      opacity: 0.4
+      opacity: 0.7
     },
     contentContainer: {
-      padding: SPACING_LARGE,
+      padding: SPACING_MEDIUM,
       zIndex: 2,
       alignItems: 'center',
-      top: "20%",
+      top: "30%",
       flex: 1,
     },
     title: {
@@ -68,7 +68,7 @@ export default function LoginScreen() {
         contentFit="cover"
       />
       <Appbar.Header style={styles.appBar}>
-        <Appbar.BackAction onPress={() => router.back()} />
+        {router.canGoBack() && <Appbar.BackAction onPress={() => router.back()} />}
       </Appbar.Header>
       <View style={styles.contentContainer}
       >

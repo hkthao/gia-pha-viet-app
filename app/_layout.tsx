@@ -62,16 +62,19 @@ export default function RootLayout() {
     return <OnboardingScreen />;
   }
 
-  // If onboarded but not logged in, show login screen
-  if (hasOnboarded && !isLoggedIn) {
-    return <LoginScreen />;
-  }
-
-  // If onboarded and logged in, show main app content
+  // If onboarded, wrap everything else in QueryClientProvider and ThemeProvider
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AppContent hasOnboarded={hasOnboarded} isLoadingAuth={isLoadingAuth} />
+        {/* If onboarded but not logged in, show login screen */}
+        {hasOnboarded && !isLoggedIn && (
+          <LoginScreen />
+        )}
+
+        {/* If onboarded and logged in, show main app content */}
+        {hasOnboarded && isLoggedIn && (
+          <AppContent hasOnboarded={hasOnboarded} isLoadingAuth={isLoadingAuth} />
+        )}
       </ThemeProvider>
     </QueryClientProvider>
   );

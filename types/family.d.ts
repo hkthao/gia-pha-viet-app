@@ -1,6 +1,7 @@
 // gia-pha-viet-app/src/types/family.d.ts
 
 import { BaseAuditableDto, BaseSearchQuery } from './common';
+import { FamilyLimitConfigurationDto } from './familyLimitConfiguration.d'; // Import the new DTO
 
 export enum FamilyRole {
   Manager = 0,
@@ -29,6 +30,7 @@ export interface FamilyDetailDto extends BaseAuditableDto {
   familyUsers: FamilyUserDto[];
   managerIds: [];
   viewerIds: [];
+  familyLimitConfiguration?: FamilyLimitConfigurationDto; // Add this property
 }
 
 export interface FamilyListDto extends BaseAuditableDto {

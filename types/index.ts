@@ -16,4 +16,5 @@ export * from './familyLocation.d';
 export * from './memory.d';
 export * from './chat.d';
 export * from './familyTree.d';
+export * from './familyLimitConfiguration.d';
 

@@ -60,6 +60,40 @@ export default function DetailedInfoCard({ family }: DetailedInfoCardProps) {
               </View>
             )}
           />
+          {family.familyLimitConfiguration && (
+            <>
+              <Divider />
+              <List.Item
+                title={t('family.limits.maxMembers')}
+                left={() => <List.Icon icon="account-group-outline" />}
+                right={() => (
+                  <View style={styles.chipContainer}>
+                    <Chip>{family.familyLimitConfiguration?.maxMembers}</Chip>
+                  </View>
+                )}
+              />
+              <Divider />
+              <List.Item
+                title={t('family.limits.maxStorageMb')}
+                left={() => <List.Icon icon="database-outline" />}
+                right={() => (
+                  <View style={styles.chipContainer}>
+                    <Chip>{family.familyLimitConfiguration?.maxStorageMb} MB</Chip>
+                  </View>
+                )}
+              />
+              <Divider />
+              <List.Item
+                title={t('family.limits.aiChatMonthlyLimit')}
+                left={() => <List.Icon icon="robot-outline" />}
+                right={() => (
+                  <View style={styles.chipContainer}>
+                    <Chip>{family.familyLimitConfiguration?.aiChatMonthlyLimit}</Chip>
+                  </View>
+                )}
+              />
+            </>
+          )}
           <Divider />
           <List.Item
             title={t('familyDetail.details.manager')}

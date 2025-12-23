@@ -12,6 +12,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OnboardingScreen from "@/app/onboarding";
+import LoginScreen from "@/app/login"; // Import LoginScreen
 import { useAuth } from "@/hooks/auth/useAuth"; // Import useAuth
 import { LoadingOverlayProvider } from "@/hooks/ui/useLoadingOverlay"; // Import LoadingOverlayProvider
 import { SnackbarProvider } from "@/hooks/ui/useGlobalSnackbar"; // Import SnackbarProvider
@@ -35,7 +36,7 @@ const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [hasOnboarded, setHasOnboarded] = useState<boolean | null>(null);
-  const { isLoadingAuth } = useAuth(); // Get isLoadingAuth from useAuth
+  const { isLoadingAuth, isLoggedIn } = useAuth(); // Get isLoadingAuth and isLoggedIn from useAuth
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
@@ -56,14 +57,23 @@ export default function RootLayout() {
     return null;
   }
 
-  return !!hasOnboarded ? (
+  // If onboarding not done, show onboarding screen
+  if (!hasOnboarded) {
+    return <OnboardingScreen />;
+  }
+
+  // If onboarded but not logged in, show login screen
+  if (hasOnboarded && !isLoggedIn) {
+    return <LoginScreen />;
+  }
+
+  // If onboarded and logged in, show main app content
+  return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AppContent hasOnboarded={hasOnboarded} isLoadingAuth={isLoadingAuth} />
       </ThemeProvider>
     </QueryClientProvider>
-  ) : (
-    <OnboardingScreen />
   );
 }
 

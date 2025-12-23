@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-named-as-default-member
 import i18nextInstance from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { AsyncKVS } from '@/services/storageService'; // Import AsyncKVS

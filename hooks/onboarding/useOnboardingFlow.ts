@@ -55,7 +55,7 @@ export function useOnboardingFlow(slides: OnboardingSlideData[]): UseOnboardingF
     } else {
       skipOnboarding();
     }
-  }, [currentIndex, slides.length, skipOnboarding]);  
+  }, [currentIndex, skipOnboarding]);  
 
   return {
     currentIndex,

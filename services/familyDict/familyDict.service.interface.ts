@@ -3,5 +3,6 @@
 import { FamilyDictDto, FamilyDictSearchQuery } from '@/types';
 import { IGenericService } from '../base/generic.service.interface';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IFamilyDictService extends IGenericService<FamilyDictDto, FamilyDictSearchQuery, FamilyDictDto, FamilyDictDto, FamilyDictDto> {
 }

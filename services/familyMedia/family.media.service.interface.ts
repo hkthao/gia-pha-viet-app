@@ -14,5 +14,6 @@ export interface CreateFamilyMediaRequest {
   folder?: string; // Folder within storage (e.g., "photos", "videos")
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IFamilyMediaService extends IGenericService<FamilyMediaDto, FamilyMediaSearchQuery, FamilyMediaDto, CreateFamilyMediaRequest, FamilyMediaDto> {}
 

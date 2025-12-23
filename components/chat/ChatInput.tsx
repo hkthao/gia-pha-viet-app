@@ -12,7 +12,6 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = memo(({ value, onChangeText, placeholder, onSend }) => {
   const theme = useTheme();
-  console.log('ChatInput received onSend:', onSend ? 'true' : 'false'); // Debugging line
   const styles = StyleSheet.create({
     container: { // Container for the RNP TextInput
       flex: 1,
@@ -52,21 +51,14 @@ const ChatInput: React.FC<ChatInputProps> = memo(({ value, onChangeText, placeho
         value={value}
         onChangeText={onChangeText}
         cursorColor={theme.colors.primary}
-        placeholderTextColor={theme.colors.onSurfaceVariant}
+        selectionColor={theme.colors.primary}
         spellCheck={false}
         autoCorrect={false}
         underlineColor="transparent" // Remove underline
         activeUnderlineColor="transparent" // Remove active underline
         // Style the input field itself, not the container
         style={styles.rnpTextInput}
-        theme={{
-          colors: {
-            primary: theme.colors.primary, // Focused outline/cursor color
-            text: theme.colors.onSurface, // Input text color
-            placeholder: theme.colors.onSurfaceVariant, // Placeholder color
-            background: theme.colors.secondaryContainer, // Input background color
-          },
-        }}
+        theme={theme}
         // Custom contentStyle to adjust text input area padding
         contentStyle={{ paddingHorizontal: SPACING_MEDIUM }}
         right={renderSendIcon()}

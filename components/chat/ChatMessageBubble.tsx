@@ -25,9 +25,7 @@ const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = memo(({ item }) => {
     messageRow: {
       flexDirection: 'row',
       alignItems: 'flex-start', // Align avatars to the top
-      marginVertical: SPACING_SMALL / 2,
-      // Adjust spacing between avatar and bubble here if needed
-      // e.g., paddingHorizontal: SPACING_SMALL,
+      marginVertical: SPACING_SMALL,
     },
     myMessageRow: {
       justifyContent: 'flex-end',
@@ -39,9 +37,9 @@ const ChatMessageBubble: React.FC<ChatMessageBubbleProps> = memo(({ item }) => {
     },
     // Remove individual avatar styling as Avatar.Image handles it
     messageBubble: {
-      padding: SPACING_SMALL,
+      padding: SPACING_MEDIUM,
       borderRadius: theme.roundness,
-      maxWidth: "70%",
+      maxWidth: "80%",
       minHeight: AVATAR_SIZE, // Ensure bubble is at least as tall as avatar
       justifyContent: 'center',
     },

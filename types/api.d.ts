@@ -15,10 +15,10 @@ export interface Result<T> {
   error?: ApiError;
 }
 
-export interface ChatWithAssistantCommand {
+export interface ChatInputRequest {
   sessionId: string;
+  familyId: string;
   chatInput: string;
-  metadata: Record<string, any>;
 }
 
 export interface ChatResponse {

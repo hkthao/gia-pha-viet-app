@@ -1,10 +1,10 @@
 // gia-pha-viet-app/services/chat/chatService.ts
 
 import { ApiClientMethods } from '@/types/apiClient';
-import { Result, ChatWithAssistantCommand, ChatResponse } from '@/types/api.d';
+import { ChatInputRequest, ChatResponse } from '@/types/api.d';
 import { AIChatServiceAdapter } from '@/hooks/chat/aiChat.adapters'; // Correct import path for AIChatServiceAdapter
 
-export interface IChatService extends AIChatServiceAdapter { }
+export type IChatService = AIChatServiceAdapter
 
 export class ApiChatService implements IChatService {
   private baseEndpoint: string = '/ai/chat';
@@ -12,10 +12,10 @@ export class ApiChatService implements IChatService {
   constructor(private apiClient: ApiClientMethods) {}
 
   async getAIResponse(userMessage: string, sessionId: string, familyId: string): Promise<string> {
-    const command: ChatWithAssistantCommand = {
+    const command: ChatInputRequest = {
       sessionId: sessionId,
       chatInput: userMessage,
-      metadata: { familyId: familyId },
+      familyId:familyId,
     };
 
     try {

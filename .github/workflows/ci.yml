@@ -1,0 +1,48 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+          cache-dependency-path: 'gia-pha-viet-app/yarn.lock'
+
+      - name: Install dependencies
+        run: npm install # or yarn install
+        working-directory: gia-pha-viet-app
+
+      - name: Run tests
+        run: npm run test:coverage
+        working-directory: gia-pha-viet-app
+
+      - name: Run type check
+        run: npx tsc --noEmit
+        working-directory: gia-pha-viet-app
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: gia-pha-viet-app
+
+      - name: Build on Expo Cloud
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          # Add other build parameters if needed, e.g., platform, profile
+          # platform: android
+          # profile: production

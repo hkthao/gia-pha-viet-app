@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Gia Phả Việt",
-    "slug": "family_tree_rn",
+    "name": "Dòng Họ Việt",
+    "slug": "dong-ho-viet",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kimthao.familytree3",
+      "bundleIdentifier": "com.hkthao.donghoviet",
       "buildNumber": "1"
     },
     "android": {
@@ -23,7 +23,7 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/adaptive-icon.png"
       },
-      "package": "com.kimthao.familytree3",
+      "package": "com.hkthao.donghoviet",
       "versionCode": 1,
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -42,14 +42,14 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "79b94d1a-a774-4362-aba4-d1cb354448dd"
+        "projectId": "e8002357-f28c-4526-a21f-83fcd0d612f7"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/79b94d1a-a774-4362-aba4-d1cb354448dd"
+      "url": "https://u.expo.dev/e8002357-f28c-4526-a21f-83fcd0d612f7"
     }
   }
 }

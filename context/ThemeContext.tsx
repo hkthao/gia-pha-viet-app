@@ -16,7 +16,7 @@ const THEME_STORAGE_KEY = 'user-theme-preference';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useSystemColorScheme();
-  const [themePreference, setThemePreferenceState] = useState<ThemePreference>('system');
+  const [themePreference, setThemePreferenceState] = useState<ThemePreference>('dark');
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -25,6 +25,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const storedPreference = await AsyncKVS.getItem(THEME_STORAGE_KEY);
         if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'system') {
           setThemePreferenceState(storedPreference);
+        } else {
+          setThemePreferenceState('dark'); // Default to dark if no valid preference is stored
         }
       } catch (error) {
         console.error('Failed to load theme preference from storage service', error);

@@ -1,28 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-import { PaperProvider, Portal } from 'react-native-paper';
-import { getPaperTheme } from '@/constants/theme';
-import { ThemeProvider, useThemeContext } from '@/context/ThemeContext';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import OnboardingScreen from '@/app/onboarding';
-import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth
-import { LoadingOverlayProvider } from '@/hooks/ui/useLoadingOverlay'; // Import LoadingOverlayProvider
-import { SnackbarProvider } from '@/hooks/ui/useGlobalSnackbar'; // Import SnackbarProvider
-import { StatusBar as ExpoStatusBar } from 'expo-status-bar'; // Import StatusBar
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider as NavigationThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import "react-native-reanimated";
+import { PaperProvider, Portal } from "react-native-paper";
+import { getPaperTheme } from "@/constants/theme";
+import { ThemeProvider, useThemeContext } from "@/context/ThemeContext";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import OnboardingScreen from "@/app/onboarding";
+import { useAuth } from "@/hooks/auth/useAuth"; // Import useAuth
+import { LoadingOverlayProvider } from "@/hooks/ui/useLoadingOverlay"; // Import LoadingOverlayProvider
+import { SnackbarProvider } from "@/hooks/ui/useGlobalSnackbar"; // Import SnackbarProvider
+import { StatusBar as ExpoStatusBar } from "expo-status-bar"; // Import StatusBar
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'; // Import React Query
-import { GestureHandlerRootView } from 'react-native-gesture-handler'; // Import GestureHandlerRootView
-import { useGetMyAccessFamiliesQuery } from '@/hooks/family/useFamilyQueries'; // Import useGetMyAccessFamiliesQuery
-import { useGetCurrentUserProfileQuery, userProfileQueryKeys } from '@/hooks/user/useUserProfileQueries'; // Import useGetCurrentUserProfileQuery and userProfileQueryKeys
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import React Query
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import GestureHandlerRootView
+import { useGetMyAccessFamiliesQuery } from "@/hooks/family/useFamilyQueries"; // Import useGetMyAccessFamiliesQuery
+import {
+  useGetCurrentUserProfileQuery,
+  userProfileQueryKeys,
+} from "@/hooks/user/useUserProfileQueries"; // Import useGetCurrentUserProfileQuery and userProfileQueryKeys
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-  anchor: '(tabs)',
+  anchor: "(tabs)",
 };
 
 // Create a client
@@ -35,8 +40,8 @@ export default function RootLayout() {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
-        const onboarded = await AsyncStorage.getItem('hasOnboarded');
-        setHasOnboarded(onboarded === 'true');
+        const onboarded = await AsyncStorage.getItem("hasOnboarded");
+        setHasOnboarded(onboarded === "true");
       } catch (_e) {
         console.error(_e);
         setHasOnboarded(false); // Assume not onboarded on error
@@ -46,8 +51,9 @@ export default function RootLayout() {
     checkOnboardingStatus();
   }, []);
 
-  if (hasOnboarded === null || isLoadingAuth) { // Show loading until onboarding and auth are checked
-    return null
+  if (hasOnboarded === null || isLoadingAuth) {
+    // Show loading until onboarding and auth are checked
+    return null;
   }
 
   return !!hasOnboarded ? (
@@ -72,34 +78,53 @@ function AppContent({ hasOnboarded, isLoadingAuth }: AppContentProps) {
 
   // Move react-query hooks and related useEffect here
   const { refetch: refetchMyAccess } = useGetMyAccessFamiliesQuery(); // To manually trigger if needed
-  const { refetch: refetchUserProfile } = useGetCurrentUserProfileQuery({ queryKey: userProfileQueryKeys.current(), enabled: false });
+  const { refetch: refetchUserProfile } = useGetCurrentUserProfileQuery({
+    queryKey: userProfileQueryKeys.current(),
+    enabled: false,
+  });
 
   useEffect(() => {
-    if (hasOnboarded !== null && !isLoadingAuth) { // Only hide splash screen if auth is loaded
+    const splashTimeout = setTimeout(() => {
+      SplashScreen.hideAsync();
+    }, 5000); // Hide splash screen after 5 seconds as a fallback
+
+    if (hasOnboarded !== null && !isLoadingAuth) {
+      clearTimeout(splashTimeout); // Clear timeout if conditions are met before it fires
+      // Only hide splash screen if auth is loaded
       SplashScreen.hideAsync();
       // Load user permissions after authentication is complete
       refetchMyAccess();
       // Fetch user profile after authentication and permissions are initiated
       refetchUserProfile();
     }
+
+    return () => clearTimeout(splashTimeout); // Cleanup timeout on unmount
   }, [hasOnboarded, isLoadingAuth, refetchMyAccess, refetchUserProfile]); // Add refetchUserProfile to dependencies
-  
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={paperTheme}>
-      <Portal.Host>
-        <LoadingOverlayProvider> {/* Wrap with LoadingOverlayProvider */}
-          <SnackbarProvider> {/* Wrap with SnackbarProvider */}
-            <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-              <ExpoStatusBar backgroundColor={paperTheme.colors.background} style={colorScheme === 'dark' ? 'light' : 'dark'} />
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              </Stack>
-            </NavigationThemeProvider>
-          </SnackbarProvider>
-        </LoadingOverlayProvider>
-      </Portal.Host>
-    </PaperProvider>
+        <Portal.Host>
+          <LoadingOverlayProvider>
+            <SnackbarProvider>
+              <NavigationThemeProvider
+                value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+              >
+                <ExpoStatusBar
+                  backgroundColor={paperTheme.colors.background}
+                  style={colorScheme === "dark" ? "light" : "dark"}
+                />
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </NavigationThemeProvider>
+            </SnackbarProvider>
+          </LoadingOverlayProvider>
+        </Portal.Host>
+      </PaperProvider>
     </GestureHandlerRootView>
   );
 }

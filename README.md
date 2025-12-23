@@ -1,8 +1,8 @@
-# Gia Phả Việt - Ứng dụng Quản lý Gia Phả
+# Dòng Họ Việt - Ứng dụng Quản lý Gia Phả
 
 ## Mô tả Dự án
 
-"Gia Phả Việt" là một ứng dụng di động hiện đại (React Native) được thiết kế để giúp người dùng dễ dàng tạo, quản lý và duyệt qua cây gia phả của họ. Ứng dụng tập trung vào trải nghiệm người dùng thân thiện, hiệu suất cao và kiến trúc bảo trì dễ dàng.
+"Dòng Họ Việt" là một ứng dụng di động hiện đại (React Native) được thiết kế để giúp người dùng dễ dàng tạo, quản lý và duyệt qua cây gia phả của họ. Ứng dụng tập trung vào trải nghiệm người dùng thân thiện, hiệu suất cao và kiến trúc bảo trì dễ dàng.
 
 ## Công nghệ sử dụng
 

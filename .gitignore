@@ -436,8 +436,6 @@ coverage
 # Node.js
 node_modules/
 
-eas.json
-
 # Dockerignore additions
 .idea
 .env

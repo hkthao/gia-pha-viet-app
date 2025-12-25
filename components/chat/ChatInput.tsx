@@ -4,11 +4,14 @@ import {
   useTheme,
   TextInput,
   IconButton,
-  Menu,
-  Divider,
+  Dialog,
+  Portal,
+  List,
+  Text
 } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
+import { useTranslation } from 'react-i18next';
 
 interface ChatInputProps {
   value: string;
@@ -20,27 +23,28 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = memo(
   ({ value, onChangeText, placeholder, onSend }) => {
     const theme = useTheme();
-    const [isMenuVisible, setIsMenuVisible] = useState(false);
+    const { t } = useTranslation();
+    const [isDialogVisible, setIsDialogVisible] = useState(false);
 
-    const openMenu = () => setIsMenuVisible(true);
-    const closeMenu = () => setIsMenuVisible(false);
+    const showDialog = () => setIsDialogVisible(true);
+    const hideDialog = () => setIsDialogVisible(false);
 
     const handleUpload = () => {
       // TODO: Implement upload functionality
       console.log("Upload image/PDF");
-      closeMenu();
+      hideDialog();
     };
 
     const handleChooseCurrentLocation = () => {
       // TODO: Implement choose current location functionality
       console.log("Choose current location");
-      closeMenu();
+      hideDialog();
     };
 
     const handleChooseLocationFromMap = () => {
       // TODO: Implement choose location from map functionality
       console.log("Choose location from map");
-      closeMenu();
+      hideDialog();
     };
 
     const styles = StyleSheet.create({
@@ -69,9 +73,6 @@ const ChatInput: React.FC<ChatInputProps> = memo(
         marginRight: SPACING_MEDIUM / 2, // Spacing between icon and text input
         marginBottom: 8, // Adjust to align with text input vertically
       },
-      menu: {
-        marginTop: -40, // Adjust menu position to align with the icon button
-      },
     });
 
     const renderSendIcon = () => {
@@ -90,40 +91,21 @@ const ChatInput: React.FC<ChatInputProps> = memo(
 
     return (
       <View style={styles.container}>
-        <Menu
-          visible={isMenuVisible}
-          onDismiss={closeMenu}
-          anchor={
-            <IconButton
-              icon={() => (
-                <MaterialCommunityIcons
-                  name="plus"
-                  size={24}
-                  color={theme.colors.onSurface}
-                />
-              )}
-              onPress={openMenu}
-              style={styles.iconButton}
+        <IconButton
+          icon={() => (
+            <MaterialCommunityIcons
+              name="plus"
+              size={24}
+              color={theme.colors.onSurface}
             />
-          }
-          style={styles.menu}
-        >
-          <Menu.Item onPress={handleUpload} title="Tải lên hình ảnh/PDF" />
-          <Divider />
-          <Menu.Item
-            onPress={handleChooseCurrentLocation}
-            title="Chọn vị trí hiện tại"
-          />
-          <Divider />
-          <Menu.Item
-            onPress={handleChooseLocationFromMap}
-            title="Chọn vị trí từ bản đồ"
-          />
-        </Menu>
+          )}
+          onPress={showDialog}
+          style={styles.iconButton}
+        />
         <View style={styles.textInputWrapper}>
           <TextInput
             mode="flat"
-            placeholder={placeholder}
+            placeholder={t(placeholder)}
             value={value}
             onChangeText={onChangeText}
             cursorColor={theme.colors.primary}
@@ -138,6 +120,32 @@ const ChatInput: React.FC<ChatInputProps> = memo(
             right={renderSendIcon()}
           />
         </View>
+
+        <Portal>
+          <Dialog visible={isDialogVisible} onDismiss={hideDialog} style={{ borderRadius: theme.roundness }}>
+            <Dialog.Title>{t("chatInput.chooseAction")}</Dialog.Title>
+            <Dialog.Content>
+              <List.Item
+                title={t("chatInput.uploadImagePdf")}
+                left={() => <List.Icon icon="image" />}
+                onPress={handleUpload}
+              />
+              <List.Item
+                title={t("chatInput.chooseCurrentLocation")}
+                left={() => <List.Icon icon="map-marker" />}
+                onPress={handleChooseCurrentLocation}
+              />
+              <List.Item
+                title={t("chatInput.chooseLocationFromMap")}
+                left={() => <List.Icon icon="map" />}
+                onPress={handleChooseLocationFromMap}
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Text onPress={hideDialog}>{t("common.cancel")}</Text>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
       </View>
     );
   }

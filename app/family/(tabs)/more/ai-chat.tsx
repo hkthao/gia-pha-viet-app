@@ -87,18 +87,19 @@ export default function AIChatScreen() {
         messageList: {
           padding: SPACING_SMALL,
         },
-        uploadedFilesContainer: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: SPACING_SMALL, // Gap between chips
-          justifyContent: 'flex-start',
+        uploadedFilesFlatList: { // Style for the horizontal FlatList
+          maxHeight: 40, // Limit height for chips row
+          flexGrow: 0, // Prevent it from taking too much vertical space
+          marginBottom: SPACING_SMALL, // Space below chips
+        },
+        uploadedFilesContentContainer: { // Content container for FlatList
+          paddingHorizontal: SPACING_SMALL,
           alignItems: 'center',
-          backgroundColor: theme.colors.surface, // Match input container background
+          gap: SPACING_SMALL, // Gap between chips
         },
         chip: {
-          marginRight: SPACING_SMALL / 2, // Fine tune chip spacing
           backgroundColor: theme.colors.primaryContainer,
-          // height: 32, // Fixed height for consistency
+          height: 32, // Fixed height for consistency
         },
         chipText: {
           color: theme.colors.onPrimaryContainer,
@@ -200,10 +201,13 @@ export default function AIChatScreen() {
           />
 
           {uploadedFiles.length > 0 && (
-            <View style={styles.uploadedFilesContainer}>
-              {uploadedFiles.map((file) => (
+            <FlatList
+              data={uploadedFiles}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.localUri}
+              renderItem={({ item: file }) => (
                 <Chip
-                  key={file.localUri}
                   icon={file.type === 'image' ? "image" : "file-pdf-box"}
                   onClose={file.isUploading ? undefined : () => handleRemoveFile(file)}
                   onPress={file.type === 'image' && file.url ? () => handleViewImage(file) : undefined}
@@ -216,8 +220,10 @@ export default function AIChatScreen() {
                     <ActivityIndicator size="small" color={theme.colors.onPrimaryContainer} style={styles.uploadingIndicator} />
                   )}
                 </Chip>
-              ))}
-            </View>
+              )}
+              style={styles.uploadedFilesFlatList}
+              contentContainerStyle={styles.uploadedFilesContentContainer}
+            />
           )}
 
           <View style={styles.inputContainer}>

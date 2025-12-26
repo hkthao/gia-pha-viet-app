@@ -89,6 +89,12 @@ export default function AIChatScreen() {
     setText("");
   }, [actions, setText]);
 
+  const handleImagePicked = useCallback((uri: string, base64: string) => {
+    console.log("Image picked:", uri);
+    console.log("Base64 data:", base64.substring(0, 50) + "..."); // Log a snippet of base64
+    // TODO: Implement logic to send image via chat or display it
+  }, []);
+
   return (
     <View style={styles.container}>
       <Appbar.Header>
@@ -117,6 +123,7 @@ export default function AIChatScreen() {
               value={text}
               onChangeText={setText}
               onSend={handleSend}
+              onImagePicked={handleImagePicked} // Pass the new prop
             />
           </View>
         </View>

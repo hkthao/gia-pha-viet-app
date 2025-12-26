@@ -18,20 +18,22 @@ interface ChatInputProps {
   onChangeText: (text: string) => void;
   placeholder: string;
   onSend?: (message: string) => void; // Make onSend optional and accept message string
+  onImagePicked: (uri: string, base64: string) => void; // New prop for image data
 }
 
 const ChatInput: React.FC<ChatInputProps> = memo(
-  ({ value, onChangeText, placeholder, onSend }) => {
+  ({ value, onChangeText, placeholder, onSend, onImagePicked }) => {
     const theme = useTheme();
     const {
       isDialogVisible,
       showDialog,
       hideDialog,
-      handleUpload,
+      handleChooseFromLibrary,
+      handleTakePhoto,
       handleChooseCurrentLocation,
       handleChooseLocationFromMap,
       t, // Get t from the hook
-    } = useChatInputActions(); // Use the custom hook
+    } = useChatInputActions(onImagePicked); // Pass onImagePicked to the hook
 
     const styles = StyleSheet.create({
       container: {
@@ -115,9 +117,14 @@ const ChatInput: React.FC<ChatInputProps> = memo(
           >
             <Dialog.Content>
               <List.Item
-                title={t("chatInput.uploadImagePdf")}
-                left={() => <List.Icon icon="image" />}
-                onPress={handleUpload}
+                title={t("chatInput.takePhoto")}
+                left={() => <List.Icon icon="camera" />}
+                onPress={handleTakePhoto}
+              />
+              <List.Item
+                title={t("chatInput.chooseFromLibrary")}
+                left={() => <List.Icon icon="image-multiple" />}
+                onPress={handleChooseFromLibrary}
               />
               <List.Item
                 title={t("chatInput.chooseCurrentLocation")}

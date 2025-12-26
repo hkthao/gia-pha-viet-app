@@ -583,9 +583,10 @@
     "aiChat.responsePrefix": "Bạn đã hỏi: \"{{message}}\". Tôi vẫn đang học hỏi, nhưng tôi có thể cố gắng giúp bạn trả lời các câu hỏi về dữ liệu cây gia phả của bạn.",
     "aiChat.errorMessage": "Rất tiếc! Đã xảy ra lỗi khi nhận phản hồi từ AI. Vui lòng thử lại.",
     "aiChat.typeMessage": "Nhập tin nhắn của bạn...",
-    "chatInput.uploadImagePdf": "Tải lên hình ảnh/PDF",
+    "chatInput.chooseAction": "Chọn hành động",
+    "chatInput.chooseFromLibrary": "Chọn từ thư viện",
     "chatInput.chooseCurrentLocation": "Chọn vị trí hiện tại",
     "chatInput.chooseLocationFromMap": "Chọn vị trí từ bản đồ",
-    "chatInput.typeMessage": "Nhập tin nhắn...",
-    "chatInput.chooseAction": "Chọn hành động"
+    "chatInput.takePhoto": "Chụp ảnh",
+    "chatInput.typeMessage": "Nhập tin nhắn..."
   }

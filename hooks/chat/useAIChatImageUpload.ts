@@ -2,11 +2,9 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert } from 'react-native';
-import { nanoid } from 'nanoid';
 import { ImageUploadResultDto } from '@/types';
-import { MAX_UPLOAD_FILE_SIZE_BYTES, MAX_UPLOAD_FILE_SIZE_MB } from '@/constants/dimensions';
 import { AIChatServiceAdapter, defaultAIChatServiceAdapter } from './aiChat.adapters';
+import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar'; // Import useGlobalSnackbar
 
 // Define a type for local file representation
 export interface UploadedFile extends ImageUploadResultDto {
@@ -22,10 +20,9 @@ export interface UseAIChatImageUploadDeps {
 
 export function useAIChatImageUpload(deps: UseAIChatImageUploadDeps) {
   const { t } = useTranslation();
-  const { aiChatService = defaultAIChatServiceAdapter, familyId } = deps;
-
+  const { aiChatService = defaultAIChatServiceAdapter } = deps;
+  const { showSnackbar } = useGlobalSnackbar(); // Use the snackbar hook
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [currentImageViewerIndex, setCurrentImageViewerIndex] = useState(0);
 
@@ -40,7 +37,7 @@ export function useAIChatImageUpload(deps: UseAIChatImageUploadDeps) {
       size: 0, height: 0, width: 0, // Placeholder values, will be updated by API response
     };
     setUploadedFiles((prev) => [...prev, tempFile]);
-    setIsUploading(true);
+    // showLoading(); // Removed showLoading call
 
     try {
       const uploadResult = await aiChatService.uploadImage(uri, fileName);
@@ -55,11 +52,11 @@ export function useAIChatImageUpload(deps: UseAIChatImageUploadDeps) {
       console.error("Upload failed:", error);
       // Remove the failed upload and show error
       setUploadedFiles((prev) => prev.filter((file) => file.localUri !== uri));
-      Alert.alert(t('common.error'), t('aiChat.uploadErrorMessage'));
+      showSnackbar(t('aiChat.uploadErrorMessage'), 'error'); // Use snackbar instead of Alert.alert
     } finally {
-      setIsUploading(false);
+      // hideLoading(); // Removed hideLoading call
     }
-  }, [aiChatService, t]);
+  }, [aiChatService, t, showSnackbar]); // Removed showLoading, hideLoading from dependencies
 
   const handleRemoveFile = useCallback((fileToRemove: UploadedFile) => {
     setUploadedFiles((prev) => prev.filter((file) => file.localUri !== fileToRemove.localUri));
@@ -84,9 +81,13 @@ export function useAIChatImageUpload(deps: UseAIChatImageUploadDeps) {
     setUploadedFiles([]);
   }, []);
 
+  const isAnyFileUploading = useMemo(() => {
+    return uploadedFiles.some(file => file.isUploading);
+  }, [uploadedFiles]);
+
   return {
     uploadedFiles,
-    isUploading,
+    isAnyFileUploading, // Re-added to here
     imageViewerVisible,
     currentImageViewerIndex,
     imagesForViewer,

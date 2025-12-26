@@ -21,6 +21,7 @@ const defaultDeps: UseAIChatDeps = {
 export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<IMessage[]>(() => generateInitialMessage(t));
+  const [isLoadingAIResponse, setIsLoadingAIResponse] = useState(false); // New state for AI loading
   const { aiChatService } = { ...defaultDeps, ...deps };
 
   // Generate a session ID once per component mount
@@ -39,6 +40,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
 
     const userMessage = newMessages[0];
     if (userMessage) {
+      setIsLoadingAIResponse(true); // Start loading
       try {
         const aiResponse = await processUserMessage([userMessage], {
           aiChatService: aiChatService!, // Use the destructured aiChatService
@@ -61,6 +63,8 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
             },
           };
           setMessages(previousMessages => [...previousMessages, errorMessage]);
+      } finally {
+        setIsLoadingAIResponse(false); // End loading
       }
     }
   }, [aiChatService, t, sessionId, familyId]);
@@ -74,6 +78,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
     // or generate a new message directly.
     // For now, let's simulate by calling processUserMessage with an empty/initial prompt
     // to get an AI response.
+    setIsLoadingAIResponse(true); // Start loading
     try {
       const aiResponse = await processUserMessage([{
         _id: 'system-ai-prompt', // Ensure _id is a string
@@ -100,6 +105,8 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
           },
         };
         setMessages(previousMessages => [...previousMessages, errorMessage]);
+    } finally {
+      setIsLoadingAIResponse(false); // End loading
     }
   }, [aiChatService, t, sessionId, familyId]);
 
@@ -107,6 +114,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
   return {
     state: {
       messages,
+      isLoadingAIResponse, // Expose loading state
     },
     actions: {
       onSend,

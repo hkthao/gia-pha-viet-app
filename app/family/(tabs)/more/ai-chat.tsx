@@ -6,18 +6,18 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { Appbar, useTheme, Chip, ActivityIndicator } from "react-native-paper";
+import { Appbar, useTheme, Chip, ActivityIndicator, ProgressBar } from "react-native-paper"; // Import ProgressBar
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
 import { IMessage } from "@/types";
 import { SPACING_SMALL, SPACING_MEDIUM } from "@/constants/dimensions";
-import { ChatInput, LoadingOverlay } from "@/components";
+import { ChatInput } from "@/components";
 import { nanoid } from "nanoid";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
-import ImageViewing from 'react-native-image-viewing';
+import ImageViewing from "react-native-image-viewing";
 import { useAIChatImageUpload } from "@/hooks/chat/useAIChatImageUpload"; // Import useAIChatImageUpload
-import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
+import { useCurrentFamilyStore } from "@/stores/useCurrentFamilyStore"; // Import useCurrentFamilyStore
 
 export default function AIChatScreen() {
   const { t } = useTranslation();
@@ -26,11 +26,11 @@ export default function AIChatScreen() {
   const [text, setText] = useState("");
 
   const { currentFamilyId } = useCurrentFamilyStore();
-  const familyId = currentFamilyId || 'default_family_id'; // Fallback to a default or handle appropriately
+  const familyId = currentFamilyId || "default_family_id"; // Fallback to a default or handle appropriately
 
   const {
     uploadedFiles,
-    isUploading,
+    isAnyFileUploading, // Access isAnyFileUploading
     imageViewerVisible,
     currentImageViewerIndex,
     imagesForViewer,
@@ -40,6 +40,9 @@ export default function AIChatScreen() {
     setImageViewerVisible,
     clearUploadedFiles,
   } = useAIChatImageUpload({ familyId });
+
+  // Destructure isLoadingAIResponse from state
+  const { isLoadingAIResponse } = state;
 
   const styles = useMemo(
     () =>
@@ -51,7 +54,7 @@ export default function AIChatScreen() {
         chatContainer: {
           flex: 1,
           paddingHorizontal: SPACING_SMALL,
-          paddingBottom: Platform.OS === 'ios' ? 0 : 20, // Add padding for Android to prevent keyboard overlap
+          paddingBottom: Platform.OS === "ios" ? 0 : 20, // Add padding for Android to prevent keyboard overlap
         },
         messageBubble: {
           padding: SPACING_SMALL,
@@ -81,7 +84,8 @@ export default function AIChatScreen() {
           paddingHorizontal: SPACING_SMALL,
           paddingVertical: SPACING_SMALL,
         },
-        textInput: { // This style is for TextInput from RNP, but ChatInput now encapsulates it
+        textInput: {
+          // This style is for TextInput from RNP, but ChatInput now encapsulates it
           flex: 1,
           minHeight: 40,
           maxHeight: 120,
@@ -93,14 +97,16 @@ export default function AIChatScreen() {
         messageList: {
           padding: SPACING_SMALL,
         },
-        uploadedFilesFlatList: { // Style for the horizontal FlatList
+        uploadedFilesFlatList: {
+          // Style for the horizontal FlatList
           maxHeight: 40, // Limit height for chips row
           flexGrow: 0, // Prevent it from taking too much vertical space
           marginBottom: SPACING_SMALL, // Space below chips
         },
-        uploadedFilesContentContainer: { // Content container for FlatList
+        uploadedFilesContentContainer: {
+          // Content container for FlatList
           paddingHorizontal: SPACING_SMALL,
-          alignItems: 'center',
+          alignItems: "center",
           gap: SPACING_SMALL, // Gap between chips
         },
         chip: {
@@ -110,31 +116,45 @@ export default function AIChatScreen() {
         chipText: {
           color: theme.colors.onPrimaryContainer,
         },
-        uploadingIndicator: {
+        uploadingIndicator: { // This style is no longer needed for chips, but kept for general reference
           marginLeft: SPACING_SMALL,
+        },
+        fileItem: {
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        },
+        progressBar: {
+          marginHorizontal: SPACING_SMALL,
+          marginBottom: SPACING_SMALL,
         },
       }),
     [theme]
   );
 
-  const handleSend = useCallback((message: string) => {
-    const newMessage: IMessage = {
-      _id: nanoid(),
-      text: message,
-      createdAt: new Date(),
-      user: { _id: "1" },
-    };
-    // Extract only the ImageUploadResultDto part from uploadedFiles
-    const attachments = uploadedFiles.filter(f => f.url).map(f => ({
-      url: f.url!,
-      contentType: f.mimeType || 'application/octet-stream', // Use mimeType for contentType
-      fileName: f.title, // Use title for fileName
-      fileSize: f.size, // Use size for fileSize
-    }));
-    actions.onSend([newMessage], attachments);
-    setText("");
-    clearUploadedFiles(); // Clear uploaded files after sending
-  }, [actions, setText, uploadedFiles, clearUploadedFiles]);
+  const handleSend = useCallback(
+    (message: string) => {
+      const newMessage: IMessage = {
+        _id: nanoid(),
+        text: message,
+        createdAt: new Date(),
+        user: { _id: "1" },
+      };
+      // Extract only the ImageUploadResultDto part from uploadedFiles
+      const attachments = uploadedFiles
+        .filter((f) => f.url)
+        .map((f) => ({
+          url: f.url!,
+          contentType: f.mimeType || "application/octet-stream", // Use mimeType for contentType
+          fileName: f.title, // Use title for fileName
+          fileSize: f.size, // Use size for fileSize
+        }));
+      actions.onSend([newMessage], attachments);
+      setText("");
+      clearUploadedFiles(); // Clear uploaded files after sending
+    },
+    [actions, setText, uploadedFiles, clearUploadedFiles]
+  );
 
   return (
     <View style={styles.container}>
@@ -157,6 +177,22 @@ export default function AIChatScreen() {
             keyboardDismissMode="none"
             removeClippedSubviews={false}
           />
+          {isLoadingAIResponse && (
+            <ChatMessageBubble
+              item={{
+                _id: "ai-typing-indicator",
+                text: "AI is typing...", // Or just an empty string with ActivityIndicator
+                createdAt: new Date(),
+                user: { _id: "2", name: "AI Assistant" },
+                renderCustomView: () => (
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.onSurfaceVariant}
+                  />
+                ),
+              }}
+            />
+          )}
 
           {uploadedFiles.length > 0 && (
             <FlatList
@@ -165,23 +201,35 @@ export default function AIChatScreen() {
               showsHorizontalScrollIndicator={false}
               keyExtractor={(item) => item.localUri}
               renderItem={({ item: file }) => (
-                <Chip
-                  icon={file.type === 'image' ? "image" : "file-pdf-box"}
-                  onClose={file.isUploading ? undefined : () => handleRemoveFile(file)}
-                  onPress={file.type === 'image' && file.url ? () => handleViewImage(file) : undefined}
-                  style={styles.chip}
-                  textStyle={styles.chipText}
-                  disabled={file.isUploading}
-                >
-                  {file.title}
-                  {file.isUploading && (
-                    <ActivityIndicator size="small" color={theme.colors.onPrimaryContainer} style={styles.uploadingIndicator} />
-                  )}
-                </Chip>
+                <View style={styles.fileItem}>
+                  <Chip
+                    icon={file.type === "image" ? "image" : "file-pdf-box"}
+                    onClose={
+                      file.isUploading
+                        ? undefined
+                        : () => handleRemoveFile(file)
+                    }
+                    onPress={
+                      file.type === "image" && file.url
+                        ? () => handleViewImage(file)
+                        : undefined
+                    }
+                    style={styles.chip}
+                    textStyle={styles.chipText}
+                    disabled={file.isUploading}
+                  >
+                    {file.title}
+                  </Chip>
+                  {/* Removed individual ActivityIndicator from here */}
+                </View>
               )}
               style={styles.uploadedFilesFlatList}
               contentContainerStyle={styles.uploadedFilesContentContainer}
             />
+          )}
+
+          {isAnyFileUploading && (
+            <ProgressBar indeterminate color={theme.colors.primary} style={styles.progressBar} />
           )}
 
           <View style={styles.inputContainer}>
@@ -205,7 +253,7 @@ export default function AIChatScreen() {
         />
       )}
 
-      <LoadingOverlay isLoading={isUploading} />
+
     </View>
   );
 }

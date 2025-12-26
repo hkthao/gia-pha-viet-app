@@ -23,4 +23,5 @@ export interface IMessage {
   quickReplies?: any;
   attachments?: ChatAttachmentDto[]; // New: Array of attached files
   location?: ChatLocationDto; // New: Location data
+  renderCustomView?: () => React.ReactNode; // Add this line
 }

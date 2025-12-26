@@ -12,7 +12,7 @@ import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
 import { IMessage, ImageUploadResultDto } from "@/types"; // Import ImageUploadResultDto
 import { SPACING_SMALL, SPACING_MEDIUM } from "@/constants/dimensions";
-import { ChatInput } from "@/components";
+import { ChatInput, LoadingOverlay } from "@/components"; // Import LoadingOverlay
 import { nanoid } from "nanoid";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import { chatService } from "@/services"; // Import chatService
@@ -90,7 +90,6 @@ export default function AIChatScreen() {
         uploadedFilesContainer: {
           flexDirection: 'row',
           flexWrap: 'wrap',
-          paddingVertical: SPACING_SMALL,
           gap: SPACING_SMALL, // Gap between chips
           justifyContent: 'flex-start',
           alignItems: 'center',
@@ -241,6 +240,8 @@ export default function AIChatScreen() {
           onRequestClose={() => setImageViewerVisible(false)}
         />
       )}
+
+      <LoadingOverlay isLoading={isUploading} />
     </View>
   );
 }

@@ -51,7 +51,7 @@ export const useCreateFamily = () => {
       onSuccess: () => {
         // Invalidate and refetch the family list to show the newly created family
         queryClient.invalidateQueries({ queryKey: ['familyList'] });
-        router.replace('/(tabs)/search');
+        router.replace('/my-family-search');
       },
     }
   );

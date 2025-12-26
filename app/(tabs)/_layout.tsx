@@ -32,10 +32,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="my-family-search"
         options={{
-          title: t('tab.search'), // Translated title
-          tabBarIcon: ({ color }) => <TabBarIcon name="charity-search" color={color} />,
+          title: t('tab.myFamilySearch'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="account-group" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="community-family-search"
+        options={{
+          title: t('tab.communitySearch'),
+          tabBarIcon: ({ color }) => <TabBarIcon name="earth" color={color} />,
         }}
       />
 

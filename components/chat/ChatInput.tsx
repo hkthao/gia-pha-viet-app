@@ -7,7 +7,7 @@ import {
   Dialog,
   Portal,
   List,
-  Text
+  Text,
 } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
@@ -108,8 +108,11 @@ const ChatInput: React.FC<ChatInputProps> = memo(
         </View>
 
         <Portal>
-          <Dialog visible={isDialogVisible} onDismiss={hideDialog} style={{ borderRadius: theme.roundness }}>
-            <Dialog.Title>{t("chatInput.chooseAction")}</Dialog.Title>
+          <Dialog
+            visible={isDialogVisible}
+            onDismiss={hideDialog}
+            style={{ borderRadius: theme.roundness }}
+          >
             <Dialog.Content>
               <List.Item
                 title={t("chatInput.uploadImagePdf")}

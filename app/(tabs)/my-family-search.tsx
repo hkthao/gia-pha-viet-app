@@ -23,7 +23,7 @@ const getStyles = () => StyleSheet.create({
   },
 });
 
-export default function SearchScreen() {
+export default function MyFamilySearchScreen() {
   const router = useRouter(); // Initialize useRouter
   const styles = useMemo(() => getStyles(), []);
   const { t } = useTranslation(); // Initialize useTranslation
@@ -62,7 +62,7 @@ export default function SearchScreen() {
   return (
     <View style={styles.safeArea}>
       <Appbar.Header>
-        <Appbar.Content title={t('search.title')} />
+        <Appbar.Content title={t('tab.myFamilySearch')} />
         {isLoggedIn && (
           <Appbar.Action icon="plus" onPress={() => router.push('/family/create')} />
         )}

@@ -12,6 +12,7 @@ import {
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
 import { useChatInputActions } from "@/hooks/chat/useChatInputActions"; // Import the custom hook
+import { ChatLocationDto } from "@/types"; // Import ChatLocationDto
 
 interface ChatInputProps {
   value: string;
@@ -19,10 +20,11 @@ interface ChatInputProps {
   placeholder: string;
   onSend?: (message: string) => void; // Make onSend optional and accept message string
   onImagePicked: (uri: string) => void; // New prop for image data
+  onLocationSelected: (location: ChatLocationDto) => void; // New prop for location data
 }
 
 const ChatInput: React.FC<ChatInputProps> = memo(
-  ({ value, onChangeText, placeholder, onSend, onImagePicked }) => {
+  ({ value, onChangeText, placeholder, onSend, onImagePicked, onLocationSelected }) => {
     const theme = useTheme();
     const {
       isDialogVisible,
@@ -33,7 +35,7 @@ const ChatInput: React.FC<ChatInputProps> = memo(
       handleChooseCurrentLocation,
       handleChooseLocationFromMap,
       t, // Get t from the hook
-    } = useChatInputActions(onImagePicked); // Pass onImagePicked to the hook
+    } = useChatInputActions(onImagePicked, onLocationSelected); // Pass onImagePicked and onLocationSelected to the hook
 
     const styles = StyleSheet.create({
       container: {

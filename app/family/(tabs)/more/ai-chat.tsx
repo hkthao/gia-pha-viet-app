@@ -10,7 +10,7 @@ import { Appbar, useTheme, Chip, ActivityIndicator, ProgressBar } from "react-na
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
-import { IMessage } from "@/types";
+import { IMessage, ChatLocationDto } from "@/types"; // Import ChatLocationDto
 import { SPACING_SMALL, SPACING_MEDIUM } from "@/constants/dimensions";
 import { ChatInput } from "@/components";
 import { nanoid } from "nanoid";
@@ -24,6 +24,7 @@ export default function AIChatScreen() {
   const theme = useTheme();
   const { state, actions } = useAIChat();
   const [text, setText] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<ChatLocationDto | null>(null); // New state for selected location
 
   const { currentFamilyId } = useCurrentFamilyStore();
   const familyId = currentFamilyId || "default_family_id"; // Fallback to a default or handle appropriately
@@ -126,20 +127,22 @@ export default function AIChatScreen() {
         },
         progressBar: {
           marginHorizontal: SPACING_SMALL,
-          marginBottom: SPACING_SMALL,
+        },
+        selectedLocationContainer: {
+          paddingHorizontal: SPACING_SMALL,
+          flexDirection: 'row', // To align chip properly
+          justifyContent: 'flex-start',
         },
       }),
     [theme]
   );
 
+  const handleLocationSelected = useCallback((location: ChatLocationDto) => {
+    setSelectedLocation(location);
+  }, []);
+
   const handleSend = useCallback(
     (message: string) => {
-      const newMessage: IMessage = {
-        _id: nanoid(),
-        text: message,
-        createdAt: new Date(),
-        user: { _id: "1" },
-      };
       // Extract only the ImageUploadResultDto part from uploadedFiles
       const attachments = uploadedFiles
         .filter((f) => f.url)
@@ -149,11 +152,21 @@ export default function AIChatScreen() {
           fileName: f.title, // Use title for fileName
           fileSize: f.size, // Use size for fileSize
         }));
-      actions.onSend([newMessage], attachments);
+
+      const newMessage: IMessage = {
+        _id: nanoid(),
+        text: message,
+        createdAt: new Date(),
+        user: { _id: "1" },
+        attachments: attachments, // Add attachments here
+        location: selectedLocation, // Add selected location here
+      };
+      actions.onSend([newMessage]); // Pass only newMessage, attachments are already inside
       setText("");
       clearUploadedFiles(); // Clear uploaded files after sending
+      setSelectedLocation(null); // Clear selected location after sending
     },
-    [actions, setText, uploadedFiles, clearUploadedFiles]
+    [actions, setText, uploadedFiles, clearUploadedFiles, selectedLocation]
   );
 
   return (
@@ -232,6 +245,19 @@ export default function AIChatScreen() {
             <ProgressBar indeterminate color={theme.colors.primary} style={styles.progressBar} />
           )}
 
+          {selectedLocation && (
+            <View style={styles.selectedLocationContainer}>
+              <Chip
+                icon="map-marker"
+                onClose={() => setSelectedLocation(null)}
+                style={styles.chip} // Reusing chip style for consistency
+                textStyle={styles.chipText} // Reusing chip text style
+              >
+                {t('chatInput.currentLocation')} {/* "Vị trí hiện tại" */}
+              </Chip>
+            </View>
+          )}
+
           <View style={styles.inputContainer}>
             <ChatInput
               placeholder={t("aiChat.typeMessage")}
@@ -239,6 +265,7 @@ export default function AIChatScreen() {
               onChangeText={setText}
               onSend={handleSend}
               onImagePicked={(uri: string) => handleImagePicked(uri)} // Adapt to new hook's signature
+              onLocationSelected={handleLocationSelected} // Pass the new callback
             />
           </View>
         </View>

@@ -1,6 +1,6 @@
 import React, { memo, useMemo, useState, useCallback } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native";
-import { Text, useTheme, Avatar } from "react-native-paper";
+import { View, StyleSheet } from "react-native";
+import { Text, useTheme, Avatar, List } from "react-native-paper"; // Import List
 import { IMessage } from "@/types";
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { getMemberAvatarSource } from '@/utils/imageUtils';
@@ -19,7 +19,7 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
   const [currentImageViewerIndex, setCurrentImageViewerIndex] = useState(0);
 
   const AVATAR_SIZE = 32;
-  const IMAGE_THUMBNAIL_SIZE = 100;
+  // const IMAGE_THUMBNAIL_SIZE = 100; // No longer needed
 
   const styles = useMemo(() => StyleSheet.create({
     messageRow: {
@@ -47,16 +47,19 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
       alignSelf: 'flex-end',
     },
     attachmentsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
       marginTop: SPACING_SMALL,
+      // Removed flexWrap and gap as List.Item handles vertical layout
     },
-    imageThumbnail: {
-      width: IMAGE_THUMBNAIL_SIZE,
-      height: IMAGE_THUMBNAIL_SIZE,
+    attachmentListItem: {
+      backgroundColor: theme.colors.surfaceVariant, // Background for the list item
       borderRadius: theme.roundness,
-      marginRight: SPACING_SMALL,
-      marginBottom: SPACING_SMALL,
+      marginBottom: SPACING_SMALL / 2, // Space between list items
+      paddingVertical: 0, // Compact List.Item
+      paddingHorizontal: SPACING_SMALL,
+    },
+    attachmentListItemTitle: {
+      color: theme.colors.onSurface,
+      fontSize: 14,
     },
     locationContainer: {
       flexDirection: 'row',
@@ -69,19 +72,6 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
     locationText: {
       marginLeft: SPACING_SMALL,
       color: theme.colors.onSurface,
-    },
-    fileAttachment: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: SPACING_SMALL,
-      padding: SPACING_SMALL,
-      backgroundColor: theme.colors.surface,
-      borderRadius: theme.roundness,
-    },
-    fileText: {
-      marginLeft: SPACING_SMALL,
-      color: theme.colors.onSurface,
-      flexShrink: 1, // Allow text to wrap
     },
   }), [theme]);
 
@@ -106,20 +96,20 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
         {item.attachments && item.attachments.length > 0 && (
           <View style={styles.attachmentsContainer}>
             {item.attachments.map((attachment, index) => {
-              if (attachment.contentType.startsWith('image/')) {
-                return (
-                  <TouchableOpacity key={index} onPress={() => handleImagePress(index)}>
-                    <Image source={{ uri: attachment.url }} style={styles.imageThumbnail} />
-                  </TouchableOpacity>
-                );
-              } else {
-                return (
-                  <View key={index} style={styles.fileAttachment}>
-                    <MaterialCommunityIcons name="file-document-outline" size={20} color={theme.colors.onSurface} />
-                    <Text style={styles.fileText}>{attachment.fileName || t('common.file')}</Text>
-                  </View>
-                );
-              }
+              const isImage = attachment.contentType.startsWith('image/');
+              const iconName = isImage ? "image" : "file-document-outline";
+              const titleText = attachment.fileName || t('common.file');
+
+              return (
+                <List.Item
+                  key={index}
+                  title={titleText}
+                  titleStyle={styles.attachmentListItemTitle}
+                  left={props => <List.Icon {...props} icon={iconName} />}
+                  onPress={isImage ? () => handleImagePress(imagesForViewer.findIndex(img => img.uri === attachment.url)) : undefined}
+                  style={styles.attachmentListItem}
+                />
+              );
             })}
           </View>
         )}

@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location'; // Import expo-location
 import { Alert } from 'react-native';
 import { MAX_UPLOAD_FILE_SIZE_BYTES, MAX_UPLOAD_FILE_SIZE_MB } from '@/constants/dimensions'; // Import size constants
+import { ChatLocationDto } from '@/types'; // Import ChatLocationDto
 
 interface UseChatInputActions {
   isDialogVisible: boolean;
@@ -15,7 +17,10 @@ interface UseChatInputActions {
   t: (key: string) => string;
 }
 
-export const useChatInputActions = (onImagePicked: (uri: string) => void): UseChatInputActions => {
+export const useChatInputActions = (
+  onImagePicked: (uri: string) => void,
+  onLocationSelected: (location: ChatLocationDto) => void // Add onLocationSelected
+): UseChatInputActions => {
   const { t } = useTranslation();
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
@@ -89,10 +94,29 @@ export const useChatInputActions = (onImagePicked: (uri: string) => void): UseCh
     );
   }, [hideDialog, handleImageSelection, cameraPermission, requestCameraPermission, t]);
 
-  const handleChooseCurrentLocation = useCallback(() => {
-    console.log("Choose current location");
-    hideDialog();
-  }, [hideDialog]);
+  const handleChooseCurrentLocation = useCallback(async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(t('common.permissionRequired'), t('chatInput.locationPermissionDenied'));
+      hideDialog();
+      return;
+    }
+
+    try {
+      let location = await Location.getCurrentPositionAsync({});
+      const chatLocation: ChatLocationDto = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        source: 'gps',
+      };
+      onLocationSelected(chatLocation);
+    } catch (error) {
+      console.error("Error getting location:", error);
+      Alert.alert(t('common.error'), t('chatInput.locationError'));
+    } finally {
+      hideDialog();
+    }
+  }, [hideDialog, onLocationSelected, t]);
 
   const handleChooseLocationFromMap = useCallback(() => {
     console.log("Choose location from map");

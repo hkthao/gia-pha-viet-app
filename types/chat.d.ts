@@ -1,5 +1,7 @@
 // gia-pha-viet-app/types/chat.d.ts
 
+import { ChatAttachmentDto, ChatLocationDto } from '@/types'; // Import new DTOs
+
 interface IUser {
   _id: string | number;
   name?: string;
@@ -19,4 +21,6 @@ export interface IMessage {
   received?: boolean;
   pending?: boolean;
   quickReplies?: any;
+  attachments?: ChatAttachmentDto[]; // New: Array of attached files
+  location?: ChatLocationDto; // New: Location data
 }

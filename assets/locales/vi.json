@@ -587,6 +587,7 @@
     "chatInput.chooseFromLibrary": "Chọn từ thư viện",
     "chatInput.chooseCurrentLocation": "Chọn vị trí hiện tại",
     "chatInput.chooseLocationFromMap": "Chọn vị trí từ bản đồ",
+    "chatInput.fileTooLarge": "Kích thước tệp quá lớn. Vui lòng chọn tệp nhỏ hơn {{size}}MB.",
     "chatInput.takePhoto": "Chụp ảnh",
     "chatInput.typeMessage": "Nhập tin nhắn..."
   }

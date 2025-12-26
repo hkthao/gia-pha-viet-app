@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import { Alert } from 'react-native';
+import { MAX_UPLOAD_FILE_SIZE_BYTES, MAX_UPLOAD_FILE_SIZE_MB } from '@/constants/dimensions'; // Import size constants
 
 interface UseChatInputActions {
   isDialogVisible: boolean;
@@ -24,6 +25,30 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
   const [cameraPermission, requestCameraPermission] = ImagePicker.useCameraPermissions();
   const [mediaLibraryPermission, requestMediaLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
 
+  const handleImageSelection = useCallback(async (pickerFunction: () => Promise<ImagePicker.ImagePickerResult>) => {
+    let result = await pickerFunction();
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedAsset = result.assets[0];
+
+      if (selectedAsset.fileSize && selectedAsset.fileSize > MAX_UPLOAD_FILE_SIZE_BYTES) {
+        Alert.alert(
+          t('common.error'),
+          t('chatInput.fileTooLarge', { size: MAX_UPLOAD_FILE_SIZE_MB })
+        );
+        hideDialog();
+        return;
+      }
+
+      const selectedUri = selectedAsset.uri;
+      const base64Data = selectedAsset.base64;
+      if (selectedUri && base64Data) {
+        onImagePicked(selectedUri, base64Data);
+      }
+    }
+    hideDialog();
+  }, [hideDialog, onImagePicked, t]);
+
   const handleChooseFromLibrary = useCallback(async () => {
     if (!mediaLibraryPermission?.granted) {
       const { granted } = await requestMediaLibraryPermission();
@@ -34,23 +59,16 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
       }
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedUri = result.assets[0].uri;
-      const base64Data = result.assets[0].base64;
-      if (selectedUri && base64Data) {
-        onImagePicked(selectedUri, base64Data);
-      }
-    }
-    hideDialog();
-  }, [hideDialog, onImagePicked, mediaLibraryPermission, requestMediaLibraryPermission, t]);
+    handleImageSelection(() =>
+      ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      })
+    );
+  }, [hideDialog, handleImageSelection, mediaLibraryPermission, requestMediaLibraryPermission, t]);
 
   const handleTakePhoto = useCallback(async () => {
     if (!cameraPermission?.granted) {
@@ -62,22 +80,15 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
       }
     }
 
-    let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const takenUri = result.assets[0].uri;
-      const base64Data = result.assets[0].base64;
-      if (takenUri && base64Data) {
-        onImagePicked(takenUri, base64Data);
-      }
-    }
-    hideDialog();
-  }, [hideDialog, onImagePicked, cameraPermission, requestCameraPermission, t]);
+    handleImageSelection(() =>
+      ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      })
+    );
+  }, [hideDialog, handleImageSelection, cameraPermission, requestCameraPermission, t]);
 
   const handleChooseCurrentLocation = useCallback(() => {
     console.log("Choose current location");

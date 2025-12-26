@@ -1,11 +1,10 @@
 import React, { memo, useMemo, useState, useCallback } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Linking } from "react-native";
 import { Text, useTheme, Avatar, List } from "react-native-paper"; // Import List
 import { IMessage } from "@/types";
 import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { getMemberAvatarSource } from '@/utils/imageUtils';
 import ImageViewing from 'react-native-image-viewing'; // Import ImageViewing
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"; // Import MaterialCommunityIcons
 import { useTranslation } from 'react-i18next'; // Import useTranslation
 
 interface UserChatMessageBubbleProps {
@@ -34,7 +33,7 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
       borderRadius: theme.roundness,
       maxWidth: "80%",
       minHeight: AVATAR_SIZE,
-      backgroundColor: theme.colors.primaryContainer,
+      backgroundColor: theme.colors.surfaceVariant,
     },
     messageText: {
       color: theme.colors.onSurface,
@@ -50,16 +49,17 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
       marginTop: SPACING_SMALL,
       // Removed flexWrap and gap as List.Item handles vertical layout
     },
-    attachmentListItem: {
-      backgroundColor: theme.colors.surfaceVariant, // Background for the list item
+    listItem: {
+      backgroundColor: theme.colors.inversePrimary, // Background for the list item
       borderRadius: theme.roundness,
       marginBottom: SPACING_SMALL / 2, // Space between list items
       paddingVertical: 0, // Compact List.Item
-      paddingHorizontal: SPACING_SMALL,
+      paddingLeft: SPACING_SMALL
     },
-    attachmentListItemTitle: {
+    listItemTitle: {
       color: theme.colors.onSurface,
       fontSize: 14,
+      marginLeft: -10
     },
     locationContainer: {
       flexDirection: 'row',
@@ -104,10 +104,10 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
                 <List.Item
                   key={index}
                   title={titleText}
-                  titleStyle={styles.attachmentListItemTitle}
+                  titleStyle={styles.listItemTitle}
                   left={props => <List.Icon {...props} icon={iconName} />}
                   onPress={isImage ? () => handleImagePress(imagesForViewer.findIndex(img => img.uri === attachment.url)) : undefined}
-                  style={styles.attachmentListItem}
+                  style={styles.listItem}
                 />
               );
             })}
@@ -115,12 +115,13 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
         )}
 
         {item.location && (
-          <View style={styles.locationContainer}>
-            <MaterialCommunityIcons name="map-marker" size={20} color={theme.colors.onSurface} />
-            <Text style={styles.locationText}>
-              {item.location.address || `${item.location.latitude}, ${item.location.longitude}`}
-            </Text>
-          </View>
+          <List.Item
+            title={item.location.address || `${item.location.latitude}, ${item.location.longitude}`}
+            titleStyle={styles.listItemTitle}
+            left={props => <List.Icon {...props} icon="map-marker" style={{ margin: 0, padding: 0 }} />}
+            onPress={item.location && item.location.latitude && item.location.longitude ? () => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${item.location!.latitude},${item.location!.longitude}`) : undefined}
+            style={styles.listItem}
+          />
         )}
 
         <Text style={styles.messageTime}>

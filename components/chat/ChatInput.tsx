@@ -56,12 +56,11 @@ const ChatInput: React.FC<ChatInputProps> = memo(
       },
       rnpTextInput: {
         backgroundColor: theme.colors.secondaryContainer,
-        // Remove padding from here as it's handled by RNP TextInput's contentStyle
+        marginLeft: -SPACING_MEDIUM
       },
       iconButton: {
         marginLeft: -SPACING_SMALL,
-        marginRight: SPACING_MEDIUM / 2, // Spacing between icon and text input
-        marginBottom: 8, // Adjust to align with text input vertically
+        marginRight: 0, // Spacing between icon and text input
       },
     });
 
@@ -106,7 +105,6 @@ const ChatInput: React.FC<ChatInputProps> = memo(
             activeUnderlineColor="transparent"
             style={styles.rnpTextInput}
             theme={theme}
-            contentStyle={{ paddingHorizontal: SPACING_MEDIUM }}
             right={renderSendIcon()}
           />
         </View>

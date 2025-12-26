@@ -1,18 +1,16 @@
 // gia-pha-viet-app/hooks/chat/aiChat.adapters.ts
 
 import { chatService } from '@/services'; // Import the actual chat service
-import { ImageUploadResultDto } from '@/types'; // Import ImageUploadResultDto
+import { ImageUploadResultDto, ChatInputRequest } from '@/types'; // Import ImageUploadResultDto and ChatInputRequest
 
 // --- AI Chat Service Adapter ---
 export interface AIChatServiceAdapter {
   /**
-   * Interacts with an actual AI service to get a response.
-   * @param userMessage The message sent by the user.
-   * @param sessionId The current chat session ID.
-   * @param familyId The ID of the family context.
+   * Sends a chat message to the AI service and gets a response.
+   * @param request The ChatInputRequest object containing message, session ID, family ID, etc.
    * @returns A Promise resolving to the AI's response text.
    */
-  getAIResponse(userMessage: string, sessionId: string, familyId: string): Promise<string>;
+  sendMessage(request: ChatInputRequest): Promise<string>;
 
   /**
    * Uploads an image file.
@@ -25,8 +23,8 @@ export interface AIChatServiceAdapter {
 }
 
 export const defaultAIChatServiceAdapter: AIChatServiceAdapter = {
-  getAIResponse: async (userMessage: string, sessionId: string, familyId: string) => {
-    return chatService.getAIResponse(userMessage, sessionId, familyId);
+  sendMessage: async (request: ChatInputRequest) => {
+    return chatService.sendMessage(request);
   },
 
   uploadImage: async (uri: string, fileName: string, expiration?: number) => {

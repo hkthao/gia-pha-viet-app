@@ -1,5 +1,5 @@
 // gia-pha-viet-app/hooks/chat/aiChat.logic.ts
-import { IMessage } from '@/types';
+import { IMessage, ChatInputRequest } from '@/types'; // Import ChatInputRequest
 import { AIChatServiceAdapter } from './aiChat.adapters';
 import { nanoid } from 'nanoid';
 
@@ -44,7 +44,16 @@ export async function processUserMessage(
   const { aiChatService, sessionId, familyId } = deps;
   const userMessage = userMessages[0].text;
 
-  const aiResponseText = await aiChatService.getAIResponse(userMessage, sessionId, familyId);
+  const request: ChatInputRequest = {
+    sessionId: sessionId,
+    familyId: familyId,
+    chatInput: userMessage,
+    metadata: {}, // Placeholder
+    attachments: [], // Placeholder
+    location: undefined, // Placeholder
+  };
+
+  const aiResponseText = await aiChatService.sendMessage(request);
 
   return {
     _id: nanoid(),

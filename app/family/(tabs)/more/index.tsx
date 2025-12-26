@@ -105,6 +105,14 @@ export default function MoreOptionsScreen() {
           />
           <Divider />
           <List.Item
+            title={t('tab.familyDict')}
+            left={() => <MaterialCommunityIcons name="book-multiple-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
+            right={() => <List.Icon icon="chevron-right" />}
+            onPress={() => navigateTo('/family/(tabs)/more/family-dict')}
+            style={styles.listItem}
+          />
+          <Divider />
+          <List.Item
             title={t('aiChat.title')}
             left={() => <MaterialCommunityIcons name="robot-outline" size={24} color={theme.colors.onSurfaceVariant} style={styles.listIcon} />}
             right={() => <List.Icon icon="chevron-right" />}

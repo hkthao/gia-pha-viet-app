@@ -46,13 +46,7 @@ export default function TabLayout() {
         }}
       />
 
-      <Tabs.Screen
-        name="family-dict"
-        options={{
-          title: t('tab.familyDict'),
-          tabBarIcon: ({ color }) => <TabBarIcon name="book-multiple-outline" color={color} />,
-        }}
-      />
+
       <Tabs.Screen
         name="donate"
         options={{

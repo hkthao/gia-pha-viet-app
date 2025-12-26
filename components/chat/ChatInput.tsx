@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import { View, StyleSheet } from "react-native";
 import {
   useTheme,
@@ -11,7 +11,7 @@ import {
 } from "react-native-paper";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
-import { useTranslation } from 'react-i18next';
+import { useChatInputActions } from "@/hooks/chat/useChatInputActions"; // Import the custom hook
 
 interface ChatInputProps {
   value: string;
@@ -23,29 +23,15 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = memo(
   ({ value, onChangeText, placeholder, onSend }) => {
     const theme = useTheme();
-    const { t } = useTranslation();
-    const [isDialogVisible, setIsDialogVisible] = useState(false);
-
-    const showDialog = () => setIsDialogVisible(true);
-    const hideDialog = () => setIsDialogVisible(false);
-
-    const handleUpload = () => {
-      // TODO: Implement upload functionality
-      console.log("Upload image/PDF");
-      hideDialog();
-    };
-
-    const handleChooseCurrentLocation = () => {
-      // TODO: Implement choose current location functionality
-      console.log("Choose current location");
-      hideDialog();
-    };
-
-    const handleChooseLocationFromMap = () => {
-      // TODO: Implement choose location from map functionality
-      console.log("Choose location from map");
-      hideDialog();
-    };
+    const {
+      isDialogVisible,
+      showDialog,
+      hideDialog,
+      handleUpload,
+      handleChooseCurrentLocation,
+      handleChooseLocationFromMap,
+      t, // Get t from the hook
+    } = useChatInputActions(); // Use the custom hook
 
     const styles = StyleSheet.create({
       container: {

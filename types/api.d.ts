@@ -1,4 +1,4 @@
-import { MemberDto, EventDto, FamilyLocationDto, DetectedFaceDto } from '@/types'; // Import required DTOs
+import { MemberDto, EventDto, FamilyLocationDto } from '@/types'; // Import required DTOs
 import { FaceDetectionResponseDto } from '@/types/face'; // Import FaceDetectionResponseDto from face.d.ts
 
 // Represents a generic API error structure

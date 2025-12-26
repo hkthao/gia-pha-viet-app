@@ -18,7 +18,7 @@ interface ChatInputProps {
   onChangeText: (text: string) => void;
   placeholder: string;
   onSend?: (message: string) => void; // Make onSend optional and accept message string
-  onImagePicked: (uri: string, base64: string) => void; // New prop for image data
+  onImagePicked: (uri: string) => void; // New prop for image data
 }
 
 const ChatInput: React.FC<ChatInputProps> = memo(

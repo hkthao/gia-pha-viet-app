@@ -1,5 +1,5 @@
 // gia-pha-viet-app/hooks/chat/aiChat.logic.ts
-import { IMessage, ChatInputRequest } from '@/types'; // Import ChatInputRequest
+import { IMessage, ChatInputRequest, ImageUploadResultDto, ChatAttachmentDto } from '@/types'; // Import ChatInputRequest, ImageUploadResultDto, ChatAttachmentDto
 import { AIChatServiceAdapter } from './aiChat.adapters';
 import { nanoid } from 'nanoid';
 
@@ -10,6 +10,7 @@ export interface AIChatLogicDeps {
   getTranslation: (key: string, options?: { message: string }) => string;
   sessionId: string; // Add sessionId
   familyId: string; // Add familyId
+  attachments?: ChatAttachmentDto[]; // Change to ChatAttachmentDto[]
 }
 
 /**
@@ -41,7 +42,7 @@ export async function processUserMessage(
   userMessages: IMessage[],
   deps: AIChatLogicDeps
 ): Promise<IMessage> {
-  const { aiChatService, sessionId, familyId } = deps;
+  const { aiChatService, sessionId, familyId, attachments } = deps;
   const userMessage = userMessages[0].text;
 
   const request: ChatInputRequest = {
@@ -49,7 +50,7 @@ export async function processUserMessage(
     familyId: familyId,
     chatInput: userMessage,
     metadata: {}, // Placeholder
-    attachments: [], // Placeholder
+    attachments: attachments || [], // Use passed attachments
     location: undefined, // Placeholder
   };
 

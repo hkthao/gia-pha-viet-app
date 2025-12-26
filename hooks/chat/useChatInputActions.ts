@@ -15,7 +15,7 @@ interface UseChatInputActions {
   t: (key: string) => string;
 }
 
-export const useChatInputActions = (onImagePicked: (uri: string, base64: string) => void): UseChatInputActions => {
+export const useChatInputActions = (onImagePicked: (uri: string) => void): UseChatInputActions => {
   const { t } = useTranslation();
   const [isDialogVisible, setIsDialogVisible] = useState(false);
 
@@ -41,9 +41,8 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
       }
 
       const selectedUri = selectedAsset.uri;
-      const base64Data = selectedAsset.base64;
-      if (selectedUri && base64Data) {
-        onImagePicked(selectedUri, base64Data);
+      if (selectedUri) {
+        onImagePicked(selectedUri);
       }
     }
     hideDialog();
@@ -65,7 +64,7 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
-        base64: true,
+        // No need for base64 if not used
       })
     );
   }, [hideDialog, handleImageSelection, mediaLibraryPermission, requestMediaLibraryPermission, t]);
@@ -85,7 +84,7 @@ export const useChatInputActions = (onImagePicked: (uri: string, base64: string)
         allowsEditing: true,
         aspect: [1, 1],
         quality: 1,
-        base64: true,
+        // No need for base64 if not used
       })
     );
   }, [hideDialog, handleImageSelection, cameraPermission, requestCameraPermission, t]);

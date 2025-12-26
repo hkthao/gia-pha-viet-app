@@ -6,7 +6,7 @@ import { generateInitialMessage, processUserMessage } from './aiChat.logic';
 import { defaultAIChatServiceAdapter, AIChatServiceAdapter } from './aiChat.adapters';
 import { nanoid } from 'nanoid';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
-import { IMessage } from '@/types';
+import { IMessage, ChatAttachmentDto } from '@/types';
 
 // Define the dependencies for the hook
 export interface UseAIChatDeps {
@@ -31,7 +31,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
   const { currentFamilyId } = useCurrentFamilyStore();
   const familyId = currentFamilyId || 'default_family_id'; // Fallback to a default or handle appropriately
 
-  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
+  const onSend = useCallback(async (newMessages: IMessage[] = [], attachments?: ChatAttachmentDto[]) => {
     // R3. Side-effects phải nằm trong `actions`
     setMessages(previousMessages =>
       [...previousMessages, ...newMessages]
@@ -45,6 +45,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
           getTranslation: t,
           sessionId: sessionId,
           familyId: familyId,
+          attachments: attachments, // Pass attachments here
         });
         setMessages(previousMessages => [...previousMessages, aiResponse]);
       } catch (error) {

@@ -6,34 +6,40 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { Appbar, useTheme, Chip, ActivityIndicator } from "react-native-paper"; // Add Chip, ActivityIndicator
+import { Appbar, useTheme, Chip, ActivityIndicator } from "react-native-paper";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
-import { IMessage, ImageUploadResultDto } from "@/types"; // Import ImageUploadResultDto
+import { IMessage } from "@/types";
 import { SPACING_SMALL, SPACING_MEDIUM } from "@/constants/dimensions";
-import { ChatInput, LoadingOverlay } from "@/components"; // Import LoadingOverlay
+import { ChatInput, LoadingOverlay } from "@/components";
 import { nanoid } from "nanoid";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
-import { chatService } from "@/services"; // Import chatService
-import ImageViewing from 'react-native-image-viewing'; // Import ImageViewing
-
-// Define a type for local file representation
-interface UploadedFile extends ImageUploadResultDto {
-  localUri: string;
-  type: 'image' | 'pdf'; // Or other types
-  isUploading?: boolean;
-}
+import ImageViewing from 'react-native-image-viewing';
+import { useAIChatImageUpload } from "@/hooks/chat/useAIChatImageUpload"; // Import useAIChatImageUpload
+import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // Import useCurrentFamilyStore
 
 export default function AIChatScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { state, actions } = useAIChat();
   const [text, setText] = useState("");
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [imageViewerVisible, setImageViewerVisible] = useState(false);
-  const [currentImageViewerIndex, setCurrentImageViewerIndex] = useState(0);
+
+  const { currentFamilyId } = useCurrentFamilyStore();
+  const familyId = currentFamilyId || 'default_family_id'; // Fallback to a default or handle appropriately
+
+  const {
+    uploadedFiles,
+    isUploading,
+    imageViewerVisible,
+    currentImageViewerIndex,
+    imagesForViewer,
+    handleImagePicked,
+    handleRemoveFile,
+    handleViewImage,
+    setImageViewerVisible,
+    clearUploadedFiles,
+  } = useAIChatImageUpload({ familyId });
 
   const styles = useMemo(
     () =>
@@ -118,65 +124,17 @@ export default function AIChatScreen() {
       createdAt: new Date(),
       user: { _id: "1" },
     };
-    actions.onSend([newMessage]);
+    // Extract only the ImageUploadResultDto part from uploadedFiles
+    const attachments = uploadedFiles.filter(f => f.url).map(f => ({
+      url: f.url!,
+      contentType: f.mimeType || 'application/octet-stream', // Use mimeType for contentType
+      fileName: f.title, // Use title for fileName
+      fileSize: f.size, // Use size for fileSize
+    }));
+    actions.onSend([newMessage], attachments);
     setText("");
-    // TODO: Also send uploaded files with the message
-  }, [actions, setText]);
-
-  const handleImagePicked = useCallback(async (uri: string, base64: string) => {
-    const fileName = uri.split('/').pop() || `image-${Date.now()}.jpeg`;
-    // For simplicity, assuming all picked files are images and have localUri as the path
-    const tempFile: UploadedFile = {
-      localUri: uri,
-      title: fileName, // Use 'title' instead of 'name'
-      type: 'image',
-      isUploading: true,
-      size: 0, height: 0, width: 0, // Placeholder values, will be updated by API response
-    };
-    setUploadedFiles((prev) => [...prev, tempFile]);
-    setIsUploading(true);
-
-    try {
-      // Assuming 'state.familyId' is available in useAIChat or passed as prop
-      // For now, hardcode familyId or get it from context if available
-      const uploadResult = await chatService.uploadImage(uri, fileName);
-      setUploadedFiles((prev) =>
-        prev.map((file) =>
-          file.localUri === uri
-            ? { ...file, ...uploadResult, isUploading: false }
-            : file
-        )
-      );
-    } catch (error: any) {
-      console.error("Upload failed:", error);
-      // Remove the failed upload and show error
-      setUploadedFiles((prev) => prev.filter((file) => file.localUri !== uri));
-      // Optionally show a toast/snackbar
-      alert(t('aiChat.uploadErrorMessage'));
-    } finally {
-      setIsUploading(false);
-    }
-  }, [t]);
-
-  const handleRemoveFile = useCallback((fileToRemove: UploadedFile) => {
-    setUploadedFiles((prev) => prev.filter((file) => file.localUri !== fileToRemove.localUri));
-  }, []);
-
-  const handleViewImage = useCallback((file: UploadedFile) => {
-    const imageFiles = uploadedFiles.filter(f => f.type === 'image' && f.url);
-    const index = imageFiles.findIndex(f => f.url === file.url);
-    if (index !== -1) {
-      setCurrentImageViewerIndex(index);
-      setImageViewerVisible(true);
-    }
-  }, [uploadedFiles]);
-
-  const imagesForViewer = useMemo(() => {
-    return uploadedFiles
-      .filter(f => f.type === 'image' && f.url)
-      .map(f => ({ uri: f.url! }));
-  }, [uploadedFiles]);
-
+    clearUploadedFiles(); // Clear uploaded files after sending
+  }, [actions, setText, uploadedFiles, clearUploadedFiles]);
 
   return (
     <View style={styles.container}>
@@ -232,7 +190,7 @@ export default function AIChatScreen() {
               value={text}
               onChangeText={setText}
               onSend={handleSend}
-              onImagePicked={handleImagePicked}
+              onImagePicked={(uri: string) => handleImagePicked(uri)} // Adapt to new hook's signature
             />
           </View>
         </View>

@@ -36,16 +36,48 @@ const GeneratedDataDisplay: React.FC<GeneratedDataDisplayProps> = ({
     }
   });
 
-  const handleAddAction = (type: string, id?: string) => {
+  const handleAddAction = (type: string, data: any) => {
+    let params: any = {};
     switch (type) {
       case "member":
-        router.push("/member/create"); // Can pass initial data if needed
+        if (data) {
+          params = {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            dateOfBirth: data.dateOfBirth,
+            dateOfDeath: data.dateOfDeath,
+            gender: data.gender,
+            // Add other relevant member fields
+          };
+        }
+        router.push({ pathname: "/member/create", params: params });
         break;
       case "event":
-        router.push("/event/create"); // Can pass initial data if needed
+        if (data) {
+          params = {
+            name: data.name,
+            description: data.description,
+            solarDate: data.solarDate,
+            location: data.location,
+            type: data.type,
+            // Add other relevant event fields
+          };
+        }
+        router.push({ pathname: "/event/create", params: params });
         break;
       case "location":
-        router.push("/family-location/create"); // Can pass initial data if needed
+        if (data) {
+          params = {
+            name: data.name,
+            description: data.description,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            address: data.address,
+            locationType: data.locationType,
+            // Add other relevant location fields
+          };
+        }
+        router.push({ pathname: "/family-location/create", params: params });
         break;
       default:
         console.warn("Unhandled add action type:", type);
@@ -55,20 +87,28 @@ const GeneratedDataDisplay: React.FC<GeneratedDataDisplayProps> = ({
   const renderMemberItem = (member: MemberListDto, index: number) => (
     <List.Item
       key={member.id || `member-${index}`}
-      title={`${member.firstName} ${member.lastName}` || t('common.unknown')}
+      title={`${member.firstName} ${member.lastName}` || t("common.unknown")}
       description={
         (() => {
-          let desc = '';
+          let desc = "";
           if (member.dateOfBirth) {
-            desc += `${t('memberDetail.dateOfBirth')}: ${new Date(member.dateOfBirth).toLocaleDateString()}`;
+            desc += `${t("memberDetail.dateOfBirth")}: ${new Date(
+              member.dateOfBirth
+            ).toLocaleDateString()}`;
           }
           if (member.dateOfDeath) {
-            desc += (desc ? ' | ' : '') + `${t('memberDetail.dateOfDeath')}: ${new Date(member.dateOfDeath).toLocaleDateString()}`;
+            desc +=
+              (desc ? " | " : "") +
+              `${t("memberDetail.dateOfDeath")}: ${new Date(
+                member.dateOfDeath
+              ).toLocaleDateString()}`;
           }
           if (member.gender) {
-            desc += (desc ? ' | ' : '') + `${t('member.gender')}: ${t(`common.${member.gender.toLowerCase()}`)}`;
+            desc +=
+              (desc ? " | " : "") +
+              `${t("member.gender")}: ${t(`common.${member.gender.toLowerCase()}`)}`;
           }
-          return desc || t('common.noDescription');
+          return desc || t("common.noDescription");
         })()
       }
       left={(props) => <List.Icon {...props} icon="account" />}
@@ -76,7 +116,7 @@ const GeneratedDataDisplay: React.FC<GeneratedDataDisplayProps> = ({
         <IconButton
           icon="plus"
           size={24}
-          onPress={() => handleAddAction("member", member.id)}
+          onPress={() => handleAddAction("member", member)} // Pass member object
           accessibilityLabel={t("common.add")}
         />
       )}
@@ -94,7 +134,7 @@ const GeneratedDataDisplay: React.FC<GeneratedDataDisplayProps> = ({
         <IconButton
           icon="plus"
           size={24}
-          onPress={() => handleAddAction("event", event.id)}
+          onPress={() => handleAddAction("event", event)} // Pass event object
           accessibilityLabel={t("common.add")}
         />
       )}
@@ -112,7 +152,7 @@ const GeneratedDataDisplay: React.FC<GeneratedDataDisplayProps> = ({
         <IconButton
           icon="plus"
           size={24}
-          onPress={() => handleAddAction("location", location.id)}
+          onPress={() => handleAddAction("location", location)} // Pass location object
           accessibilityLabel={t("common.add")}
         />
       )}

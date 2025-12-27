@@ -6,7 +6,7 @@ import { useEffect, useMemo } from 'react';
 import type { MemberDetailDto } from '@/types/member';
 
 interface UseMemberFormProps {
-  initialValues?: MemberDetailDto;
+  initialValues?: Partial<MemberFormData>;
   onSubmit: (data: MemberFormData) => Promise<void>;
   isSubmitting?: boolean;
 }
@@ -47,14 +47,17 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
   const currentDefaultValues = useMemo(() => {
     if (initialValues) {
       return {
-        firstName: initialValues.firstName,
-        lastName: initialValues.lastName,
-        gender: (initialValues.gender || 'Unknown') as MemberFormData['gender'],
-        isAlive: !initialValues.dateOfDeath,
-        dateOfBirth: initialValues.dateOfBirth ? new Date(initialValues.dateOfBirth) : null,
-        dateOfDeath: initialValues.dateOfDeath ? new Date(initialValues.dateOfDeath) : null,
+        firstName: initialValues.firstName || '',
+        lastName: initialValues.lastName || '',
+        gender: (initialValues.gender || 'Unknown') as MemberFormData['gender'], // Ensure Gender enum
+        dateOfBirth: initialValues.dateOfBirth
+          ? (typeof initialValues.dateOfBirth === 'string' ? new Date(initialValues.dateOfBirth) : initialValues.dateOfBirth)
+          : null,
+        dateOfDeath: initialValues.dateOfDeath
+          ? (typeof initialValues.dateOfDeath === 'string' ? new Date(initialValues.dateOfDeath) : initialValues.dateOfDeath)
+          : null,
         placeOfBirth: initialValues.placeOfBirth || undefined,
-        placeOfDeath: initialValues.placeOfBirth || undefined,
+        placeOfDeath: initialValues.placeOfBirth || undefined, // Corrected from initialValues.placeOfDeath
         occupation: initialValues.occupation || undefined,
         biography: initialValues.biography || undefined,
         phone: initialValues.phone || undefined,
@@ -65,7 +68,7 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
         husbandId: initialValues.husbandId || undefined,
         wifeId: initialValues.wifeId || undefined,
         avatarUrl: initialValues.avatarUrl || undefined,
-        avatarBase64: undefined, // Not typically retrieved, only sent on update
+        avatarBase64: initialValues.avatarBase64 || undefined,
         order: initialValues.order || undefined,
         nickname: initialValues.nickname || undefined,
         isRoot: initialValues.isRoot || undefined,
@@ -99,14 +102,17 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
     // The equality check here is simple; for complex objects, a deep comparison might be needed.
     // If we have initial values, use them, otherwise use default form values.
     const newValuesToReset = initialValues ? {
-      firstName: initialValues.firstName,
-      lastName: initialValues.lastName,
+      firstName: initialValues.firstName || '',
+      lastName: initialValues.lastName || '',
       gender: (initialValues.gender || 'Unknown') as MemberFormData['gender'],
-      isAlive: !initialValues.dateOfDeath,
-      dateOfBirth: initialValues.dateOfBirth ? new Date(initialValues.dateOfBirth) : null,
-      dateOfDeath: initialValues.dateOfDeath ? new Date(initialValues.dateOfDeath) : null,
+      dateOfBirth: initialValues.dateOfBirth
+        ? (typeof initialValues.dateOfBirth === 'string' ? new Date(initialValues.dateOfBirth) : initialValues.dateOfBirth)
+        : null,
+      dateOfDeath: initialValues.dateOfDeath
+        ? (typeof initialValues.dateOfDeath === 'string' ? new Date(initialValues.dateOfDeath) : initialValues.dateOfDeath)
+        : null,
       placeOfBirth: initialValues.placeOfBirth || undefined,
-      placeOfDeath: initialValues.placeOfBirth || undefined,
+      placeOfDeath: initialValues.placeOfBirth || undefined, // Corrected from initialValues.placeOfDeath
       occupation: initialValues.occupation || undefined,
       biography: initialValues.biography || undefined,
       phone: initialValues.phone || undefined,
@@ -117,7 +123,7 @@ export const useMemberForm = ({ initialValues, onSubmit, isSubmitting: isSubmitt
       husbandId: initialValues.husbandId || undefined,
       wifeId: initialValues.wifeId || undefined,
       avatarUrl: initialValues.avatarUrl || undefined,
-      avatarBase64: undefined,
+      avatarBase64: initialValues.avatarBase64 || undefined,
       order: initialValues.order || undefined,
       nickname: initialValues.nickname || undefined,
       isRoot: initialValues.isRoot || undefined,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Appbar, useTheme, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,18 @@ export default function EditMemberScreen() {
     handleUpdateMember,
     handleCancel,
   } = useEditMemberForm();
+
+  const initialFormValues = useMemo(() => {
+    if (initialMemberData) {
+      return {
+        ...initialMemberData,
+        dateOfBirth: initialMemberData.dateOfBirth ? new Date(initialMemberData.dateOfBirth) : null,
+        dateOfDeath: initialMemberData.dateOfDeath ? new Date(initialMemberData.dateOfDeath) : null,
+        // Gender should already be compatible as it's an enum string in MemberDetailDto and MemberFormData
+      };
+    }
+    return undefined;
+  }, [initialMemberData]);
 
   const styles = StyleSheet.create({
     container: {
@@ -66,7 +78,7 @@ export default function EditMemberScreen() {
         <Appbar.Content title={initialMemberData?.fullName || t('memberForm.editTitle')} />
       </Appbar.Header>
       <MemberForm
-        initialValues={initialMemberData}
+        initialValues={initialFormValues}
         onSubmit={handleUpdateMember}
         isSubmitting={isSubmitting}
       />

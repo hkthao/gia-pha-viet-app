@@ -15,7 +15,7 @@ import { DateInput } from '@/components/common'; // Import DateInput
 import { Controller, useWatch } from 'react-hook-form'; // Import Controller, useWatch
 
 interface MemberFormProps {
-  initialValues?: MemberDetailDto;
+  initialValues?: Partial<MemberFormData>;
   onSubmit: (data: MemberFormData) => Promise<void>;
   isSubmitting?: boolean;
 }

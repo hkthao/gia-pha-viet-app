@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useTheme, Text, Appbar } from 'react-native-paper'; // Import Text and Appbar from react-native-paper
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import { MemberForm } from '@/components/member';
 import { useCreateMember } from '@/hooks/member/useCreateMember';
 import { MemberFormData } from '@/utils/validation/memberValidationSchema';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore'; // To get current family ID
+import { Gender } from '@/types'; // Import Gender enum
 
 export default function CreateMemberScreen() {
   const { t } = useTranslation();
@@ -16,6 +17,25 @@ export default function CreateMemberScreen() {
   const currentFamilyId = useCurrentFamilyStore((state) => state.currentFamilyId);
   const { familyId: paramFamilyId } = useLocalSearchParams();
   const initialFamilyId = Array.isArray(paramFamilyId) ? paramFamilyId[0] : paramFamilyId || currentFamilyId;
+
+  // Extract initial data from URL params
+  const {
+    firstName,
+    lastName,
+    dateOfBirth,
+    dateOfDeath,
+    gender,
+    // Add other relevant fields if needed
+  } = useLocalSearchParams();
+
+  const defaultValues = useMemo(() => ({
+    firstName: typeof firstName === 'string' ? firstName : undefined,
+    lastName: typeof lastName === 'string' ? lastName : undefined,
+    dateOfBirth: typeof dateOfBirth === 'string' ? new Date(dateOfBirth) : undefined,
+    dateOfDeath: typeof dateOfDeath === 'string' ? new Date(dateOfDeath) : undefined,
+    gender: typeof gender === 'string' && Object.values(Gender).includes(gender as Gender) ? (gender as Gender) : undefined,
+    familyId: initialFamilyId, // Always include familyId
+  }), [firstName, lastName, dateOfBirth, dateOfDeath, gender, initialFamilyId]);
   
   const handleCancel = useCallback(() => {
     router.back();
@@ -51,6 +71,7 @@ export default function CreateMemberScreen() {
       <MemberForm
         onSubmit={handleSubmit}
         isSubmitting={isCreatingMember}
+        initialValues={defaultValues}
       />
     </View>
   );

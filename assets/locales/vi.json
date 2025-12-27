@@ -100,6 +100,8 @@
   "eventScreen.eventsFor": "Sự kiện cho ngày",
   "eventScreen.noDateSelected": "Chưa chọn ngày",
   "eventScreen.noEvents": "Không có sự kiện nào cho ngày này.",
+  "eventScreen.noEvents": "Không có sự kiện nào.",
+  "event.plural": "Sự kiện",
   "eventType.anniversary": "Kỷ niệm",
   "eventType.birth": "Sinh",
   "eventType.death": "Mất",
@@ -334,6 +336,8 @@
   "member.occupation": "Nghề nghiệp",
   "member.wife": "Vợ",
   "member.wifeFullName": "Tên đầy đủ của Vợ",
+  "member.plural": "Thành viên",
+  "member.singular": "Thành viên",
   "memberDetail.address": "Địa chỉ",
   "memberDetail.biography": "Tiểu sử",
   "memberDetail.created": "Ngày tạo",
@@ -543,9 +547,9 @@
   "familyLocation.selectFamilyPrompt": "Vui lòng chọn một gia đình để quản lý vị trí.",
   "familyLocation.detailTitle": "Chi tiết vị trí",
   "familyLocation.errors.dataNotAvailable": "Dữ liệu vị trí không có sẵn",
-  "familyLocation.errors.locationNotFound": "Không tìm thấy vị trí",
-
-  "familyLocationForm.name": "Tên vị trí",
+    "familyLocation.errors.locationNotFound": "Không tìm thấy vị trí",
+    "familyLocation.plural": "Vị trí gia đình",
+    "familyLocationForm.name": "Tên vị trí",
   "familyLocationForm.description": "Mô tả",
   "familyLocationForm.address": "Địa chỉ",
   "familyLocationForm.latitude": "Vĩ độ",
@@ -594,5 +598,6 @@
     "chatInput.fileTooLarge": "Kích thước tệp quá lớn. Vui lòng chọn tệp nhỏ hơn {{size}}MB.",
     "chatInput.takePhoto": "Chụp ảnh",
     "chatInput.typeMessage": "Nhập tin nhắn...",
-    "chat.detectRelationshipButton": "Xác định quan hệ gia phả"
+    "chat.detectRelationshipButton": "Xác định quan hệ gia phả",
+    "chat.noGeneratedData": "Không có dữ liệu được tạo."
   }

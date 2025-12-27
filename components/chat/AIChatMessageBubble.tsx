@@ -4,9 +4,11 @@ import { Text, useTheme, Avatar, Button } from "react-native-paper"; // Import B
 import { IMessage } from "@/types";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
 import { getAIAvatarSource } from "@/utils/imageUtils";
-import { FaceDetectionResultDisplay } from "./"; // Import the new component from current directory
+import { FaceDetectionResultDisplay, GeneratedDataDisplay } from "./"; // Import GeneratedDataDisplay
 import { useRouter } from "expo-router"; // Import useRouter
 import { useTranslation } from "react-i18next"; // Import useTranslation for button text
+
+const RELATIONSHIP_LOOKUP_INTENT = 'RELATIONSHIP_LOOKUP_PAGE';
 
 interface AIChatMessageBubbleProps {
   item: IMessage;
@@ -77,7 +79,12 @@ const AIChatMessageBubble: React.FC<AIChatMessageBubbleProps> = memo(
             ))
           )}
 
-          {item.intent === 'RELATIONSHIP_LOOKUP_PAGE' && (
+          {/* New logic for generatedData */}
+          {item.generatedData && (
+            <GeneratedDataDisplay generatedData={item.generatedData} />
+          )}
+
+          {item.intent === RELATIONSHIP_LOOKUP_INTENT && (
             <Button
               mode="contained"
               onPress={() => router.push('/family/more/detect-relationship')} // Adjust path if needed

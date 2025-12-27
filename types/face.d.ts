@@ -37,6 +37,8 @@ export interface DetectedFaceDto {
 
 export interface FaceDetectionResponseDto {
   imageId: string;
+  imageHeight?: int;
+  imageWidth?: int;
   originalImageUrl?: string;
   detectedFaces: DetectedFaceDto[];
 }

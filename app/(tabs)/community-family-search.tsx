@@ -9,7 +9,6 @@ import type { QueryKey } from '@tanstack/react-query';
 import { FamilyItem } from '@/components';
 import DefaultEmptyList from '@/components/common/DefaultEmptyList';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/auth/useAuth';
 
 const getStyles = () => StyleSheet.create({
   safeArea: {
@@ -24,7 +23,6 @@ const getStyles = () => StyleSheet.create({
 export default function CommunityFamilySearchScreen() {
   const styles = useMemo(() => getStyles(), []);
   const { t } = useTranslation();
-  const { isLoggedIn } = useAuth(); // Ensure isLoggedIn is available
 
   // Define the query function for fetching public family data
   const publicFamilySearchQueryFn = useCallback(

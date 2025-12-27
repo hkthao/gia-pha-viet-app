@@ -4,7 +4,7 @@ import { Text, useTheme, Avatar } from "react-native-paper";
 import { IMessage } from "@/types";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
 import { getAIAvatarSource } from "@/utils/imageUtils";
-import FaceBoundingBoxItem from "@/components/chat/FaceBoundingBoxItem"; // Import the new sub-component
+import { FaceDetectionResultDisplay } from "./"; // Import the new component from current directory
 
 interface AIChatMessageBubbleProps {
   item: IMessage;
@@ -44,11 +44,6 @@ const AIChatMessageBubble: React.FC<AIChatMessageBubbleProps> = memo(
             marginTop: 2,
             alignSelf: "flex-end",
           },
-          faceDetectionContainer: {
-            marginTop: SPACING_SMALL,
-            marginBottom: SPACING_SMALL / 2, // Space between image and text
-            width: '100%', // Ensure the container takes full width
-          },
         }),
       [theme]
     );
@@ -69,15 +64,14 @@ const AIChatMessageBubble: React.FC<AIChatMessageBubbleProps> = memo(
             <Text style={styles.messageText}>{item.text}</Text>
           )}
 
-          {item?.faceDetectionResults &&
-            item.faceDetectionResults.length > 0 &&
+          {item.faceDetectionResults && item.faceDetectionResults.length > 0 && (
             item.faceDetectionResults.map((faceDetectionResponse, index) => (
-              <FaceBoundingBoxItem
-                key={index}
+              <FaceDetectionResultDisplay
+                key={faceDetectionResponse.imageId || index} // Use imageId as key or index as fallback
                 faceDetectionResponse={faceDetectionResponse}
-                containerStyle={styles.faceDetectionContainer}
               />
-            ))}
+            ))
+          )}
 
           <Text style={styles.messageTime}>
             {item.createdAt

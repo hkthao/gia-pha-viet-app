@@ -56,7 +56,6 @@ const ChatInput: React.FC<ChatInputProps> = memo(
       },
       rnpTextInput: {
         backgroundColor: theme.colors.secondaryContainer,
-        marginLeft: -SPACING_MEDIUM
       },
       iconButton: {
         marginLeft: -SPACING_SMALL,

@@ -4,9 +4,7 @@ import { ActivityIndicator, Text, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { SPACING_SMALL } from '@/constants/dimensions';
 
-interface AITypingIndicatorProps {}
-
-const AITypingIndicator: React.FC<AITypingIndicatorProps> = memo(() => {
+const AITypingIndicator: React.FC = memo(() => {
   const { t } = useTranslation();
   const theme = useTheme();
 

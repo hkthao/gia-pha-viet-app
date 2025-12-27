@@ -5,21 +5,7 @@ import { faceService } from '@/services';
 import type { DetectedFaceDto } from '@/types'; // Removed FaceStatus import
 import { useTranslation } from 'react-i18next';
 import { useMutation } from '@tanstack/react-query';
-
-
-interface ImageDimensions {
-  width: number;
-  height: number;
-}
-
-interface BoundingBoxCalculation {
-  scaledX: number;
-  scaledY: number;
-  scaledWidth: number;
-  scaledHeight: number;
-  offsetX: number;
-  offsetY: number;
-}
+import { ImageDimensions } from '@/utils/faceUtils'; // Import from utility file
 
 export interface UseImageFaceDetectionResult {
   image: string | null;
@@ -31,11 +17,7 @@ export interface UseImageFaceDetectionResult {
   pickImage: () => Promise<void>;
   takePhoto: () => Promise<void>;
   resetFaceDetection: () => void;
-  calculateBoundingBox: (
-    face: DetectedFaceDto,
-    containerDimensions: ImageDimensions,
-    imageDimensions: ImageDimensions
-  ) => BoundingBoxCalculation | null;
+  // calculateBoundingBox is now imported and passed as is.
 }
 
 export function useImageFaceDetection(familyId: string | null, returnCrop: boolean = false): UseImageFaceDetectionResult {
@@ -160,59 +142,6 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
     detectFacesMutation.reset(); // Reset mutation state (loading, error, data)
   }, [detectFacesMutation]);
 
-  const calculateBoundingBox = useCallback(
-    (
-      face: DetectedFaceDto,
-      containerDimensions: ImageDimensions,
-      currentImageDimensions: ImageDimensions
-    ): BoundingBoxCalculation | null => {
-      if (!currentImageDimensions || !containerDimensions || !face.boundingBox) {
-        return null;
-      }
-
-      const imageAspectRatio = currentImageDimensions.width / currentImageDimensions.height;
-      const containerAspectRatio = containerDimensions.width / containerDimensions.height;
-
-      let actualImageRenderedWidth = 0;
-      let actualImageRenderedHeight = 0;
-      let offsetX = 0;
-      let offsetY = 0;
-
-      if (imageAspectRatio > containerAspectRatio) {
-        actualImageRenderedWidth = containerDimensions.width;
-        actualImageRenderedHeight = containerDimensions.width / imageAspectRatio;
-        offsetY = (containerDimensions.height - actualImageRenderedHeight) / 2;
-      } else {
-        actualImageRenderedHeight = containerDimensions.height;
-        actualImageRenderedWidth = containerDimensions.height * imageAspectRatio;
-        offsetX = (containerDimensions.width - actualImageRenderedWidth) / 2;
-      }
-
-      const scaleX = actualImageRenderedWidth / currentImageDimensions.width;
-      const scaleY = actualImageRenderedHeight / currentImageDimensions.height;
-
-      const box = face.boundingBox;
-
-      const scaledX = box.x * scaleX;
-      const scaledY = box.y * scaleY;
-      const scaledWidth = box.width * scaleX;
-      const scaledHeight = box.height * scaleY;
-
-      const finalX = scaledX + offsetX;
-      const finalY = scaledY + offsetY;
-
-      return {
-        scaledX: parseFloat(finalX.toFixed(2)),
-        scaledY: parseFloat(finalY.toFixed(2)),
-        scaledWidth: parseFloat(scaledWidth.toFixed(2)),
-        scaledHeight: parseFloat(scaledHeight.toFixed(2)),
-        offsetX,
-        offsetY,
-      };
-    },
-    []
-  );
-
   return {
     image,
     base64Image, // Add this line
@@ -223,6 +152,6 @@ export function useImageFaceDetection(familyId: string | null, returnCrop: boole
     pickImage,
     takePhoto,
     resetFaceDetection: clearImage,
-    calculateBoundingBox,
+    // calculateBoundingBox, // Removed from here
   };
 }

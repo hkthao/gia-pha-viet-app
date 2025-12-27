@@ -6,7 +6,7 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from "react-native";
-import { Appbar, useTheme, Chip, ActivityIndicator, ProgressBar } from "react-native-paper"; // Import ProgressBar
+import { Appbar, useTheme, Chip, ProgressBar } from "react-native-paper"; // Import ProgressBar
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
@@ -18,6 +18,7 @@ import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ImageViewing from "react-native-image-viewing";
 import { useAIChatImageUpload } from "@/hooks/chat/useAIChatImageUpload"; // Import useAIChatImageUpload
 import { useCurrentFamilyStore } from "@/stores/useCurrentFamilyStore"; // Import useCurrentFamilyStore
+import AITypingIndicator from "@/components/chat/AITypingIndicator"; // Import AITypingIndicator
 
 export default function AIChatScreen() {
   const { t } = useTranslation();
@@ -151,6 +152,8 @@ export default function AIChatScreen() {
           contentType: f.mimeType || "application/octet-stream", // Use mimeType for contentType
           fileName: f.title, // Use title for fileName
           fileSize: f.size, // Use size for fileSize
+          width: f.width,   // Add width
+          height: f.height, // Add height
         }));
 
       const newMessage: IMessage = {
@@ -191,20 +194,7 @@ export default function AIChatScreen() {
             removeClippedSubviews={false}
           />
           {isLoadingAIResponse && (
-            <ChatMessageBubble
-              item={{
-                _id: "ai-typing-indicator",
-                text: "AI is typing...", // Or just an empty string with ActivityIndicator
-                createdAt: new Date(),
-                user: { _id: "2", name: "AI Assistant" },
-                renderCustomView: () => (
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.onSurfaceVariant}
-                  />
-                ),
-              }}
-            />
+            <AITypingIndicator />
           )}
 
           {uploadedFiles.length > 0 && (

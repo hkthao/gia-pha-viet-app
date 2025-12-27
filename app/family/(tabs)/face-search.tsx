@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { useImageFaceDetection } from '@/hooks/face/useImageFaceDetection';
 import { FaceBoundingBoxes } from '@/components/face'; // Import FaceBoundingBoxes
+import { calculateBoundingBox } from '@/utils/faceUtils'; // Import calculateBoundingBox
 
 export default function FamilyFaceSearchScreen() {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export default function FamilyFaceSearchScreen() {
     error,
     pickImage,
     takePhoto,
-    calculateBoundingBox,
+    // calculateBoundingBox, // Removed from here
   } = useImageFaceDetection(currentFamilyId, false); // Pass returnCrop as false
 
   const styles = StyleSheet.create({

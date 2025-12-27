@@ -1,6 +1,58 @@
 // gia-pha-viet-app/types/chat.d.ts
 
-import { ChatAttachmentDto, ChatLocationDto } from '@/types'; // Import new DTOs
+import type { DetectedFaceDto, FaceDetectionResponseDto } from './face'
+import type { MemberDto } from './member'
+import type { EventDto } from './event'
+import type { FamilyLocationDto } from './familyLocation'
+export interface ChatAttachmentDto {
+  url: string;
+  contentType: string; // e.g., 'image/jpeg', 'application/pdf'
+  fileName?: string;
+  fileSize?: number;
+  width?: number;  // Add this
+  height?: number; // Add this
+}
+
+export interface ChatLocationDto {
+  latitude: number;
+  longitude: number;
+  address?: string;
+  source?: string;
+}
+
+export interface ChatInputRequest {
+  familyId: string; // Guid maps to string
+  sessionId: string;
+  chatInput: string;
+  metadata?: { [key: string]: any }; // IDictionary maps to dictionary
+  attachments?: ChatAttachmentDto[];
+  location?: ChatLocationDto;
+}
+
+export interface CombinedAiContentDto {
+  members?: MemberDto[];
+  events?: EventDto[];
+  locations?: FamilyLocationDto[];
+}
+
+export interface ChatResponse {
+  output?: string;
+  generatedData?: CombinedAiContentDto;
+  intent?: string;
+  faceDetectionResults?: DetectedFaceDto[]; // Changed to DetectedFaceDto[]
+  // analyzedImageUri?: string; // Removed this line
+}
+
+export interface ImageUploadResultDto {
+  id?: string;
+  title?: string;
+  url?: string;
+  deleteUrl?: string;
+  mimeType?: string;
+  size: number;
+  width: number;
+  height: number;
+}
 
 interface IUser {
   _id: string | number;
@@ -13,15 +65,9 @@ export interface IMessage {
   text: string;
   createdAt: Date | number;
   user: IUser;
-  image?: string;
-  video?: string;
-  audio?: string;
-  system?: boolean;
-  sent?: boolean;
-  received?: boolean;
-  pending?: boolean;
-  quickReplies?: any;
   attachments?: ChatAttachmentDto[]; // New: Array of attached files
   location?: ChatLocationDto | null; // Allow null for location data
-  renderCustomView?: () => React.ReactNode; // Add this line
+  generatedData?: CombinedAiContentDto;
+  intent?: string;
+  faceDetectionResults?: FaceDetectionResponseDto[]; // Changed to DetectedFaceDto[]
 }

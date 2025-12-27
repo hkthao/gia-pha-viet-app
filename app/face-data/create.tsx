@@ -7,6 +7,7 @@ import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import FaceSelectListItem from '@/components/face/FaceSelectListItem';
 import { FaceBoundingBoxes } from '@/components/face'; // Import FaceBoundingBoxes
 import { useCreateFaceData } from '@/hooks/face/useCreateFaceData';
+import { calculateBoundingBox } from '@/utils/faceUtils'; // Import calculateBoundingBox
 
 export default function CreateFaceDataScreen() {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function CreateFaceDataScreen() {
     handlePressFaceToSelectMember,
     handleDeleteFace, // NEW
     handleSubmit,
-    calculateBoundingBox,
+    // calculateBoundingBox, // Removed from here
     SelectMemberModalComponent,
     saveMutationLoading,
     saveMutationError,

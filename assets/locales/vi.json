@@ -582,6 +582,7 @@
     "aiChat.initialMessage": "Xin chào! Tôi là Trợ lý AI Cây Gia Phả của bạn. Tôi có thể giúp gì cho bạn hôm nay?",
     "aiChat.responsePrefix": "Bạn đã hỏi: \"{{message}}\". Tôi vẫn đang học hỏi, nhưng tôi có thể cố gắng giúp bạn trả lời các câu hỏi về dữ liệu cây gia phả của bạn.",
     "aiChat.errorMessage": "Rất tiếc! Đã xảy ra lỗi khi nhận phản hồi từ AI. Vui lòng thử lại.",
+    "aiChat.typingIndicator": "Đang trả lời...",
     "aiChat.typeMessage": "Nhập tin nhắn của bạn...",
     "chatInput.chooseAction": "Chọn hành động",
     "chatInput.chooseFromLibrary": "Chọn từ thư viện",

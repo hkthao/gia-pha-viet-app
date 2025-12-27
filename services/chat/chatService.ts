@@ -13,13 +13,10 @@ export class ApiChatService implements IChatService {
 
   constructor(private apiClient: ApiClientMethods) {}
 
-  async sendMessage(request: ChatInputRequest): Promise<string> {
+  async sendMessage(request: ChatInputRequest): Promise<ChatResponse> {
     try {
       const response = await this.apiClient.post<ChatResponse>(this.baseEndpoint, request);
-      if (response.output === undefined) {
-        throw new Error('AI response output is undefined.');
-      }
-      return response.output;
+      return response; // Return the full ChatResponse object
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Không thể lấy phản hồi từ AI. Vui lòng thử lại sau.';
       throw new Error(errorMessage);

@@ -1,5 +1,5 @@
 // gia-pha-viet-app/hooks/chat/aiChat.logic.ts
-import { IMessage, ChatInputRequest, ImageUploadResultDto, ChatAttachmentDto } from '@/types'; // Import ChatInputRequest, ImageUploadResultDto, ChatAttachmentDto
+import { IMessage, ChatInputRequest, ChatAttachmentDto, ChatLocationDto } from '@/types'; 
 import { AIChatServiceAdapter } from './aiChat.adapters';
 import { nanoid } from 'nanoid';
 
@@ -11,6 +11,7 @@ export interface AIChatLogicDeps {
   sessionId: string; // Add sessionId
   familyId: string; // Add familyId
   attachments?: ChatAttachmentDto[]; // Change to ChatAttachmentDto[]
+  location?: ChatLocationDto | null; // Add location here
 }
 
 /**
@@ -42,7 +43,7 @@ export async function processUserMessage(
   userMessages: IMessage[],
   deps: AIChatLogicDeps
 ): Promise<IMessage> {
-  const { aiChatService, sessionId, familyId, attachments } = deps;
+  const { aiChatService, sessionId, familyId, attachments, location } = deps;
   const userMessage = userMessages[0].text;
 
   const request: ChatInputRequest = {
@@ -51,10 +52,20 @@ export async function processUserMessage(
     chatInput: userMessage,
     metadata: {}, // Placeholder
     attachments: attachments || [], // Use passed attachments
-    location: undefined, // Placeholder
+    location: location ?? undefined, // Convert null to undefined for ChatInputRequest
   };
+  const aiResponse = await aiChatService.sendMessage(request);
+  const aiResponseText = aiResponse.output || '';
 
-  const aiResponseText = await aiChatService.sendMessage(request);
+    const messageFaceDetectionResults = aiResponse.faceDetectionResults && aiResponse.faceDetectionResults.length > 0 && attachments && attachments.length > 0
+      ? [
+          {
+            imageId: nanoid(), // Generate a unique ID for the image
+            originalImageUrl: attachments[0].url,
+            detectedFaces: [...aiResponse.faceDetectionResults], // Create a new array instance to ensure re-render
+          },
+        ]
+      : undefined;
 
   return {
     _id: nanoid(),
@@ -64,5 +75,8 @@ export async function processUserMessage(
       _id: "2",
       name: 'AI Assistant',
     },
+    generatedData: aiResponse.generatedData,
+    intent: aiResponse.intent,
+    faceDetectionResults: messageFaceDetectionResults,
   };
 }

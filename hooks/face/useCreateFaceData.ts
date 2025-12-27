@@ -10,6 +10,7 @@ import { useMemberSelectModal } from '@/hooks/ui/useMemberSelectModal';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
 import { createAndUploadFile } from '@/utils/fileUploadUtils';
 import { useGlobalSnackbar } from '@/hooks/ui/useGlobalSnackbar';
+import { calculateBoundingBox } from '@/utils/faceUtils'; // Import calculateBoundingBox
 
 interface UseCreateFaceDataResult {
   processing: boolean;
@@ -24,11 +25,11 @@ interface UseCreateFaceDataResult {
   handlePressFaceToSelectMember: (face: DetectedFaceDto) => void;
   handleDeleteFace: (face: DetectedFaceDto) => void;
   handleSubmit: () => Promise<void>;
-  calculateBoundingBox: (
-    face: DetectedFaceDto,
-    containerDimensions: { width: number; height: number },
-    imageDimensions: { width: number; height: number }
-  ) => { scaledX: number; scaledY: number; scaledWidth: number; scaledHeight: number; offsetX: number; offsetY: number } | null;
+  // calculateBoundingBox: ( // Removed from here
+  //   face: DetectedFaceDto,
+  //   containerDimensions: { width: number; height: number; },
+  //   imageDimensions: { width: number; height: number; }
+  // ) => { scaledX: number; scaledY: number; scaledWidth: number; scaledHeight: number; offsetX: number; offsetY: number; } | null;
   SelectMemberModalComponent: React.FC;
   saveMutationLoading: boolean;
   saveMutationError: string | null;
@@ -55,7 +56,6 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     error: detectionError,
     pickImage,
     takePhoto,
-    calculateBoundingBox,
     resetFaceDetection,
   } = useImageFaceDetection(currentFamilyId, true); // Pass returnCrop as true
 
@@ -288,7 +288,7 @@ export function useCreateFaceData(): UseCreateFaceDataResult {
     handlePressFaceToSelectMember,
     handleDeleteFace, // Expose new handler
     handleSubmit,
-    calculateBoundingBox,
+    // calculateBoundingBox, // Removed from here
     SelectMemberModalComponent,
     saveMutationLoading: saveFaceDataMutation.isPending,
     saveMutationError: saveFaceDataMutation.error?.message || null,

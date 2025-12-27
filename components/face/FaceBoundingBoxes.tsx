@@ -45,6 +45,7 @@ const FaceBoundingBoxes: React.FC<FaceBoundingBoxesProps> = ({
   onPressFace,
   showLabels = true,
 }) => {
+  console.log("FaceBoundingBoxes: Component rendered", { image, imageDimensions, detectedFacesCount: detectedFaces.length });
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -69,6 +70,7 @@ const FaceBoundingBoxes: React.FC<FaceBoundingBoxesProps> = ({
   }), [theme]);
 
   if (!image || !imageDimensions) {
+    console.log("FaceBoundingBoxes: Not rendering, image or imageDimensions are null", { image, imageDimensions });
     return null;
   }
 
@@ -77,6 +79,10 @@ const FaceBoundingBoxes: React.FC<FaceBoundingBoxesProps> = ({
       style={styles.imageContainer}
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
+        if (width === 0 || height === 0) {
+          console.warn("FaceBoundingBoxes: containerDimensions received 0 for width or height", { width, height });
+        }
+        console.log("FaceBoundingBoxes: onLayout fired, containerDimensions", { width, height });
         setContainerDimensions({ width, height });
       }}
     >
@@ -95,12 +101,14 @@ const FaceBoundingBoxes: React.FC<FaceBoundingBoxesProps> = ({
             );
 
             if (!roundedScaledBox) {
+              console.log("FaceBoundingBoxes: Bounding box is null for face", face.id);
               return null;
             }
 
             const memberName = face.memberName || t('faceDataForm.unassigned');
+            console.log("FaceBoundingBoxes: Drawing box for", face.id, { roundedScaledBox, imageDimensions, containerDimensions, memberName });
 
-            return (
+            return ( 
               <G
                 key={face.id}
                 onPress={() => onPressFace && onPressFace(face)}

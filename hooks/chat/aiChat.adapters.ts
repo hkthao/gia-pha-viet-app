@@ -2,6 +2,7 @@
 
 import { chatService } from '@/services'; // Import the actual chat service
 import { ImageUploadResultDto, ChatInputRequest } from '@/types'; // Import ImageUploadResultDto and ChatInputRequest
+import { ChatResponse } from '@/types/chat'; // Import ChatResponse
 
 // --- AI Chat Service Adapter ---
 export interface AIChatServiceAdapter {
@@ -10,7 +11,7 @@ export interface AIChatServiceAdapter {
    * @param request The ChatInputRequest object containing message, session ID, family ID, etc.
    * @returns A Promise resolving to the AI's response text.
    */
-  sendMessage(request: ChatInputRequest): Promise<string>;
+  sendMessage(request: ChatInputRequest): Promise<ChatResponse>;
 
   /**
    * Uploads an image file.

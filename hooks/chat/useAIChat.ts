@@ -6,7 +6,7 @@ import { generateInitialMessage, processUserMessage } from './aiChat.logic';
 import { defaultAIChatServiceAdapter, AIChatServiceAdapter } from './aiChat.adapters';
 import { nanoid } from 'nanoid';
 import { useCurrentFamilyStore } from '@/stores/useCurrentFamilyStore';
-import { IMessage, ChatAttachmentDto } from '@/types';
+import { IMessage } from '@/types';
 
 // Define the dependencies for the hook
 export interface UseAIChatDeps {
@@ -32,7 +32,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
   const { currentFamilyId } = useCurrentFamilyStore();
   const familyId = currentFamilyId || 'default_family_id'; // Fallback to a default or handle appropriately
 
-  const onSend = useCallback(async (newMessages: IMessage[] = [], attachments?: ChatAttachmentDto[]) => {
+  const onSend = useCallback(async (newMessages: IMessage[] = []) => {
     // R3. Side-effects phải nằm trong `actions`
     setMessages(previousMessages =>
       [...previousMessages, ...newMessages]
@@ -47,7 +47,8 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
           getTranslation: t,
           sessionId: sessionId,
           familyId: familyId,
-          attachments: attachments, // Pass attachments here
+          attachments: userMessage.attachments, // Pass attachments from userMessage
+          location: userMessage.location, // Pass location from userMessage
         });
         setMessages(previousMessages => [...previousMessages, aiResponse]);
       } catch (error) {
@@ -73,43 +74,6 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
     setMessages([]);
   }, []);
 
-  const sendAIMessage = useCallback(async () => {
-    // This could be more sophisticated, e.g., call a dedicated AI endpoint
-    // or generate a new message directly.
-    // For now, let's simulate by calling processUserMessage with an empty/initial prompt
-    // to get an AI response.
-    setIsLoadingAIResponse(true); // Start loading
-    try {
-      const aiResponse = await processUserMessage([{
-        _id: 'system-ai-prompt', // Ensure _id is a string
-        text: 'AI initiated conversation', // A hidden message to trigger AI
-        createdAt: new Date(),
-        user: { _id: '1', name: 'System' }, // From system, ensure _id is a string
-      }], {
-        aiChatService: aiChatService!,
-        getTranslation: t,
-        sessionId: sessionId,
-        familyId: familyId,
-      });
-      setMessages(previousMessages => [...previousMessages, aiResponse]);
-    } catch (error) {
-      console.error("AI Initiated Chat Error:", error);
-      const errorMessage: IMessage = {
-          _id: Math.round(Math.random() * 1000000).toString(), // Ensure _id is a string
-          text: (error as Error).message || t('aiChat.errorMessage'), // Use the specific error message
-          createdAt: new Date(),
-          user: {
-            _id: '2', // Ensure _id is a string
-            name: 'AI Assistant',
-            avatar: 'https://placeimg.com/140/140/any',
-          },
-        };
-        setMessages(previousMessages => [...previousMessages, errorMessage]);
-    } finally {
-      setIsLoadingAIResponse(false); // End loading
-    }
-  }, [aiChatService, t, sessionId, familyId]);
-
   // R8. Không return state rời rạc
   return {
     state: {
@@ -119,7 +83,7 @@ export function useAIChat(deps: UseAIChatDeps = defaultDeps) {
     actions: {
       onSend,
       clearChat,
-      sendAIMessage,
+      // sendAIMessage, // Removed
     },
   };
 }

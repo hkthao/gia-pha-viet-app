@@ -1,10 +1,12 @@
 import React, { memo, useMemo } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, useTheme, Avatar } from "react-native-paper";
+import { Text, useTheme, Avatar, Button } from "react-native-paper"; // Import Button
 import { IMessage } from "@/types";
 import { SPACING_MEDIUM, SPACING_SMALL } from "@/constants/dimensions";
 import { getAIAvatarSource } from "@/utils/imageUtils";
 import { FaceDetectionResultDisplay } from "./"; // Import the new component from current directory
+import { useRouter } from "expo-router"; // Import useRouter
+import { useTranslation } from "react-i18next"; // Import useTranslation for button text
 
 interface AIChatMessageBubbleProps {
   item: IMessage;
@@ -13,6 +15,8 @@ interface AIChatMessageBubbleProps {
 const AIChatMessageBubble: React.FC<AIChatMessageBubbleProps> = memo(
   ({ item }) => {
     const theme = useTheme();
+    const router = useRouter(); // Initialize useRouter
+    const { t } = useTranslation(); // Initialize useTranslation
 
     const AVATAR_SIZE = 32;
 
@@ -71,6 +75,16 @@ const AIChatMessageBubble: React.FC<AIChatMessageBubbleProps> = memo(
                 faceDetectionResponse={faceDetectionResponse}
               />
             ))
+          )}
+
+          {item.intent === 'RELATIONSHIP_LOOKUP_PAGE' && (
+            <Button
+              mode="contained"
+              onPress={() => router.push('/family/more/detect-relationship')} // Adjust path if needed
+              style={{ marginVertical: SPACING_SMALL, borderRadius: theme.roundness }}
+            >
+              {t('chat.detectRelationshipButton')}
+            </Button>
           )}
 
           <Text style={styles.messageTime}>

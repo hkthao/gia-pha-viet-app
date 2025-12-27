@@ -6,6 +6,7 @@ import { SPACING_MEDIUM, SPACING_SMALL } from '@/constants/dimensions';
 import { getMemberAvatarSource } from '@/utils/imageUtils';
 import ImageViewing from 'react-native-image-viewing'; // Import ImageViewing
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useAuth } from '@/hooks/auth/useAuth'; // Import useAuth
 
 interface UserChatMessageBubbleProps {
   item: IMessage;
@@ -14,6 +15,7 @@ interface UserChatMessageBubbleProps {
 const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item }) => {
   const theme = useTheme();
   const { t } = useTranslation(); // Initialize useTranslation
+  const { user: currentUser } = useAuth(); // Get current user and alias to currentUser
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [currentImageViewerIndex, setCurrentImageViewerIndex] = useState(0);
 
@@ -75,7 +77,7 @@ const UserChatMessageBubble: React.FC<UserChatMessageBubbleProps> = memo(({ item
     },
   }), [theme]);
 
-  const avatarSource = item.user.avatar ? { uri: item.user.avatar } : getMemberAvatarSource(null);
+  const avatarSource = currentUser?.avatarUrl ? { uri: currentUser.avatarUrl } : getMemberAvatarSource(null);
 
   const imagesForViewer = useMemo(() => {
     return item.attachments

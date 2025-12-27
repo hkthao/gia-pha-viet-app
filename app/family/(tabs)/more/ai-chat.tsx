@@ -1,12 +1,14 @@
-import React, { useMemo, useState, useCallback } from "react";
+import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
   FlatList,
   Platform,
   KeyboardAvoidingView,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from "react-native";
-import { Appbar, useTheme, Chip, ProgressBar } from "react-native-paper"; // Import ProgressBar
+import { Appbar, useTheme, Chip, ProgressBar, FAB } from "react-native-paper"; // Import ProgressBar, FAB
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { useAIChat } from "@/hooks/chat/useAIChat";
@@ -26,6 +28,9 @@ export default function AIChatScreen() {
   const { state, actions } = useAIChat();
   const [text, setText] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<ChatLocationDto | null>(null); // New state for selected location
+  const [showScrollToBottomButton, setShowScrollToBottomButton] = useState(false); // State to control FAB visibility
+
+  const flatListRef = useRef<FlatList>(null); // Create a ref for FlatList
 
   const { currentFamilyId } = useCurrentFamilyStore();
   const familyId = currentFamilyId || "default_family_id"; // Fallback to a default or handle appropriately
@@ -45,6 +50,16 @@ export default function AIChatScreen() {
 
   // Destructure isLoadingAIResponse from state
   const { isLoadingAIResponse } = state;
+
+  useEffect(() => {
+    // Scroll to the end of the list when new messages are added
+    if (state.messages.length > 0) {
+      const timer = setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 500); // Delay for 500ms (0.5 seconds)
+      return () => clearTimeout(timer); // Cleanup the timer
+    }
+  }, [state.messages]);
 
   const styles = useMemo(
     () =>
@@ -134,6 +149,14 @@ export default function AIChatScreen() {
           flexDirection: 'row', // To align chip properly
           justifyContent: 'flex-start',
         },
+        fab: {
+          position: 'absolute',
+          margin: SPACING_MEDIUM,
+          right: 0,
+          bottom: 80, // Adjust this value to be above the input container
+          backgroundColor: theme.colors.primary,
+          zIndex: 1, // Ensure FAB is above other content
+        },
       }),
     [theme]
   );
@@ -141,6 +164,17 @@ export default function AIChatScreen() {
   const handleLocationSelected = useCallback((location: ChatLocationDto) => {
     setSelectedLocation(location);
   }, []);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isAtBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20; // 20px threshold
+    
+    if (isAtBottom && showScrollToBottomButton) {
+      setShowScrollToBottomButton(false);
+    } else if (!isAtBottom && !showScrollToBottomButton) {
+      setShowScrollToBottomButton(true);
+    }
+  }, [showScrollToBottomButton]);
 
   const handleSend = useCallback(
     (message: string) => {
@@ -185,6 +219,7 @@ export default function AIChatScreen() {
       >
         <View style={styles.chatContainer}>
           <FlatList
+            ref={flatListRef} // Apply the ref here
             data={state.messages}
             renderItem={({ item }) => <ChatMessageBubble item={item} />}
             keyExtractor={(item) => item._id.toString()}
@@ -192,10 +227,10 @@ export default function AIChatScreen() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="none"
             removeClippedSubviews={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16} // Optimize scroll events
           />
-          {isLoadingAIResponse && (
-            <AITypingIndicator />
-          )}
+          {isLoadingAIResponse && <AITypingIndicator />}
 
           {uploadedFiles.length > 0 && (
             <FlatList
@@ -260,6 +295,16 @@ export default function AIChatScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      {showScrollToBottomButton && ( // Conditional rendering
+        <FAB
+          icon="arrow-down"
+          style={styles.fab}
+          onPress={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          color={theme.colors.onPrimary} // Icon color
+          size="small" // Set size to small
+        />
+      )}
 
       {imagesForViewer.length > 0 && (
         <ImageViewing
